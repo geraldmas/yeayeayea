@@ -4,6 +4,7 @@ import SpellList from './SpellList';
 import TagList from './TagList';
 import CardPreview from './CardPreview';
 import { saveCard, loadCard, listSavedCards } from '../utils/cardManager';
+import { useLocation } from 'react-router-dom';
 
 interface CardFormProps {
   card: Card;
@@ -18,6 +19,15 @@ const generateUniqueId = () => {
 };
 
 const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Si une carte est passée via l'état de la route, l'utiliser
+    if (location.state?.card) {
+      setCard(location.state.card);
+    }
+  }, [location.state, setCard]);
+
   const [uniqueIdPlaceholder] = useState(generateUniqueId());
   const [savedCards, setSavedCards] = useState<string[]>([]);
 
@@ -172,6 +182,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
                 <option value="objet">Objet</option>
                 <option value="evenement">Événement</option>
                 <option value="lieu">Lieu</option>
+                <option value="action">Action</option>
               </select>
             </div>
           </div>
@@ -204,7 +215,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
               type="text"
               id="image"
               name="image"
-              value={card.image.replace('/img/', '')}
+              value={card.image ? card.image.replace('/img/', '') : ''}
               onChange={handleChange}
               placeholder="Nom du fichier dans /img/ ou URL complète"
               list="savedImages"
@@ -302,7 +313,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
         </div>
 
         <SpellList 
-          spells={card.spells} 
+          spellIds={card.spells} 
           onChange={(spells) => setCard(prev => ({...prev, spells}))} 
           isTalent={false}
         />
@@ -311,7 +322,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
           <div className="editor-section">
             <h3>Talent (capacité spéciale depuis le banc)</h3>
             <SpellList 
-              spells={card.talent ? [card.talent] : []} 
+              spellIds={card.talent ? [card.talent] : []} 
               onChange={(talents) => setCard(prev => ({...prev, talent: talents[0]}))} 
               isTalent={true}
               maxSpells={1}
@@ -320,8 +331,8 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
         )}
 
         <TagList 
-          tags={card.tags} 
-          onChange={(tags: Tag[]) => setCard(prev => ({...prev, tags}))} 
+          tagIds={card.tags} 
+          onChange={(tagIds: string[]) => setCard(prev => ({...prev, tags: tagIds}))} 
         />
       </div>
       

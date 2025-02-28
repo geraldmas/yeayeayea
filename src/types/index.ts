@@ -1,24 +1,58 @@
 export interface Spell {
+    id: string;
     name: string;
-    description: string;
+    description: string | null;
     power: number;
-    range?: { min: number, max: number }; // For targeting based on distance
+    cost: number | null;
+    range_min: number | null;
+    range_max: number | null;
     effects: SpellEffect[];
-    cost?: number; // Action points cost
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface SpellEffect {
-    type: 'damage' | 'heal' | 'status' | 'draw' | 'poison' | 'resource' | 'special';
-    value: number; // Amount or percentage
-    targetType?: 'self' | 'opponent' | 'all' | 'tagged'; // Who is affected
-    tagTarget?: string; // For effects that target specific tags
-    chance?: number; // For probabilistic effects
-    duration?: number; // For effects that last multiple turns
+    type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration';
+    value: number; 
+    targetType?: 'self' | 'opponent' | 'all' | 'tagged';
+    tagTarget?: string;
+    chance?: number;
+    duration?: number;
+    condition?: {
+        type: 'has_tag' | 'missing_tag' | 'health_below' | 'health_above';
+        value?: number;
+        tag?: string;
+    };
+    multiplier?: {
+        value: number;
+        condition?: {
+            type: 'target_has_tag' | 'target_missing_tag';
+            tag: string;
+        };
+    };
+    alteration?: string;
+}
+
+export interface Alteration {
+    id: string;
+    name: string;
+    description: string | null;
+    effect: string;
+    icon: string;
+    duration: number | null;
+    stackable: boolean;
+    unique_effect: boolean;
+    type: 'buff' | 'debuff' | 'status' | 'other';
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Tag {
+    id: string;
     name: string;
-    passiveEffect: string;
+    passive_effect: string | null;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export type Rarity = 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
@@ -28,14 +62,14 @@ export interface Card {
     name: string;
     description: string;
     image: string;
-    spells: Spell[];
+    spells: string[]; // IDs des sorts
     passiveEffect?: string;
     health: number;
-    tags: Tag[];
-    type: 'personnage' | 'objet' | 'evenement' | 'lieu';
+    tags: string[]; // IDs des tags
+    type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
     rarity: Rarity;
     isEX?: boolean; // EX cards are worth 2 points
-    talent?: Spell; // Special ability usable from bench
+    talent?: string; // ID du sort talent
     position?: 'active' | 'bench' | 'hand' | 'inventory';
     isWIP: boolean; // Nouvelle propriété
 }

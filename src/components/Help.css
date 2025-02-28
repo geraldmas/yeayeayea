@@ -1,0 +1,46 @@
+.help-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.help-container h1,
+.help-container h2,
+.help-container h3 {
+  color: #333;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.help-container code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.help-container pre {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.help-container ul, 
+.help-container ol {
+  padding-left: 20px;
+}
+
+.help-container p {
+  margin: 1em 0;
+}
+
+.help-container a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.help-container a:hover {
+  text-decoration: underline;
+}

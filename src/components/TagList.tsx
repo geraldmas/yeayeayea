@@ -1,142 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { Tag } from '../types';
-import { loadTags, addTag as addGlobalTag, removeTag as removeGlobalTag } from '../utils/tagManager';
+import { tagService } from '../utils/dataService';
 
 interface TagListProps {
-  tags: Tag[];
-  onChange: (tags: Tag[]) => void;
+  tagIds: string[];
+  onChange: (tagIds: string[]) => void;
 }
 
-const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
-  const [savedTags, setSavedTags] = useState<Tag[]>([]);
-  const [showTagSelector, setShowTagSelector] = useState(false);
+const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setSavedTags(loadTags());
-  }, []);
+    loadTags();
+  }, [tagIds]);
 
-  const handleAddTag = () => {
-    setShowTagSelector(true);
-  };
+  const loadTags = async () => {
+    try {
+      // Load selected tags
+      const selectedTags = await Promise.all(
+        tagIds.map(id => tagService.getById(id))
+      );
+      setTags(selectedTags.filter((tag): tag is Tag => tag !== null));
 
-  const handleRemoveTag = (index: number) => {
-    const updatedTags = [...tags];
-    updatedTags.splice(index, 1);
-    onChange(updatedTags);
-  };
-
-  const handleTagChange = (index: number, field: keyof Tag, value: string) => {
-    const updatedTags = [...tags];
-    updatedTags[index] = { ...updatedTags[index], [field]: value };
-    onChange(updatedTags);
-  };
-
-  const handleSelectTag = (savedTag: Tag) => {
-    onChange([...tags, { ...savedTag }]);
-    setShowTagSelector(false);
-  };
-
-  const handleCreateNewTag = () => {
-    const newTag: Tag = { name: '', passiveEffect: '' };
-    onChange([...tags, newTag]);
-    setShowTagSelector(false);
-  };
-
-  const handleSaveAsGlobal = (tag: Tag) => {
-    if (tag.name) {
-      addGlobalTag(tag);
-      setSavedTags(loadTags());
+      // Load all available tags
+      const allTags = await tagService.getAll();
+      setAvailableTags(allTags);
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemoveGlobal = (tagName: string) => {
-    removeGlobalTag(tagName);
-    setSavedTags(loadTags());
+  const handleAddTag = async (tagId: string) => {
+    if (!tagIds.includes(tagId)) {
+      onChange([...tagIds, tagId]);
+    }
   };
 
+  const handleRemoveTag = (index: number) => {
+    const newTagIds = tagIds.filter((_, i) => i !== index);
+    onChange(newTagIds);
+  };
+
+  if (loading) {
+    return <div>Chargement des tags...</div>;
+  }
+
   return (
-    <div className="editor-section">
-      <div className="section-title">
-        <h3>Tags</h3>
-        <button className="add-button" onClick={handleAddTag}>
-          Ajouter un tag
-        </button>
-      </div>
-
-      {showTagSelector && (
-        <div className="tag-selector">
-          <h4>Sélectionner un tag existant ou en créer un nouveau</h4>
-          <div className="saved-tags-list">
-            {savedTags.map((tag, index) => (
-              <button
-                key={index}
-                className="tag-option"
-                onClick={() => handleSelectTag(tag)}
-              >
+    <div className="tag-list">
+      <h3>Tags</h3>
+      <div className="tag-selector">
+        <select onChange={(e) => handleAddTag(e.target.value)}>
+          <option value="">Ajouter un tag...</option>
+          {availableTags
+            .filter(tag => !tagIds.includes(tag.id))
+            .map(tag => (
+              <option key={tag.id} value={tag.id}>
                 {tag.name}
-              </button>
+              </option>
             ))}
+        </select>
+      </div>
+      <div className="selected-tags">
+        {tags.map((tag, index) => (
+          <div key={tag.id} className="tag-item">
+            <span className="tag-name">{tag.name}</span>
+            {tag.passive_effect && (
+              <span className="tag-effect">{tag.passive_effect}</span>
+            )}
+            <button 
+              onClick={() => handleRemoveTag(index)}
+              className="remove-tag"
+            >
+              ×
+            </button>
           </div>
-          <button onClick={handleCreateNewTag}>Créer un nouveau tag</button>
-        </div>
-      )}
-
-      {tags.length === 0 ? (
-        <p>Aucun tag défini.</p>
-      ) : (
-        tags.map((tag, index) => (
-          <div key={index} className="collapsible-section">
-            <div className="collapsible-content">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nom du tag</label>
-                  <input
-                    type="text"
-                    value={tag.name}
-                    onChange={(e) => handleTagChange(index, 'name', e.target.value)}
-                    placeholder="Nom du tag"
-                  />
-                </div>
-
-                <div className="form-group button-group">
-                  <button
-                    className="save-button"
-                    onClick={() => handleSaveAsGlobal(tag)}
-                    disabled={!tag.name}
-                  >
-                    Sauvegarder globalement
-                  </button>
-                  <button
-                    className="remove-button"
-                    onClick={() => handleRemoveTag(index)}
-                  >
-                    Retirer
-                  </button>
-                  {savedTags.some(t => t.name === tag.name) && (
-                    <button
-                      className="remove-global-button"
-                      onClick={() => handleRemoveGlobal(tag.name)}
-                    >
-                      Supprimer globalement
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Effet passif</label>
-                  <textarea
-                    value={tag.passiveEffect}
-                    onChange={(e) => handleTagChange(index, 'passiveEffect', e.target.value)}
-                    placeholder="Description de l'effet passif (optionnel)"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))
-      )}
+        ))}
+      </div>
     </div>
   );
 };

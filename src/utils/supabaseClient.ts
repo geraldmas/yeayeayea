@@ -25,7 +25,8 @@ export async function saveCard(card: Card) {
     spells: card.spells || [],
     talent: card.talent || null,
     tags: card.tags || [],
-    is_wip: card.isWIP,
+    // Temporairement retiré jusqu'à ce que la colonne soit créée
+    // is_wip: card.isWIP,
     updated_at: new Date().toISOString()
   };
 

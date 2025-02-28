@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Booster, Card } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Booster, Card, Spell, Tag } from '../types';
+import { spellService, tagService } from '../utils/dataService';
 
 interface BoosterFormProps {
   booster: Booster;
@@ -11,6 +12,42 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
   const [availableCards, setAvailableCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [loadedSpells, setLoadedSpells] = useState<Record<string, Spell>>({});
+  const [loadedTags, setLoadedTags] = useState<Record<string, Tag>>({});
+
+  useEffect(() => {
+    loadSpellsAndTags();
+  }, [booster.cards]);
+
+  const loadSpellsAndTags = async () => {
+    const spellIds = new Set<string>();
+    const tagIds = new Set<string>();
+
+    // Collect all spell and tag IDs from cards
+    booster.cards.forEach(card => {
+      card.spells.forEach(id => spellIds.add(id));
+      if (card.talent) spellIds.add(card.talent);
+      card.tags.forEach(id => tagIds.add(id));
+    });
+
+    try {
+      const spells = await spellService.getByIds(Array.from(spellIds));
+      const spellsMap = spells.reduce((acc, spell) => {
+        acc[spell.id] = spell;
+        return acc;
+      }, {} as Record<string, Spell>);
+      setLoadedSpells(spellsMap);
+
+      const tags = await tagService.getByIds(Array.from(tagIds));
+      const tagsMap = tags.reduce((acc, tag) => {
+        acc[tag.id] = tag;
+        return acc;
+      }, {} as Record<string, Tag>);
+      setLoadedTags(tagsMap);
+    } catch (error) {
+      console.error('Error loading spells and tags:', error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -139,7 +176,7 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
                   <p><strong>Description:</strong> {card.description}</p>
                   <p><strong>Points de vie:</strong> {card.health}</p>
                   <p><strong>Sorts:</strong> {card.spells?.length || 0}</p>
-                  <p><strong>Tags:</strong> {card.tags?.map(tag => tag.name).join(', ') || 'Aucun'}</p>
+                  <p><strong>Tags:</strong> {card.tags.map(id => loadedTags[id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
                 </div>
               )}
             </div>

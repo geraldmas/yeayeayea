@@ -1,101 +1,158 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Spell, SpellEffect } from '../types';
+import { spellService } from '../utils/dataService';
+import AlterationList from './AlterationList';
 
 interface SpellListProps {
-  spells: Spell[];
-  onChange: (spells: Spell[]) => void;
+  spellIds: string[];
+  onChange: (spellIds: string[]) => void;
   isTalent: boolean;
   maxSpells?: number;
 }
 
-const SpellList: React.FC<SpellListProps> = ({ spells, onChange, isTalent, maxSpells }) => {
+const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, maxSpells }) => {
+  const [spells, setSpells] = useState<Spell[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddSpell = () => {
-    if (maxSpells && spells.length >= maxSpells) return;
-    
-    const newSpell: Spell = {
-      name: '',
-      description: '',
-      power: 0,
-      effects: []
-    };
-    onChange([...spells, newSpell]);
-    setExpandedIndex(spells.length);
-  };
+  useEffect(() => {
+    loadSpells();
+  }, [spellIds]);
 
-  const handleRemoveSpell = (index: number) => {
-    const updatedSpells = [...spells];
-    updatedSpells.splice(index, 1);
-    onChange(updatedSpells);
-    if (expandedIndex === index) {
-      setExpandedIndex(null);
-    } else if (expandedIndex !== null && index < expandedIndex) {
-      setExpandedIndex(expandedIndex - 1);
+  const loadSpells = async () => {
+    try {
+      const loadedSpells = await Promise.all(
+        spellIds.map(id => spellService.getById(id))
+      );
+      setSpells(loadedSpells.filter((spell): spell is Spell => spell !== null));
+    } catch (error) {
+      console.error('Error loading spells:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSpellChange = (index: number, field: keyof Spell, value: any) => {
-    const updatedSpells = [...spells];
-    updatedSpells[index] = { ...updatedSpells[index], [field]: value };
-    onChange(updatedSpells);
+  const handleCreateSpell = async () => {
+    if (maxSpells && spellIds.length >= maxSpells) {
+      alert(`Maximum ${maxSpells} spell${maxSpells > 1 ? 's' : ''} allowed`);
+      return;
+    }
+
+    const newSpell = {
+      name: 'Nouveau sort',
+      description: '',
+      power: 0,
+      cost: 0,
+      range_min: 0,
+      range_max: 0,
+      effects: []
+    };
+
+    try {
+      const createdSpell = await spellService.create(newSpell);
+      onChange([...spellIds, createdSpell.id]);
+      setExpandedIndex(spells.length);
+    } catch (error) {
+      console.error('Error creating spell:', error);
+    }
   };
 
-  const handleEffectChange = (spellIndex: number, effectIndex: number, field: keyof SpellEffect, value: any) => {
-    const updatedSpells = [...spells];
-    const effect = { ...updatedSpells[spellIndex].effects[effectIndex], [field]: value };
-    updatedSpells[spellIndex].effects[effectIndex] = effect;
-    onChange(updatedSpells);
+  const handleUpdateSpell = async (index: number, field: keyof Spell, value: any) => {
+    const spell = spells[index];
+    try {
+      await spellService.update(spell.id, { [field]: value });
+      const updatedSpells = [...spells];
+      updatedSpells[index] = { ...updatedSpells[index], [field]: value };
+      setSpells(updatedSpells);
+    } catch (error) {
+      console.error('Error updating spell:', error);
+    }
   };
 
-  const handleAddEffect = (spellIndex: number) => {
-    const updatedSpells = [...spells];
+  const handleAddEffect = async (spellIndex: number) => {
+    const spell = spells[spellIndex];
     const newEffect: SpellEffect = {
       type: 'damage',
       value: 0
     };
-    updatedSpells[spellIndex].effects.push(newEffect);
-    onChange(updatedSpells);
+    const updatedEffects = [...spell.effects, newEffect];
+
+    try {
+      await spellService.update(spell.id, { effects: updatedEffects });
+      const updatedSpells = [...spells];
+      updatedSpells[spellIndex].effects = updatedEffects;
+      setSpells(updatedSpells);
+    } catch (error) {
+      console.error('Error adding effect:', error);
+    }
   };
 
-  const handleRemoveEffect = (spellIndex: number, effectIndex: number) => {
-    const updatedSpells = [...spells];
-    updatedSpells[spellIndex].effects.splice(effectIndex, 1);
-    onChange(updatedSpells);
+  const handleUpdateEffect = async (spellIndex: number, effectIndex: number, field: keyof SpellEffect, value: any) => {
+    const spell = spells[spellIndex];
+    const updatedEffects = [...spell.effects];
+    updatedEffects[effectIndex] = {
+      ...updatedEffects[effectIndex],
+      [field]: value
+    };
+
+    try {
+      await spellService.update(spell.id, { effects: updatedEffects });
+      const updatedSpells = [...spells];
+      updatedSpells[spellIndex].effects = updatedEffects;
+      setSpells(updatedSpells);
+    } catch (error) {
+      console.error('Error updating effect:', error);
+    }
   };
+
+  const handleRemoveEffect = async (spellIndex: number, effectIndex: number) => {
+    const spell = spells[spellIndex];
+    const updatedEffects = spell.effects.filter((_, i) => i !== effectIndex);
+
+    try {
+      await spellService.update(spell.id, { effects: updatedEffects });
+      const updatedSpells = [...spells];
+      updatedSpells[spellIndex].effects = updatedEffects;
+      setSpells(updatedSpells);
+    } catch (error) {
+      console.error('Error removing effect:', error);
+    }
+  };
+
+  const handleRemoveSpell = async (index: number) => {
+    const spellId = spellIds[index];
+    try {
+      await spellService.delete(spellId);
+      onChange(spellIds.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error('Error removing spell:', error);
+    }
+  };
+
+  if (loading) {
+    return <div>Chargement des sorts...</div>;
+  }
 
   return (
-    <div className="editor-section">
-      <div className="section-title">
-        <h3>{isTalent ? "Talent" : "Sorts"}</h3>
-        {(!maxSpells || spells.length < maxSpells) && (
-          <button className="add-button" onClick={handleAddSpell}>
-            Ajouter un {isTalent ? "talent" : "sort"}
-          </button>
-        )}
-      </div>
-
-      {spells.length === 0 ? (
-        <p>Aucun {isTalent ? "talent" : "sort"} défini.</p>
-      ) : (
-        spells.map((spell, index) => (
-          <div key={index} className="collapsible-section">
+    <div className="spells-section">
+      <h3>{isTalent ? 'Talent' : 'Sorts'}</h3>
+      <div className="spells-list">
+        {spells.map((spell, index) => (
+          <div key={spell.id} className="collapsible-section">
             <div 
               className="collapsible-header"
               onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
             >
-              <h4>{spell.name || `${isTalent ? "Talent" : "Sort"} sans nom`}</h4>
-              <div>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveSpell(index);
-                  }}
-                  className="remove-button"
-                >
-                  Supprimer
-                </button>
-              </div>
+              <span>{spell.name || 'Sort sans nom'}</span>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveSpell(index);
+                }}
+                className="remove-spell"
+              >
+                ×
+              </button>
             </div>
 
             {expandedIndex === index && (
@@ -106,92 +163,80 @@ const SpellList: React.FC<SpellListProps> = ({ spells, onChange, isTalent, maxSp
                     <input
                       type="text"
                       value={spell.name}
-                      onChange={(e) => handleSpellChange(index, 'name', e.target.value)}
-                      placeholder="Nom du sort"
+                      onChange={(e) => handleUpdateSpell(index, 'name', e.target.value)}
                     />
                   </div>
 
+                  <div className="form-group">
+                    <label>Description</label>
+                    <input
+                      type="text"
+                      value={spell.description || ''}
+                      onChange={(e) => handleUpdateSpell(index, 'description', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
                   <div className="form-group">
                     <label>Puissance</label>
                     <input
                       type="number"
                       value={spell.power}
-                      onChange={(e) => handleSpellChange(index, 'power', Number(e.target.value))}
-                      placeholder="Puissance"
+                      onChange={(e) => handleUpdateSpell(index, 'power', parseInt(e.target.value))}
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Coût en PA</label>
+                    <label>Coût</label>
                     <input
                       type="number"
-                      value={spell.cost || ''}
-                      onChange={(e) => handleSpellChange(index, 'cost', e.target.value === '' ? undefined : Number(e.target.value))}
-                      placeholder="Coût en points d'action"
+                      value={spell.cost || 0}
+                      onChange={(e) => handleUpdateSpell(index, 'cost', parseInt(e.target.value))}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Portée min</label>
+                    <input
+                      type="number"
+                      value={spell.range_min || 0}
+                      onChange={(e) => handleUpdateSpell(index, 'range_min', parseInt(e.target.value))}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Portée max</label>
+                    <input
+                      type="number"
+                      value={spell.range_max || 0}
+                      onChange={(e) => handleUpdateSpell(index, 'range_max', parseInt(e.target.value))}
                     />
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Description</label>
-                    <textarea
-                      value={spell.description}
-                      onChange={(e) => handleSpellChange(index, 'description', e.target.value)}
-                      placeholder="Description du sort"
-                    />
-                  </div>
-                </div>
+                <div className="effects-section">
+                  <h4>Effets</h4>
+                  <button onClick={() => handleAddEffect(index)}>
+                    Ajouter un effet
+                  </button>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Portée minimale</label>
-                    <input
-                      type="number"
-                      value={spell.range?.min || ''}
-                      onChange={(e) => {
-                        const min = e.target.value === '' ? undefined : Number(e.target.value);
-                        const range = min !== undefined ? { min, max: spell.range?.max || min } : undefined;
-                        handleSpellChange(index, 'range', range);
-                      }}
-                      placeholder="Portée minimale"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Portée maximale</label>
-                    <input
-                      type="number"
-                      value={spell.range?.max || ''}
-                      onChange={(e) => {
-                        const max = e.target.value === '' ? undefined : Number(e.target.value);
-                        const min = spell.range?.min || 0;
-                        const range = max !== undefined ? { min, max } : undefined;
-                        handleSpellChange(index, 'range', range);
-                      }}
-                      placeholder="Portée maximale"
-                    />
-                  </div>
-                </div>
-
-                <h4>Effets du Sort</h4>
-                {spell.effects.map((effect, effectIndex) => (
-                  <div key={effectIndex} className="collapsible-section">
-                    <div className="collapsible-content">
+                  {spell.effects.map((effect, effectIndex) => (
+                    <div key={effectIndex} className="effect-item">
                       <div className="form-row">
                         <div className="form-group">
-                          <label>Type d'effet</label>
+                          <label>Type</label>
                           <select
                             value={effect.type}
-                            onChange={(e) => handleEffectChange(index, effectIndex, 'type', e.target.value as any)}
+                            onChange={(e) => handleUpdateEffect(index, effectIndex, 'type', e.target.value)}
                           >
                             <option value="damage">Dégâts</option>
                             <option value="heal">Soin</option>
-                            <option value="status">Statut</option>
-                            <option value="draw">Pioche</option>
-                            <option value="poison">Poison</option>
+                            <option value="draw">Piocher</option>
                             <option value="resource">Ressource</option>
-                            <option value="special">Spécial</option>
+                            <option value="add_tag">Ajouter tag</option>
+                            <option value="multiply_damage">Multiplier dégâts</option>
+                            <option value="apply_alteration">Appliquer altération</option>
                           </select>
                         </div>
 
@@ -200,94 +245,93 @@ const SpellList: React.FC<SpellListProps> = ({ spells, onChange, isTalent, maxSp
                           <input
                             type="number"
                             value={effect.value}
-                            onChange={(e) => handleEffectChange(index, effectIndex, 'value', Number(e.target.value))}
-                            placeholder="Valeur de l'effet"
+                            onChange={(e) => handleUpdateEffect(index, effectIndex, 'value', parseInt(e.target.value))}
                           />
                         </div>
 
-                        <div className="form-group">
-                          <button 
-                            className="remove-button" 
-                            onClick={() => handleRemoveEffect(index, effectIndex)}
-                          >
-                            Supprimer l'effet
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label>Type de cible</label>
-                          <select
-                            value={effect.targetType || ''}
-                            onChange={(e) => handleEffectChange(index, effectIndex, 'targetType', e.target.value || undefined)}
-                          >
-                            <option value="">Non définie</option>
-                            <option value="self">Soi-même</option>
-                            <option value="opponent">Adversaire</option>
-                            <option value="all">Tous</option>
-                            <option value="tagged">Tag spécifique</option>
-                          </select>
-                        </div>
+                        {effect.type !== 'draw' && effect.type !== 'resource' && (
+                          <div className="form-group">
+                            <label>Cible</label>
+                            <select
+                              value={effect.targetType || 'opponent'}
+                              onChange={(e) => handleUpdateEffect(index, effectIndex, 'targetType', e.target.value)}
+                            >
+                              <option value="self">Soi-même</option>
+                              <option value="opponent">Adversaire</option>
+                              <option value="all">Tous</option>
+                              <option value="tagged">Par tag</option>
+                            </select>
+                          </div>
+                        )}
 
                         {effect.targetType === 'tagged' && (
                           <div className="form-group">
-                            <label>Tag ciblé</label>
+                            <label>Tag cible</label>
                             <input
                               type="text"
                               value={effect.tagTarget || ''}
-                              onChange={(e) => handleEffectChange(index, effectIndex, 'tagTarget', e.target.value)}
-                              placeholder="Nom du tag ciblé"
+                              onChange={(e) => handleUpdateEffect(index, effectIndex, 'tagTarget', e.target.value)}
                             />
                           </div>
                         )}
-                      </div>
 
-                      <div className="form-row">
                         <div className="form-group">
-                          <label>Probabilité (%)</label>
+                          <label>Chance (%)</label>
                           <input
                             type="number"
                             min="0"
                             max="100"
-                            value={effect.chance || ''}
-                            onChange={(e) => handleEffectChange(index, effectIndex, 'chance', e.target.value === '' ? undefined : Number(e.target.value))}
-                            placeholder="Probabilité d'activation (0-100)"
+                            value={effect.chance || 100}
+                            onChange={(e) => handleUpdateEffect(index, effectIndex, 'chance', parseInt(e.target.value))}
                           />
                         </div>
 
-                        <div className="form-group">
-                          <label>Durée</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={effect.duration || ''}
-                            onChange={(e) => handleEffectChange(index, effectIndex, 'duration', e.target.value === '' ? undefined : Number(e.target.value))}
-                            placeholder="Nombre de tours"
-                          />
-                        </div>
+                        {effect.type === 'apply_alteration' && (
+                          <>
+                            <div className="form-group">
+                              <label>ID Altération</label>
+                              <input
+                                type="text"
+                                value={effect.alteration || ''}
+                                onChange={(e) => handleUpdateEffect(index, effectIndex, 'alteration', e.target.value)}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Durée (tours)</label>
+                              <input
+                                type="number"
+                                min="1"
+                                value={effect.duration || 1}
+                                onChange={(e) => handleUpdateEffect(index, effectIndex, 'duration', parseInt(e.target.value))}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        <button
+                          onClick={() => handleRemoveEffect(index, effectIndex)}
+                          className="remove-effect"
+                        >
+                          ×
+                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
-
-                <button 
-                  className="add-button" 
-                  onClick={() => handleAddEffect(index)}
-                  style={{ marginTop: '10px' }}
-                >
-                  Ajouter un effet
-                </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
-        ))
-      )}
+        ))}
+
+        <button 
+          onClick={handleCreateSpell}
+          disabled={maxSpells !== undefined && spells.length >= maxSpells}
+        >
+          Ajouter un {isTalent ? 'talent' : 'sort'}
+        </button>
+      </div>
     </div>
   );
 };
 
 export default SpellList;
-
-// Ajout d'une exportation vide pour s'assurer que le fichier est traité comme un module
-export {};

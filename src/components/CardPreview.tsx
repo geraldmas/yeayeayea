@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Spell } from '../types';
+import { Card, Spell, Alteration, Tag } from '../types';
 import ReactCrop, { Crop, PixelCrop, PercentCrop } from 'react-image-crop';
-import { saveCropData, getCropData, ImageCrop } from '../utils/cardManager';
+import { saveCropData, getCropData } from '../utils/cardManager';
+import { alterationService, spellService, tagService } from '../utils/dataService';
 import 'react-image-crop/dist/ReactCrop.css';
 import './CardPreview.css';
 
@@ -35,26 +36,50 @@ const generateTagColor = (tagName: string) => {
   return `hsl(${h}, 70%, 85%)`;
 };
 
-const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean }> = ({ spell, isTalent }) => (
+const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean, alterations?: Record<string, Alteration> }> = ({ spell, isTalent, alterations = {} }) => (
   <div className={`spell-preview ${isTalent ? 'talent' : ''}`}>
-    <div className="spell-header">
-      <span className="spell-name">{spell.name}</span>
+    <p>
+      <strong className="spell-name">{spell.name}</strong> - {spell.description}
       <span className="spell-power">⚡{spell.power}</span>
       {spell.cost && <span className="spell-cost">🎯{spell.cost}</span>}
-    </div>
-    <p className="spell-description">{spell.description}</p>
+    </p>
     <div className="spell-effects">
       {spell.effects.map((effect, i) => (
         <div key={i} className={`effect-tag ${effect.type}`}>
-          {effect.type === 'damage' && '⚔️'}
-          {effect.type === 'heal' && '💚'}
-          {effect.type === 'status' && '⭐'}
-          {effect.type === 'draw' && '🎴'}
-          {effect.type === 'poison' && '☠️'}
-          {effect.type === 'resource' && '🔮'}
-          {effect.type === 'special' && '✨'}
-          {effect.value}
+          {effect.type === 'apply_alteration' && effect.alteration && (
+            <>
+              {alterations[effect.alteration]?.icon || '🔮'}
+              {alterations[effect.alteration]?.name || 'Altération inconnue'}
+              {effect.duration && ` (${effect.duration}t)`}
+            </>
+          )}
+          {effect.type !== 'apply_alteration' && (
+            <>
+              {effect.type === 'damage' && '⚔️'}
+              {effect.type === 'heal' && '💚'}
+              {effect.type === 'draw' && '🎴'}
+              {effect.type === 'resource' && '🔮'}
+              {effect.type === 'add_tag' && '🏷️'}
+              {effect.type === 'multiply_damage' && '⚡'}
+              {effect.multiplier ? `${effect.multiplier.value}x` : effect.value}
+            </>
+          )}
           {effect.duration && ` (${effect.duration}t)`}
+          {effect.chance && ` [${effect.chance}%]`}
+          {effect.condition && (
+            <span className="effect-condition">
+              {effect.condition.type === 'has_tag' && `si ${effect.condition.tag}`}
+              {effect.condition.type === 'missing_tag' && `si pas ${effect.condition.tag}`}
+              {effect.condition.type === 'health_below' && `si PV < ${effect.condition.value}`}
+              {effect.condition.type === 'health_above' && `si PV > ${effect.condition.value}`}
+            </span>
+          )}
+          {effect.multiplier?.condition && (
+            <span className="effect-condition">
+              {effect.multiplier.condition.type === 'target_has_tag' && `si cible ${effect.multiplier.condition.tag}`}
+              {effect.multiplier.condition.type === 'target_missing_tag' && `si cible pas ${effect.multiplier.condition.tag}`}
+            </span>
+          )}
         </div>
       ))}
     </div>
@@ -71,6 +96,58 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
   });
   const [completedCrop, setCompletedCrop] = useState<PercentCrop | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [alterations, setAlterations] = useState<Record<string, Alteration>>({});
+  const [loadedSpells, setLoadedSpells] = useState<Spell[]>([]);
+  const [loadedTalent, setLoadedTalent] = useState<Spell | null>(null);
+  const [loadedTags, setLoadedTags] = useState<Tag[]>([]);
+
+  useEffect(() => {
+    loadAlterations();
+    loadSpells();
+    loadTags();
+  }, [card]);
+
+  const loadAlterations = async () => {
+    try {
+      const data = await alterationService.getAll();
+      const alterationsMap = data.reduce((acc, alt) => {
+        acc[alt.id] = alt;
+        return acc;
+      }, {} as Record<string, Alteration>);
+      setAlterations(alterationsMap);
+    } catch (error) {
+      console.error('Error loading alterations:', error);
+    }
+  };
+
+  const loadSpells = async () => {
+    try {
+      const spellsData = await Promise.all(
+        card.spells.map(id => spellService.getById(id))
+      );
+      setLoadedSpells(spellsData.filter((spell): spell is Spell => spell !== null));
+
+      if (card.talent) {
+        const talent = await spellService.getById(card.talent);
+        if (talent) {
+          setLoadedTalent(talent);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading spells:', error);
+    }
+  };
+
+  const loadTags = async () => {
+    try {
+      const tagsData = await Promise.all(
+        card.tags.map(id => tagService.getById(id))
+      );
+      setLoadedTags(tagsData.filter((tag): tag is Tag => tag !== null));
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    }
+  };
 
   // Charger le recadrage sauvegardé
   useEffect(() => {
@@ -103,11 +180,22 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
 
   const getRarityLabel = (rarity: string) => {
     switch (rarity) {
-      case 'gros_bodycount': return 'Gros bodycount';
-      case 'interessant': return 'Intéressant';
-      case 'banger': return 'Banger';
-      case 'cheate': return 'Cheaté';
-      default: return rarity;
+      case 'gros_bodycount': return 'GB';
+      case 'interessant': return 'IN';
+      case 'banger': return 'BA';
+      case 'cheate': return 'CH';
+      default: return rarity.substring(0, 2).toUpperCase();
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'personnage': return '👤';
+      case 'objet': return '🎁';
+      case 'evenement': return '⚡';
+      case 'lieu': return '🏰';
+      case 'action': return '🎯';
+      default: return '';
     }
   };
 
@@ -158,20 +246,12 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
         {getRarityLabel(card.rarity)}
       </div>
       <div className="card-header">
-        <h3 className="card-name">
+        <div className="card-name">
+          <span className="type-icon">{getTypeIcon(card.type)}</span>
           {card.name}
           {card.isEX && <span className="ex-badge">EX</span>}
-        </h3>
-        <div className="card-type-health">
-          <span className="card-type">
-            {card.type === 'personnage' && '👤'}
-            {card.type === 'objet' && '🎁'}
-            {card.type === 'evenement' && '⚡'}
-            {card.type === 'lieu' && '🏰'}
-            {card.type}
-          </span>
-          {card.health > 0 && <span className="card-health">❤️ {card.health}</span>}
         </div>
+        {card.health > 0 && <span className="card-health">❤️ {card.health}</span>}
       </div>
 
       <div className="card-image">
@@ -221,44 +301,36 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
 
         {card.passiveEffect && (
           <div className="passive-effect">
-            <h4>🔄 Effet Passif</h4>
-            <p>{card.passiveEffect}</p>
+            <p>🔄 {card.passiveEffect}</p>
           </div>
         )}
 
-        {card.spells && card.spells.length > 0 && (
+        {loadedSpells && loadedSpells.length > 0 && (
           <div className="spells-section">
-            <h4>⚔️ Capacités</h4>
-            {card.spells.map((spell, index) => (
-              <SpellPreview key={index} spell={spell} />
+            {loadedSpells.map((spell, index) => (
+              <SpellPreview key={index} spell={spell} alterations={alterations} />
             ))}
           </div>
         )}
 
-        {card.type === 'personnage' && card.talent && (
-          <div className="talent-section">
-            <h4>✨ Talent</h4>
-            <SpellPreview spell={card.talent} isTalent={true} />
-          </div>
+        {card.type === 'personnage' && loadedTalent && (
+          <SpellPreview spell={loadedTalent} isTalent={true} alterations={alterations} />
         )}
 
-        {card.tags && card.tags.length > 0 && (
-          <div className="tags-section">
-            <h4>🏷️ Tags</h4>
-            <div className="tags-list">
-              {card.tags.filter(tag => tag && typeof tag === 'object').map((tag, index) => (
-                <div 
-                  key={index} 
-                  className="tag"
-                  style={{ backgroundColor: generateTagColor(tag?.name || '') }}
-                >
-                  <span className="tag-name">{tag?.name || 'Tag sans nom'}</span>
-                  {tag?.passiveEffect && (
-                    <span className="tag-effect">{tag.passiveEffect}</span>
-                  )}
-                </div>
-              ))}
-            </div>
+        {loadedTags && loadedTags.length > 0 && (
+          <div className="tags-list">
+            {loadedTags.map((tag, index) => (
+              <div 
+                key={index} 
+                className="tag"
+                style={{ backgroundColor: generateTagColor(tag.name || '') }}
+              >
+                <span className="tag-name">{tag.name || 'Tag sans nom'}</span>
+                {tag.passive_effect && (
+                  <span className="tag-effect">{tag.passive_effect}</span>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>

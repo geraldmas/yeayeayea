@@ -1,0 +1,152 @@
+.alterations-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.alteration-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.alteration-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.alteration-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.alteration-icon {
+  font-size: 1.5em;
+}
+
+.alteration-type {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.alteration-type.buff {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.alteration-type.debuff {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.alteration-type.status {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.alteration-type.other {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.alteration-description {
+  color: #666;
+  margin: 10px 0;
+  font-size: 0.9em;
+}
+
+.alteration-details {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.alteration-details span {
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+.alteration-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.alteration-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.form-actions button:not(.secondary) {
+  background: #4caf50;
+  color: white;
+}
+
+.form-actions button.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.edit-button {
+  background: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.section-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.migration-button {
+  background: #673ab7;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.migration-button:hover {
+  background: #5e35b1;
+}
