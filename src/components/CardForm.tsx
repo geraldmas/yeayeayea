@@ -3,6 +3,7 @@ import { Card, Tag } from '../types';
 import SpellList from './SpellList';
 import TagList from './TagList';
 import CardPreview from './CardPreview';
+import { saveCard, loadCard, listSavedCards } from '../utils/cardManager';
 
 interface CardFormProps {
   card: Card;
@@ -18,6 +19,7 @@ const generateUniqueId = () => {
 
 const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
   const [uniqueIdPlaceholder] = useState(generateUniqueId());
+  const [savedCards, setSavedCards] = useState<string[]>([]);
 
   const [savedValues, setSavedValues] = useState<{
     names: string[];
@@ -56,6 +58,28 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
     if (card.image) updateSavedValues('image', card.image);
   }, [card.name, card.description, card.image]);
 
+  useEffect(() => {
+    // Charger la liste des cartes sauvegardées
+    setSavedCards(listSavedCards());
+  }, []);
+
+  useEffect(() => {
+    // Sauvegarder automatiquement la carte quand elle est modifiée
+    if (card.name) {
+      saveCard(card);
+      // Mettre à jour la liste des cartes sauvegardées
+      setSavedCards(listSavedCards());
+    }
+  }, [card]);
+
+  const handleLoadCard = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cardName = e.target.value;
+    const savedCard = loadCard(cardName);
+    if (savedCard) {
+      setCard(savedCard);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
@@ -93,54 +117,63 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
   return (
     <div className="editor-container">
       <div className="editor-form">
-        <h2>Informations de la Carte</h2>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="id">Identifiant</label>
-            <input
-              type="text"
-              id="id"
-              name="id"
-              value={card.id}
-              onChange={handleChange}
-              placeholder={uniqueIdPlaceholder}
-              required
-            />
+        <div className="editor-section">
+          <div className="section-title">
+            <h3>Informations de base</h3>
           </div>
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="name">Nom de la carte</label>
+              <div className="input-with-suggestions">
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={card.name}
+                  onChange={(e) => {
+                    handleChange(e);
+                    handleLoadCard(e);
+                  }}
+                  placeholder="Nom de la carte"
+                  list="saved-cards"
+                />
+                <datalist id="saved-cards">
+                  {savedCards.map((name, index) => (
+                    <option key={index} value={name} />
+                  ))}
+                </datalist>
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="id">Identifiant</label>
+              <input
+                type="text"
+                id="id"
+                name="id"
+                value={card.id}
+                onChange={handleChange}
+                placeholder={uniqueIdPlaceholder}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="name">Nom</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={card.name}
-              onChange={handleChange}
-              placeholder="Nom de la carte"
-              required
-              list="savedNames"
-            />
-            <datalist id="savedNames">
-              {savedValues.names.map((name, i) => (
-                <option key={i} value={name} />
-              ))}
-            </datalist>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="type">Type</label>
-            <select
-              id="type"
-              name="type"
-              value={card.type}
-              onChange={handleChange}
-              required
-            >
-              <option value="character">Personnage</option>
-              <option value="object">Objet</option>
-              <option value="event">Événement</option>
-            </select>
+            <div className="form-group">
+              <label htmlFor="type">Type</label>
+              <select
+                id="type"
+                name="type"
+                value={card.type}
+                onChange={handleChange}
+                required
+              >
+                <option value="personnage">Personnage</option>
+                <option value="objet">Objet</option>
+                <option value="evenement">Événement</option>
+                <option value="lieu">Lieu</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -238,6 +271,22 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
               <option value="inventory">Inventaire</option>
             </select>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="rarity">Rareté</label>
+            <select
+              id="rarity"
+              name="rarity"
+              value={card.rarity}
+              onChange={handleChange}
+              required
+            >
+              <option value="gros_bodycount">Gros bodycount</option>
+              <option value="interessant">Intéressant</option>
+              <option value="banger">Banger</option>
+              <option value="cheate">Cheaté</option>
+            </select>
+          </div>
         </div>
 
         <SpellList 
@@ -246,7 +295,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
           isTalent={false}
         />
 
-        {card.type === 'character' && (
+        {card.type === 'personnage' && (
           <div className="editor-section">
             <h3>Talent (capacité spéciale depuis le banc)</h3>
             <SpellList 

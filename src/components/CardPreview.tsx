@@ -17,6 +17,18 @@ const normalizeImagePath = (imagePath: string) => {
   return `/img/${filename}`;
 };
 
+const generateTagColor = (tagName: string) => {
+  // Utilise le nom du tag comme graine pour générer une couleur cohérente
+  let hash = 0;
+  for (let i = 0; i < tagName.length; i++) {
+    hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Génère une teinte pastel
+  const h = hash % 360;
+  return `hsl(${h}, 70%, 85%)`;
+};
+
 const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean }> = ({ spell, isTalent }) => (
   <div className={`spell-preview ${isTalent ? 'talent' : ''}`}>
     <div className="spell-header">
@@ -44,8 +56,21 @@ const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean }> = ({ spell, i
 );
 
 const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
+  const getRarityLabel = (rarity: string) => {
+    switch (rarity) {
+      case 'gros_bodycount': return 'Gros bodycount';
+      case 'interessant': return 'Intéressant';
+      case 'banger': return 'Banger';
+      case 'cheate': return 'Cheaté';
+      default: return rarity;
+    }
+  };
+
   return (
-    <div className={`card-preview ${card.type}`}>
+    <div className={`card-preview ${card.type}`} data-rarity={card.rarity}>
+      <div className="rarity-badge" data-rarity={card.rarity}>
+        {getRarityLabel(card.rarity)}
+      </div>
       <div className="card-header">
         <h3 className="card-name">
           {card.name}
@@ -53,9 +78,10 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
         </h3>
         <div className="card-type-health">
           <span className="card-type">
-            {card.type === 'character' && '👤'}
-            {card.type === 'object' && '🎁'}
-            {card.type === 'event' && '⚡'}
+            {card.type === 'personnage' && '👤'}
+            {card.type === 'objet' && '🎁'}
+            {card.type === 'evenement' && '⚡'}
+            {card.type === 'lieu' && '🏰'}
             {card.type}
           </span>
           {card.health > 0 && <span className="card-health">❤️ {card.health}</span>}
@@ -87,7 +113,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
           </div>
         )}
 
-        {card.type === 'character' && card.talent && (
+        {card.type === 'personnage' && card.talent && (
           <div className="talent-section">
             <h4>✨ Talent</h4>
             <SpellPreview spell={card.talent} isTalent={true} />
@@ -99,7 +125,11 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
             <h4>🏷️ Tags</h4>
             <div className="tags-list">
               {card.tags.map((tag, index) => (
-                <div key={index} className="tag">
+                <div 
+                  key={index} 
+                  className="tag"
+                  style={{ backgroundColor: generateTagColor(tag.name) }}
+                >
                   <span className="tag-name">{tag.name}</span>
                   {tag.passiveEffect && (
                     <span className="tag-effect">{tag.passiveEffect}</span>

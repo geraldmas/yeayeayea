@@ -21,6 +21,8 @@ export interface Tag {
     passiveEffect: string;
 }
 
+export type Rarity = 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
+
 export interface Card {
     id: string;
     name: string;
@@ -30,7 +32,8 @@ export interface Card {
     passiveEffect?: string;
     health: number;
     tags: Tag[];
-    type: 'character' | 'object' | 'event'; 
+    type: 'personnage' | 'objet' | 'evenement' | 'lieu';
+    rarity: Rarity;
     isEX?: boolean; // EX cards are worth 2 points
     talent?: Spell; // Special ability usable from bench
     position?: 'active' | 'bench' | 'hand' | 'inventory';

@@ -18,7 +18,8 @@ const App: React.FC = () => {
     health: 0,
     spells: [],
     tags: [],
-    type: 'character',
+    type: 'personnage',
+    rarity: 'gros_bodycount',
   });
   const [boosterData, setBoosterData] = useState<Booster>({
     id: '',

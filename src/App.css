@@ -315,6 +315,91 @@ button:hover {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+/* Styles pour le sélecteur de tags */
+.tag-selector {
+  background: #f5f5f5;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.tag-selector h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.saved-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.tag-option {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 15px;
+  background: #e0e0e0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tag-option:hover {
+  background: #d0d0d0;
+}
+
+/* Styles pour les boutons de gestion des tags */
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.save-button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.remove-global-button {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Styles pour les tags dans la prévisualisation */
+.tags-list .tag {
+  padding: 5px 10px;
+  border-radius: 15px;
+  margin: 3px;
+  display: inline-flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.tags-list .tag:hover {
+  transform: scale(1.05);
+}
+
+.tag .tag-name {
+  font-weight: bold;
+}
+
+.tag .tag-effect {
+  font-size: 0.9em;
+  margin-top: 2px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .container {

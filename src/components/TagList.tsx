@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag } from '../types';
+import { loadTags, addTag as addGlobalTag, removeTag as removeGlobalTag } from '../utils/tagManager';
 
 interface TagListProps {
   tags: Tag[];
@@ -7,12 +8,15 @@ interface TagListProps {
 }
 
 const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
+  const [savedTags, setSavedTags] = useState<Tag[]>([]);
+  const [showTagSelector, setShowTagSelector] = useState(false);
+
+  useEffect(() => {
+    setSavedTags(loadTags());
+  }, []);
+
   const handleAddTag = () => {
-    const newTag: Tag = {
-      name: '',
-      passiveEffect: ''
-    };
-    onChange([...tags, newTag]);
+    setShowTagSelector(true);
   };
 
   const handleRemoveTag = (index: number) => {
@@ -27,6 +31,29 @@ const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
     onChange(updatedTags);
   };
 
+  const handleSelectTag = (savedTag: Tag) => {
+    onChange([...tags, { ...savedTag }]);
+    setShowTagSelector(false);
+  };
+
+  const handleCreateNewTag = () => {
+    const newTag: Tag = { name: '', passiveEffect: '' };
+    onChange([...tags, newTag]);
+    setShowTagSelector(false);
+  };
+
+  const handleSaveAsGlobal = (tag: Tag) => {
+    if (tag.name) {
+      addGlobalTag(tag);
+      setSavedTags(loadTags());
+    }
+  };
+
+  const handleRemoveGlobal = (tagName: string) => {
+    removeGlobalTag(tagName);
+    setSavedTags(loadTags());
+  };
+
   return (
     <div className="editor-section">
       <div className="section-title">
@@ -35,6 +62,24 @@ const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
           Ajouter un tag
         </button>
       </div>
+
+      {showTagSelector && (
+        <div className="tag-selector">
+          <h4>Sélectionner un tag existant ou en créer un nouveau</h4>
+          <div className="saved-tags-list">
+            {savedTags.map((tag, index) => (
+              <button
+                key={index}
+                className="tag-option"
+                onClick={() => handleSelectTag(tag)}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+          <button onClick={handleCreateNewTag}>Créer un nouveau tag</button>
+        </div>
+      )}
 
       {tags.length === 0 ? (
         <p>Aucun tag défini.</p>
@@ -53,13 +98,28 @@ const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group button-group">
+                  <button
+                    className="save-button"
+                    onClick={() => handleSaveAsGlobal(tag)}
+                    disabled={!tag.name}
+                  >
+                    Sauvegarder globalement
+                  </button>
                   <button
                     className="remove-button"
                     onClick={() => handleRemoveTag(index)}
                   >
-                    Supprimer
+                    Retirer
                   </button>
+                  {savedTags.some(t => t.name === tag.name) && (
+                    <button
+                      className="remove-global-button"
+                      onClick={() => handleRemoveGlobal(tag.name)}
+                    >
+                      Supprimer globalement
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -69,7 +129,7 @@ const TagList: React.FC<TagListProps> = ({ tags, onChange }) => {
                   <textarea
                     value={tag.passiveEffect}
                     onChange={(e) => handleTagChange(index, 'passiveEffect', e.target.value)}
-                    placeholder="Description de l'effet passif du tag"
+                    placeholder="Description de l'effet passif (optionnel)"
                   />
                 </div>
               </div>
