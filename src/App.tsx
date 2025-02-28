@@ -3,12 +3,14 @@ import CardForm from './components/CardForm';
 import BoosterForm from './components/BoosterForm';
 import CardBrowser from './components/CardBrowser';
 import Notification from './components/Notification';
+import Login from './components/Login';
 import { Card, Booster } from './types';
 import { validateCard } from './utils/validation';
 import { saveCard } from './utils/supabaseClient';
 import './App.css';
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser'>('card');
   const [jsonPreview, setJsonPreview] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
@@ -108,6 +110,17 @@ const App: React.FC = () => {
     setJsonPreview(JSON.stringify(activeTab === 'card' ? cardData : boosterData, null, 2));
   }, [activeTab, cardData, boosterData]);
 
+  useEffect(() => {
+    const auth = localStorage.getItem('isAuthenticated');
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  if (!isAuthenticated) {
+    return <Login onLogin={setIsAuthenticated} />;
+  }
+
   return (
     <div className="container">
       {notification && (
@@ -119,7 +132,7 @@ const App: React.FC = () => {
       )}
 
       <header>
-        <h1>Éditeur de Cartes TCG</h1>
+        <h1>Éditeur de cartes</h1>
       </header>
 
       <div className="tab-container">
