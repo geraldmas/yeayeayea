@@ -24,6 +24,7 @@ const App: React.FC = () => {
     tags: [],
     type: 'personnage',
     rarity: 'gros_bodycount',
+    isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
   });
   const [boosterData, setBoosterData] = useState<Booster>({
     id: '',
@@ -58,6 +59,7 @@ const App: React.FC = () => {
             tags: [],
             type: 'personnage',
             rarity: 'gros_bodycount',
+            isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
           });
         } catch (error) {
           console.error('Erreur lors de la sauvegarde:', error);

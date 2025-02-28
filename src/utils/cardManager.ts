@@ -1,29 +1,64 @@
 import { Card } from '../types';
 
-const STORAGE_PREFIX = 'card_';
+const SAVED_CARDS_KEY = 'savedCards';
 
 export const saveCard = (card: Card) => {
   if (!card.name) return;
-  const storageKey = STORAGE_PREFIX + card.name.toLowerCase().replace(/\s+/g, '_');
-  localStorage.setItem(storageKey, JSON.stringify(card));
+  try {
+    const savedCards = localStorage.getItem(SAVED_CARDS_KEY);
+    let cards: { [key: string]: Card } = {};
+    
+    if (savedCards) {
+      cards = JSON.parse(savedCards);
+    }
+    
+    // S'assurer que les tableaux sont toujours initialisés
+    cards[card.name] = {
+      ...card,
+      spells: card.spells || [],
+      tags: card.tags || []
+    };
+    
+    localStorage.setItem(SAVED_CARDS_KEY, JSON.stringify(cards));
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la carte:', error);
+  }
 };
 
-export const loadCard = (cardName: string): Card | null => {
-  const storageKey = STORAGE_PREFIX + cardName.toLowerCase().replace(/\s+/g, '_');
-  const savedCard = localStorage.getItem(storageKey);
-  return savedCard ? JSON.parse(savedCard) : null;
+export const loadCard = (name: string): Card | null => {
+  try {
+    const savedCards = localStorage.getItem(SAVED_CARDS_KEY);
+    if (savedCards) {
+      const cards: { [key: string]: Card } = JSON.parse(savedCards);
+      const card = cards[name];
+      if (card) {
+        // S'assurer que les tableaux sont toujours initialisés
+        return {
+          ...card,
+          spells: card.spells || [],
+          tags: card.tags || []
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Erreur lors du chargement de la carte:', error);
+    return null;
+  }
 };
 
 export const listSavedCards = (): string[] => {
-  const savedCards: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith(STORAGE_PREFIX)) {
-      const cardName = key.substring(STORAGE_PREFIX.length).replace(/_/g, ' ');
-      savedCards.push(cardName);
+  try {
+    const savedCards = localStorage.getItem(SAVED_CARDS_KEY);
+    if (savedCards) {
+      const cards: { [key: string]: Card } = JSON.parse(savedCards);
+      return Object.keys(cards);
     }
+    return [];
+  } catch (error) {
+    console.error('Erreur lors de la lecture des cartes sauvegardées:', error);
+    return [];
   }
-  return savedCards;
 };
 
 export interface ImageCrop {
@@ -31,7 +66,7 @@ export interface ImageCrop {
   y: number;
   width: number;
   height: number;
-  unit: '%';  // Forcer l'utilisation des pourcentages uniquement
+  unit: '%';
 }
 
 export const saveCropData = (imageId: string, cropData: ImageCrop) => {

@@ -45,6 +45,7 @@ export interface Database {
           spells: Json | null
           talent: Json | null
           tags: Json | null
+          is_wip: boolean
           created_at?: string
           updated_at?: string
         }

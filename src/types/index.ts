@@ -37,6 +37,7 @@ export interface Card {
     isEX?: boolean; // EX cards are worth 2 points
     talent?: Spell; // Special ability usable from bench
     position?: 'active' | 'bench' | 'hand' | 'inventory';
+    isWIP: boolean; // Nouvelle propriété
 }
 
 export interface Booster {

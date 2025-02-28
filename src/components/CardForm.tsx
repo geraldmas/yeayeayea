@@ -257,6 +257,18 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
           </div>
 
           <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                name="isWIP"
+                checked={card.isWIP}
+                onChange={handleChange}
+              />
+              En cours de travail (WIP)
+            </label>
+          </div>
+
+          <div className="form-group">
             <label htmlFor="position">Position</label>
             <select
               id="position"

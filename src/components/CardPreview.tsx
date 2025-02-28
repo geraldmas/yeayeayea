@@ -21,6 +21,9 @@ const normalizeImagePath = (imagePath: string) => {
 };
 
 const generateTagColor = (tagName: string) => {
+  // Protection contre les valeurs undefined
+  if (!tagName) return 'hsl(0, 0%, 85%)'; // Couleur par défaut
+
   // Utilise le nom du tag comme graine pour générer une couleur cohérente
   let hash = 0;
   for (let i = 0; i < tagName.length; i++) {
@@ -150,6 +153,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
 
   return (
     <div className={`card-preview ${card.type}`} data-rarity={card.rarity}>
+      {card.isWIP && <div className="wip-badge">WIP</div>}
       <div className="rarity-badge" data-rarity={card.rarity}>
         {getRarityLabel(card.rarity)}
       </div>
@@ -222,7 +226,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
           </div>
         )}
 
-        {card.spells.length > 0 && (
+        {card.spells && card.spells.length > 0 && (
           <div className="spells-section">
             <h4>⚔️ Capacités</h4>
             {card.spells.map((spell, index) => (
@@ -238,18 +242,18 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
           </div>
         )}
 
-        {card.tags.length > 0 && (
+        {card.tags && card.tags.length > 0 && (
           <div className="tags-section">
             <h4>🏷️ Tags</h4>
             <div className="tags-list">
-              {card.tags.map((tag, index) => (
+              {card.tags.filter(tag => tag && typeof tag === 'object').map((tag, index) => (
                 <div 
                   key={index} 
                   className="tag"
-                  style={{ backgroundColor: generateTagColor(tag.name) }}
+                  style={{ backgroundColor: generateTagColor(tag?.name || '') }}
                 >
-                  <span className="tag-name">{tag.name}</span>
-                  {tag.passiveEffect && (
+                  <span className="tag-name">{tag?.name || 'Tag sans nom'}</span>
+                  {tag?.passiveEffect && (
                     <span className="tag-effect">{tag.passiveEffect}</span>
                   )}
                 </div>

@@ -25,6 +25,7 @@ export async function saveCard(card: Card) {
     spells: card.spells || [],
     talent: card.talent || null,
     tags: card.tags || [],
+    is_wip: card.isWIP,
     updated_at: new Date().toISOString()
   };
 
@@ -48,11 +49,15 @@ export async function getAllCards() {
 
   if (error) throw error;
   
-  // Convertir le format des données pour correspondre à notre interface Card
+  // Convertir le format des données et s'assurer que les tableaux sont initialisés
   return (data || []).map(card => ({
     ...card,
     passiveEffect: card.passive_effect,
-    passive_effect: undefined
+    spells: Array.isArray(card.spells) ? card.spells : [],
+    tags: Array.isArray(card.tags) ? card.tags.filter((tag: unknown) => tag && typeof tag === 'object') : [],
+    isWIP: card.is_wip ?? true, // Si is_wip est null, on considère la carte comme WIP
+    passive_effect: undefined,
+    is_wip: undefined
   })) as Card[];
 }
 
@@ -65,11 +70,15 @@ export async function searchCards(query: string) {
 
   if (error) throw error;
   
-  // Convertir le format des données pour correspondre à notre interface Card
+  // Convertir le format des données et s'assurer que les tableaux sont initialisés
   return (data || []).map(card => ({
     ...card,
     passiveEffect: card.passive_effect,
-    passive_effect: undefined
+    spells: Array.isArray(card.spells) ? card.spells : [],
+    tags: Array.isArray(card.tags) ? card.tags.filter((tag: unknown) => tag && typeof tag === 'object') : [],
+    isWIP: card.is_wip ?? true, // Si is_wip est null, on considère la carte comme WIP
+    passive_effect: undefined,
+    is_wip: undefined
   })) as Card[];
 }
 
