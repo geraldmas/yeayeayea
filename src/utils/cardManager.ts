@@ -25,3 +25,25 @@ export const listSavedCards = (): string[] => {
   }
   return savedCards;
 };
+
+export interface ImageCrop {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  unit: '%';  // Forcer l'utilisation des pourcentages uniquement
+}
+
+export const saveCropData = (imageId: string, cropData: ImageCrop) => {
+  const key = `crop_${imageId}`;
+  localStorage.setItem(key, JSON.stringify(cropData));
+};
+
+export const getCropData = (imageId: string): ImageCrop | null => {
+  const key = `crop_${imageId}`;
+  const data = localStorage.getItem(key);
+  if (data) {
+    return JSON.parse(data);
+  }
+  return null;
+};

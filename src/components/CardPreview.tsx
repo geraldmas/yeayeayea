@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Spell } from '../types';
+import ReactCrop, { Crop, PixelCrop, PercentCrop } from 'react-image-crop';
+import { saveCropData, getCropData, ImageCrop } from '../utils/cardManager';
+import 'react-image-crop/dist/ReactCrop.css';
 import './CardPreview.css';
 
 interface CardPreviewProps {
@@ -56,6 +59,45 @@ const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean }> = ({ spell, i
 );
 
 const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
+  const [crop, setCrop] = useState<PercentCrop>({
+    unit: '%',
+    width: 100,
+    height: 100,
+    x: 0,
+    y: 0
+  });
+  const [completedCrop, setCompletedCrop] = useState<PercentCrop | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Charger le recadrage sauvegardé
+  useEffect(() => {
+    if (card.image) {
+      const savedCrop = getCropData(card.image);
+      if (savedCrop && savedCrop.unit === '%') {
+        const percentCrop: PercentCrop = {
+          unit: '%',
+          width: savedCrop.width,
+          height: savedCrop.height,
+          x: savedCrop.x,
+          y: savedCrop.y
+        };
+        setCrop(percentCrop);
+        setCompletedCrop(percentCrop);
+      } else {
+        // Réinitialiser le crop si aucun recadrage n'est sauvegardé
+        const defaultCrop: PercentCrop = {
+          unit: '%',
+          width: 100,
+          height: 100,
+          x: 0,
+          y: 0
+        };
+        setCrop(defaultCrop);
+        setCompletedCrop(defaultCrop);
+      }
+    }
+  }, [card.image]);
+
   const getRarityLabel = (rarity: string) => {
     switch (rarity) {
       case 'gros_bodycount': return 'Gros bodycount';
@@ -64,6 +106,46 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
       case 'cheate': return 'Cheaté';
       default: return rarity;
     }
+  };
+
+  const handleImageClick = () => {
+    setIsEditing(!isEditing);
+  };
+
+  const handleCropComplete = useCallback((pixel: PixelCrop, percent: PercentCrop) => {
+    if (card.image) {
+      setCompletedCrop(percent);
+      saveCropData(card.image, {
+        unit: '%',
+        width: percent.width,
+        height: percent.height,
+        x: percent.x,
+        y: percent.y
+      });
+    }
+  }, [card.image]);
+
+  const handleCropChange = useCallback((_: PixelCrop, percentCrop: PercentCrop) => {
+    setCrop(percentCrop);
+  }, []);
+
+  const getImageStyle = () => {
+    if (!isEditing && completedCrop) {
+      const scale = 100 / completedCrop.width;
+      return {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover' as const,
+        objectPosition: `${completedCrop.x}% ${completedCrop.y}%`,
+        transform: scale > 1 ? `scale(${scale})` : undefined,
+        transformOrigin: '0 0'
+      };
+    }
+    return {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const
+    };
   };
 
   return (
@@ -89,7 +171,43 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
       </div>
 
       <div className="card-image">
-        {card.image && <img src={normalizeImagePath(card.image)} alt={card.name} />}
+        {card.image && (
+          isEditing ? (
+            <div className="crop-container">
+              <ReactCrop
+                crop={crop}
+                onChange={handleCropChange}
+                onComplete={handleCropComplete}
+                aspect={undefined}
+                minWidth={20}
+                minHeight={20}
+              >
+                <img 
+                  src={normalizeImagePath(card.image)} 
+                  alt={card.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+              </ReactCrop>
+              <button 
+                className="crop-done-button"
+                onClick={handleImageClick}
+              >
+                ✅ Terminer
+              </button>
+            </div>
+          ) : (
+            <div 
+              className="image-container"
+              onClick={handleImageClick}
+            >
+              <img 
+                src={normalizeImagePath(card.image)} 
+                alt={card.name}
+                style={getImageStyle()}
+              />
+            </div>
+          )
+        )}
       </div>
 
       <div className="card-content">

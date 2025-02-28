@@ -7,10 +7,13 @@ Un éditeur de cartes pour jeu de cartes à collectionner (TCG) qui vous permet 
 - Création et édition de cartes avec tous les champs (sorts, effets, tags, etc.)
 - Création de boosters contenant plusieurs cartes
 - Export/import JSON avec validation des données
-- Prévisualisation en temps réel du JSON généré
+- Prévisualisation en temps réel des cartes avec leur apparence finale
+- Sauvegarde automatique des cartes en cours d'édition
 - Interface intuitive pour la gestion des éléments complexes (sorts, effets, tags)
 - Validation de données pour éviter les erreurs de structure
 - Support complet pour tous les types de cartes et d'effets
+- Système de rareté avec badges visuels
+- Gestion des images avec support des URLs et des fichiers locaux
 
 ## Démarrage
 
@@ -50,13 +53,14 @@ Un éditeur de cartes pour jeu de cartes à collectionner (TCG) qui vous permet 
 ### Guide détaillé des champs
 
 #### Informations de base d'une carte
-- **ID**: Identifiant unique de la carte (obligatoire)
+- **ID**: Identifiant unique de la carte (généré automatiquement si non spécifié)
 - **Nom**: Nom de la carte (obligatoire)
 - **Description**: Description de la carte
 - **Image**: URL ou chemin d'accès à l'image de la carte
-- **Type**: Type de la carte (personnage, objet, événement)
+- **Type**: Type de la carte (personnage, objet, événement, lieu)
 - **Points de vie**: Santé de la carte (pour les personnages)
 - **Effet passif**: Effet qui s'applique en permanence sans action requise
+- **Rareté**: Niveau de rareté de la carte (gros bodycount, intéressant, banger, cheaté)
 - **Carte EX**: Cochez si la carte vaut 2 points au lieu de 1
 - **Position**: Position initiale de la carte (active, banc, main, inventaire)
 
@@ -242,7 +246,8 @@ export interface Card {
     passiveEffect?: string;
     health: number;
     tags: Tag[];
-    type: 'character' | 'object' | 'event';
+    type: 'personnage' | 'objet' | 'evenement' | 'lieu';
+    rarity: 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
     isEX?: boolean;
     talent?: Spell;
     position?: 'active' | 'bench' | 'hand' | 'inventory';
@@ -254,6 +259,18 @@ export interface Booster {
     cards: Card[];
 }
 ```
+
+## Fonctionnalités de sauvegarde
+
+### Sauvegarde automatique
+- Les cartes sont automatiquement sauvegardées lors de leur modification
+- Les valeurs précédemment utilisées sont mémorisées pour faciliter la création
+- Possibilité de charger des cartes sauvegardées depuis le menu déroulant
+
+### Gestion des images
+- Support des URLs complètes pour les images en ligne
+- Support des images locales dans le dossier `/img/`
+- Prévisualisation automatique des images dans l'éditeur
 
 ## Bonnes pratiques
 

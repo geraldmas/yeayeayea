@@ -178,9 +178,121 @@
   height: 200px;
   overflow: hidden;
   background: #eee;
+  position: relative;
+}
+
+.image-container {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.image-container:hover::after {
+  content: '✂️ Cliquez pour recadrer';
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.crop-done-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1000;
+  transition: background-color 0.2s;
+}
+
+.crop-done-button:hover {
+  background: #45a049;
+}
+
+/* Styles pour React Crop */
+.ReactCrop {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  max-height: 100%;
+}
+
+.ReactCrop:active {
+  cursor: grabbing;
+}
+
+.ReactCrop__crop-selection {
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 9999em rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+}
+
+.ReactCrop__drag-handle {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.crop-container img {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.crop-done-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1000;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.crop-done-button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.crop-done-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ReactCrop__crop-selection {
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
 }
 
 .card-image img {
