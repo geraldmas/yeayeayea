@@ -22,6 +22,58 @@ body {
   padding: 2rem;
 }
 
+.auth-container {
+  margin-left: auto;
+  padding: 1rem;
+}
+
+.github-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.github-auth form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.github-auth input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 300px;
+}
+
+.github-auth button {
+  padding: 0.5rem 1rem;
+  background-color: #2ea44f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.github-auth button:hover {
+  background-color: #2c974b;
+}
+
+.auth-status {
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.auth-status.success {
+  background-color: #dcffe4;
+  color: #2ea44f;
+}
+
+.auth-help {
+  font-size: 0.9rem;
+  color: #666;
+}
+
 .App {
   text-align: center;
   padding: 20px;

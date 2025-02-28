@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import CardForm from './components/CardForm';
 import BoosterForm from './components/BoosterForm';
+import CardBrowser from './components/CardBrowser';
 import Notification from './components/Notification';
 import { Card, Booster } from './types';
 import { validateCard } from './utils/validation';
+import { saveCard } from './utils/supabaseClient';
 import './App.css';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'card' | 'booster'>('card');
+  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser'>('card');
   const [jsonPreview, setJsonPreview] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [cardData, setCardData] = useState<Card>({
@@ -31,7 +33,7 @@ const App: React.FC = () => {
     setNotification({ message, type });
   };
 
-  const handleExportJSON = () => {
+  const handleExportJSON = async () => {
     try {
       if (activeTab === 'card') {
         const errors = validateCard(cardData);
@@ -39,27 +41,32 @@ const App: React.FC = () => {
           showNotification(`Erreurs de validation : ${errors.join(', ')}`, 'error');
           return;
         }
-      } else {
-        // Validation simple du booster
-        if (!boosterData.id || !boosterData.name) {
-          showNotification("L'ID et le nom du booster sont obligatoires", 'error');
-          return;
-        }
-      }
 
-      const dataToExport = activeTab === 'card' ? cardData : boosterData;
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", `${activeTab}-${Date.now()}.json`);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-      
-      showNotification(`${activeTab === 'card' ? 'Carte' : 'Booster'} exporté(e) avec succès`, 'success');
+        try {
+          await saveCard(cardData);
+          showNotification('Carte sauvegardée avec succès', 'success');
+          // Réinitialiser le formulaire
+          setCardData({
+            id: '',
+            name: '',
+            description: '',
+            image: '',
+            health: 0,
+            spells: [],
+            tags: [],
+            type: 'personnage',
+            rarity: 'gros_bodycount',
+          });
+        } catch (error) {
+          console.error('Erreur lors de la sauvegarde:', error);
+          showNotification('Erreur lors de la sauvegarde de la carte', 'error');
+        }
+      } else {
+        // ...existing booster export code...
+      }
     } catch (error) {
       console.error("Erreur lors de l'exportation :", error);
-      showNotification("Erreur lors de l'exportation du fichier", 'error');
+      showNotification("Erreur lors de l'exportation", 'error');
     }
   };
 
@@ -120,7 +127,13 @@ const App: React.FC = () => {
           className={`tab-button ${activeTab === 'card' ? 'active' : ''}`}
           onClick={() => setActiveTab('card')}
         >
-          Carte
+          Nouvelle Carte
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'browser' ? 'active' : ''}`}
+          onClick={() => setActiveTab('browser')}
+        >
+          Parcourir
         </button>
         <button
           className={`tab-button ${activeTab === 'booster' ? 'active' : ''}`}
@@ -133,32 +146,25 @@ const App: React.FC = () => {
       <div className="card-editor">
         {activeTab === 'card' ? (
           <CardForm card={cardData} setCard={setCardData} />
+        ) : activeTab === 'browser' ? (
+          <CardBrowser />
         ) : (
           <BoosterForm booster={boosterData} setBooster={setBoosterData} />
         )}
 
-        <div className="editor-section">
-          <div className="form-row">
-            <button onClick={handleExportJSON}>Exporter en JSON</button>
-            <div>
-              <input
-                type="file"
-                id="import-json"
-                accept=".json"
-                onChange={handleImportJSON}
-                style={{ display: 'none' }}
-              />
-              <button onClick={() => document.getElementById('import-json')?.click()}>
-                Importer un JSON
+        {activeTab !== 'browser' && (
+          <div className="editor-section">
+            <div className="form-row">
+              <button onClick={handleExportJSON}>
+                {activeTab === 'card' ? 'Sauvegarder la carte' : 'Sauvegarder le booster'}
               </button>
             </div>
+            <div className="editor-section">
+              <h3>Aperçu</h3>
+              <pre className="preview-section">{jsonPreview}</pre>
+            </div>
           </div>
-        </div>
-
-        <div className="editor-section">
-          <h3>Aperçu JSON</h3>
-          <pre className="preview-section">{jsonPreview}</pre>
-        </div>
+        )}
       </div>
     </div>
   );
