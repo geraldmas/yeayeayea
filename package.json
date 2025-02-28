@@ -2,6 +2,7 @@
   "name": "tcg-card-editor",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://geraldmas.github.io/tcg-card-editor",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -28,7 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -49,8 +52,7 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.3",
+    "gh-pages": "^6.3.0",
     "postcss-preset-env": "^10.1.5"
   }
 }
