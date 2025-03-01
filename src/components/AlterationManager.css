@@ -21,16 +21,16 @@
 .alteration-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .alteration-icon {
-  font-size: 1.5em;
+  font-size: 24px;
 }
 
 .alteration-type {
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 12px;
   font-size: 0.8em;
   font-weight: 500;
@@ -80,6 +80,91 @@
   display: flex;
   gap: 10px;
   margin-top: 15px;
+}
+
+.alteration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.form-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.form-actions button:first-child {
+  background: #4caf50;
+  color: white;
+}
+
+.form-actions button:last-child {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.alteration-display button {
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.alteration-manager {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.alteration-name {
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .alteration-form {

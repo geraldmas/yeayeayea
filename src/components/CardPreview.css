@@ -581,11 +581,6 @@
   backdrop-filter: blur(3px);
 }
 
-.spell-preview.talent {
-  background: rgba(255, 243, 224, 0.9);
-  border-color: rgba(255, 215, 0, 0.5);
-}
-
 .spell-header {
   display: flex;
   justify-content: space-between;

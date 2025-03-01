@@ -3,7 +3,6 @@ import { Card, Spell, Tag, SpellEffect, Alteration } from '../types';
 
 interface OldCard {
   spells: Spell[];
-  talent?: Spell;
   tags: Tag[];
 }
 
@@ -83,31 +82,6 @@ export const migrationService = {
             .from('cards')
             .update({
               spells: [...(card.spells || []), spellData.id]
-            })
-            .eq('id', card.id);
-        }
-
-        // Migrer le talent si présent
-        if (oldCard.talent) {
-          const { data: talentData, error: talentError } = await supabase
-            .from('spells')
-            .insert({
-              name: oldCard.talent.name,
-              description: oldCard.talent.description,
-              power: oldCard.talent.power,
-              cost: oldCard.talent.cost,
-              range_min: oldCard.talent.range_min || 0,
-              range_max: oldCard.talent.range_max || 0,
-              effects: oldCard.talent.effects
-            })
-            .select()
-            .single();
-          if (talentError) throw talentError;
-
-          await supabase
-            .from('cards')
-            .update({
-              talent: talentData.id
             })
             .eq('id', card.id);
         }

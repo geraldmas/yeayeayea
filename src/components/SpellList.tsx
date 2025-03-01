@@ -4,13 +4,12 @@ import { spellService } from '../utils/dataService';
 import AlterationList from './AlterationList';
 
 interface SpellListProps {
-  spellIds: string[];
-  onChange: (spellIds: string[]) => void;
-  isTalent: boolean;
+  spellIds: number[];
+  onChange: (spellIds: number[]) => void;
   maxSpells?: number;
 }
 
-const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, maxSpells }) => {
+const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) => {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +33,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
 
   const handleCreateSpell = async () => {
     if (maxSpells && spellIds.length >= maxSpells) {
-      alert(`Maximum ${maxSpells} spell${maxSpells > 1 ? 's' : ''} allowed`);
+      alert(`Maximum ${maxSpells} sort${maxSpells > 1 ? 's' : ''} autorisé(s)`);
       return;
     }
 
@@ -45,13 +44,16 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
       cost: 0,
       range_min: 0,
       range_max: 0,
-      effects: []
+      effects: [],
+      is_value_percentage: false,
     };
 
     try {
       const createdSpell = await spellService.create(newSpell);
-      onChange([...spellIds, createdSpell.id]);
-      setExpandedIndex(spells.length);
+      if (createdSpell && createdSpell.id) {
+        onChange([...spellIds, createdSpell.id]);
+        setExpandedIndex(spells.length);
+      }
     } catch (error) {
       console.error('Error creating spell:', error);
     }
@@ -73,7 +75,8 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
     const spell = spells[spellIndex];
     const newEffect: SpellEffect = {
       type: 'damage',
-      value: 0
+      value: 0,
+      targetType: 'opponent'
     };
     const updatedEffects = [...spell.effects, newEffect];
 
@@ -135,7 +138,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
 
   return (
     <div className="spells-section">
-      <h3>{isTalent ? 'Talent' : 'Sorts'}</h3>
+      <h3>Sorts</h3>
       <div className="spells-list">
         {spells.map((spell, index) => (
           <div key={spell.id} className="collapsible-section">
@@ -154,7 +157,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
                 ×
               </button>
             </div>
-
             {expandedIndex === index && (
               <div className="collapsible-content">
                 <div className="form-row">
@@ -221,7 +223,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
                     Ajouter un effet
                   </button>
 
-                  {spell.effects.map((effect, effectIndex) => (
+                  {Array.isArray(spell.effects) && spell.effects.map((effect, effectIndex) => (
                     <div key={effectIndex} className="effect-item">
                       <div className="form-row">
                         <div className="form-group">
@@ -288,14 +290,10 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
 
                         {effect.type === 'apply_alteration' && (
                           <>
-                            <div className="form-group">
-                              <label>ID Altération</label>
-                              <input
-                                type="text"
-                                value={effect.alteration || ''}
-                                onChange={(e) => handleUpdateEffect(index, effectIndex, 'alteration', e.target.value)}
-                              />
-                            </div>
+                            <AlterationList 
+                              selectedAlteration={effect.alteration}
+                              onChange={(alterationId) => handleUpdateEffect(index, effectIndex, 'alteration', alterationId)}
+                            />
                             <div className="form-group">
                               <label>Durée (tours)</label>
                               <input
@@ -327,7 +325,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, isTalent, max
           onClick={handleCreateSpell}
           disabled={maxSpells !== undefined && spells.length >= maxSpells}
         >
-          Ajouter un {isTalent ? 'talent' : 'sort'}
+          Ajouter un sort
         </button>
       </div>
     </div>

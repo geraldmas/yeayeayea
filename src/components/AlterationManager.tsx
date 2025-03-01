@@ -1,292 +1,149 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Alteration } from '../types';
 import { alterationService } from '../utils/dataService';
-import { migrationService } from '../utils/migration';
+import './AlterationManager.css';
 
-const AlterationManager: React.FC = () => {
-  const [alterations, setAlterations] = useState<Alteration[]>([]);
-  const [editingAlteration, setEditingAlteration] = useState<Alteration | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+interface AlterationManagerProps {
+  alteration?: Alteration;
+  onChange: (alteration: Alteration) => void;
+}
 
-  useEffect(() => {
-    loadAlterations();
-  }, []);
+const AlterationManager: React.FC<AlterationManagerProps> = ({ alteration, onChange }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAlteration, setEditedAlteration] = useState<Partial<Alteration>>(alteration || {
+    name: '',
+    description: '',
+    effect: '',
+    icon: '🔮',
+    duration: 1,
+    stackable: false,
+    unique_effect: false,
+    type: 'status'
+  });
 
-  const loadAlterations = async () => {
-    try {
-      const data = await alterationService.getAll();
-      setAlterations(data);
-    } catch (error) {
-      console.error('Error loading alterations:', error);
-    }
+  const handleChange = (field: keyof Alteration, value: any) => {
+    setEditedAlteration(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleCreateAlteration = async (alteration: Omit<Alteration, 'id'>) => {
+  const handleSave = async () => {
     try {
-      await alterationService.create(alteration);
-      loadAlterations();
-      setIsCreating(false);
-    } catch (error) {
-      console.error('Error creating alteration:', error);
-    }
-  };
-
-  const handleUpdateAlteration = async (id: string, alteration: Partial<Alteration>) => {
-    try {
-      await alterationService.update(id, alteration);
-      loadAlterations();
-      setEditingAlteration(null);
-    } catch (error) {
-      console.error('Error updating alteration:', error);
-    }
-  };
-
-  const handleDeleteAlteration = async (id: string) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette altération ?')) return;
-    
-    try {
-      await alterationService.delete(id);
-      loadAlterations();
-    } catch (error) {
-      console.error('Error deleting alteration:', error);
-    }
-  };
-
-  const handleMigration = async () => {
-    if (!window.confirm('Êtes-vous sûr de vouloir lancer la migration ? Cette opération est irréversible.')) {
-      return;
-    }
-    
-    try {
-      const result = await migrationService.migrateToNewSchema();
-      if (result.success) {
-        alert('Migration terminée avec succès !');
-        loadAlterations();
+      let savedAlteration;
+      if (alteration?.id) {
+        savedAlteration = await alterationService.update(alteration.id, editedAlteration);
       } else {
-        alert('Erreur lors de la migration : ' + result.error);
+        savedAlteration = await alterationService.create(editedAlteration as Omit<Alteration, 'id'>);
       }
+      onChange(savedAlteration);
+      setIsEditing(false);
     } catch (error) {
-      console.error('Error during migration:', error);
-      alert('Erreur lors de la migration');
+      console.error('Error saving alteration:', error);
     }
   };
 
-  const AlterationForm: React.FC<{
-    initialData?: Alteration;
-    onSubmit: (data: any) => void;
-    onCancel: () => void;
-  }> = ({ initialData, onSubmit, onCancel }) => {
-    interface AlterationFormData extends Omit<Alteration, 'id' | 'created_at' | 'updated_at'> {}
-
-    const [formData, setFormData] = useState<AlterationFormData>(initialData || {
-      name: '',
-      description: '',
-      effect: '',
-      icon: '',
-      stackable: false,
-      unique_effect: false,
-      type: 'status',
-      duration: 1
-    });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-      const { name, value, type } = e.target;
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' 
-          ? (e.target as HTMLInputElement).checked 
-          : type === 'number' 
-            ? parseInt(value) || 1
-            : value
-      }));
-    };
-
-    return (
-      <div className="alteration-form">
-        <div className="form-row">
-          <div className="form-group">
-            <label>Nom</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Icône</label>
-            <input
-              type="text"
-              name="icon"
-              value={formData.icon}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={formData.description || ''}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Effet</label>
-          <input
-            type="text"
-            name="effect"
-            value={formData.effect}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Type</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-            >
-              <option value="buff">Bonus</option>
-              <option value="debuff">Malus</option>
-              <option value="status">Statut</option>
-              <option value="other">Autre</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Durée (tours)</label>
-          <input
-            type="number"
-            name="duration"
-            value={formData.duration || 1}
-            onChange={handleChange}
-            min="1"
-            required
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                name="stackable"
-                checked={formData.stackable}
-                onChange={handleChange}
-              />
-              Cumulable
-            </label>
-          </div>
-
-          <div className="form-group">
-            <label>
-              <input
-                type="checkbox"
-                name="unique_effect"
-                checked={formData.unique_effect}
-                onChange={handleChange}
-              />
-              Unique (une seule fois par cible)
-            </label>
-          </div>
-        </div>
-
-        <div className="form-actions">
-          <button type="button" onClick={() => onSubmit(formData)}>
-            {initialData ? 'Mettre à jour' : 'Créer'}
-          </button>
-          <button type="button" onClick={onCancel} className="secondary">
-            Annuler
-          </button>
-        </div>
+  const renderDisplay = () => (
+    <div className="alteration-display">
+      <div className="alteration-header">
+        <span className="alteration-icon">{alteration?.icon}</span>
+        <span className="alteration-name">{alteration?.name}</span>
+        <span className={`alteration-type ${alteration?.type}`}>{alteration?.type}</span>
       </div>
-    );
-  };
+      <p className="alteration-description">{alteration?.description}</p>
+      <div className="alteration-details">
+        <span>Durée: {alteration?.duration || 'Permanent'}</span>
+        {alteration?.stackable && <span>Cumulable</span>}
+        {alteration?.unique_effect && <span>Effet unique</span>}
+      </div>
+      <button onClick={() => setIsEditing(true)}>Modifier</button>
+    </div>
+  );
+
+  const renderForm = () => (
+    <div className="alteration-form">
+      <div className="form-group">
+        <label>Nom</label>
+        <input
+          type="text"
+          value={editedAlteration.name || ''}
+          onChange={e => handleChange('name', e.target.value)}
+        />
+      </div>
+      <div className="form-group">
+        <label>Description</label>
+        <textarea
+          value={editedAlteration.description || ''}
+          onChange={e => handleChange('description', e.target.value)}
+        />
+      </div>
+      <div className="form-group">
+        <label>Effet</label>
+        <input
+          type="text"
+          value={editedAlteration.effect || ''}
+          onChange={e => handleChange('effect', e.target.value)}
+        />
+      </div>
+      <div className="form-group">
+        <label>Icône</label>
+        <input
+          type="text"
+          value={editedAlteration.icon || ''}
+          onChange={e => handleChange('icon', e.target.value)}
+        />
+      </div>
+      <div className="form-group">
+        <label>Type</label>
+        <select
+          value={editedAlteration.type || 'status'}
+          onChange={e => handleChange('type', e.target.value)}
+        >
+          <option value="buff">Buff</option>
+          <option value="debuff">Debuff</option>
+          <option value="status">Status</option>
+          <option value="other">Autre</option>
+        </select>
+      </div>
+      <div className="form-group">
+        <label>Durée (tours)</label>
+        <input
+          type="number"
+          value={editedAlteration.duration || 0}
+          onChange={e => handleChange('duration', parseInt(e.target.value))}
+          min="0"
+        />
+      </div>
+      <div className="form-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={editedAlteration.stackable || false}
+            onChange={e => handleChange('stackable', e.target.checked)}
+          />
+          Cumulable
+        </label>
+      </div>
+      <div className="form-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={editedAlteration.unique_effect || false}
+            onChange={e => handleChange('unique_effect', e.target.checked)}
+          />
+          Effet unique
+        </label>
+      </div>
+      <div className="form-actions">
+        <button onClick={handleSave}>Sauvegarder</button>
+        <button onClick={() => setIsEditing(false)}>Annuler</button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="editor-section">
-      <div className="section-title">
-        <h2>Gestionnaire d'Altérations</h2>
-        <div className="section-actions">
-          <button 
-            className="add-button"
-            onClick={() => setIsCreating(true)}
-          >
-            Nouvelle Altération
-          </button>
-          <button 
-            className="migration-button"
-            onClick={handleMigration}
-          >
-            Lancer la Migration
-          </button>
-        </div>
-      </div>
-
-      {isCreating && (
-        <div className="editor-section">
-          <h3>Nouvelle Altération</h3>
-          <AlterationForm
-            onSubmit={handleCreateAlteration}
-            onCancel={() => setIsCreating(false)}
-          />
-        </div>
-      )}
-
-      <div className="alterations-list">
-        {alterations.map(alteration => (
-          <div key={alteration.id} className="alteration-item">
-            {editingAlteration?.id === alteration.id ? (
-              <AlterationForm
-                initialData={alteration}
-                onSubmit={(data) => handleUpdateAlteration(alteration.id, data)}
-                onCancel={() => setEditingAlteration(null)}
-              />
-            ) : (
-              <div className="alteration-content">
-                <div className="alteration-header">
-                  <span className="alteration-icon">{alteration.icon}</span>
-                  <h3>{alteration.name}</h3>
-                  <span className={`alteration-type ${alteration.type}`}>
-                    {alteration.type}
-                  </span>
-                </div>
-                <p className="alteration-description">{alteration.description}</p>
-                <div className="alteration-details">
-                  <span>{alteration.stackable ? 'Cumulable' : 'Non cumulable'}</span>
-                  {alteration.unique_effect && <span>Unique</span>}
-                </div>
-                <div className="alteration-actions">
-                  <button
-                    onClick={() => setEditingAlteration(alteration)}
-                    className="edit-button"
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAlteration(alteration.id)}
-                    className="delete-button"
-                  >
-                    Supprimer
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="alteration-manager">
+      {isEditing ? renderForm() : renderDisplay()}
     </div>
   );
 };

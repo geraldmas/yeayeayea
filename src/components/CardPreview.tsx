@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Spell, Alteration, Tag } from '../types';
 import ReactCrop, { Crop, PixelCrop, PercentCrop } from 'react-image-crop';
-import { saveCropData, getCropData } from '../utils/cardManager';
+import { saveCropData, getCropData } from '../utils/imageCropManager';
 import { alterationService, spellService, tagService } from '../utils/dataService';
 import 'react-image-crop/dist/ReactCrop.css';
 import './CardPreview.css';
@@ -36,8 +36,8 @@ const generateTagColor = (tagName: string) => {
   return `hsl(${h}, 70%, 85%)`;
 };
 
-const SpellPreview: React.FC<{ spell: Spell, isTalent?: boolean, alterations?: Record<string, Alteration> }> = ({ spell, isTalent, alterations = {} }) => (
-  <div className={`spell-preview ${isTalent ? 'talent' : ''}`}>
+const SpellPreview: React.FC<{ spell: Spell, alterations?: Record<string, Alteration> }> = ({ spell, alterations = {} }) => (
+  <div className={`spell-preview'}`}>
     <p>
       <strong className="spell-name">{spell.name}</strong> - {spell.description}
       <span className="spell-power">⚡{spell.power}</span>
@@ -98,14 +98,12 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [alterations, setAlterations] = useState<Record<string, Alteration>>({});
   const [loadedSpells, setLoadedSpells] = useState<Spell[]>([]);
-  const [loadedTalent, setLoadedTalent] = useState<Spell | null>(null);
   const [loadedTags, setLoadedTags] = useState<Tag[]>([]);
 
   useEffect(() => {
     loadAlterations();
     loadSpells();
     loadTags();
-    loadTalent();
   }, [card]);
 
   const loadAlterations = async () => {
@@ -126,10 +124,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
     try {
       console.log('Spells IDs:', card.spells);
       const spellsData = await Promise.all(
-        card.spells.map(id => {
-          const spellId = id as string;
-          return spellService.getById(spellId.toString());
-        })
+        card.spells.map(id => spellService.getById(id))
       );
       console.log('Loaded Spells Data:', spellsData);
       setLoadedSpells(spellsData.filter((spell): spell is Spell => spell !== null));
@@ -143,31 +138,12 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
     try {
       console.log('Tags IDs:', card.tags);
       const tagsData = await Promise.all(
-        card.tags.map(id => {
-          const tagId = id as string;
-          return tagService.getById(tagId.toString());
-        })
+        card.tags.map(id => tagService.getById(id))
       );
       console.log('Loaded Tags Data:', tagsData);
       setLoadedTags(tagsData.filter((tag): tag is Tag => tag !== null));
     } catch (error) {
       console.error('Error loading tags:', error);
-    }
-  };
-
-  const loadTalent = async () => {
-    try {
-      if (card.talent) {
-        console.log('Talent ID:', card.talent);
-        const talentId = card.talent as string;
-        const talent = await spellService.getById(talentId.toString());
-        console.log('Loaded Talent:', talent);
-        if (talent) {
-          setLoadedTalent(talent);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading talent:', error);
     }
   };
 
@@ -271,7 +247,6 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
         <div className="card-name">
           <span className="type-icon">{getTypeIcon(card.type)}</span>
           {card.name}
-          {card.isEX && <span className="ex-badge">EX</span>}
         </div>
         {card.health > 0 && <span className="card-health">❤️ {card.health}</span>}
       </div>
@@ -333,10 +308,6 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
               <SpellPreview key={index} spell={spell} alterations={alterations} />
             ))}
           </div>
-        )}
-
-        {card.type === 'personnage' && loadedTalent && (
-          <SpellPreview spell={loadedTalent} isTalent={true} alterations={alterations} />
         )}
 
         {loadedTags && loadedTags.length > 0 && (

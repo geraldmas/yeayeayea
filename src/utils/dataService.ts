@@ -13,7 +13,7 @@ export const alterationService = {
     return data;
   },
 
-  async getById(id: string): Promise<Alteration | null> {
+  async getById(id: number): Promise<Alteration | null> {
     const { data, error } = await supabase
       .from('alterations')
       .select('*')
@@ -33,7 +33,7 @@ export const alterationService = {
     return data;
   },
 
-  async update(id: string, alteration: Partial<Omit<Alteration, 'id' | 'created_at' | 'updated_at'>>): Promise<Alteration> {
+  async update(id: number, alteration: Partial<Omit<Alteration, 'id' | 'created_at' | 'updated_at'>>): Promise<Alteration> {
     const { data, error } = await supabase
       .from('alterations')
       .update(alteration)
@@ -44,7 +44,7 @@ export const alterationService = {
     return data;
   },
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     const { error } = await supabase
       .from('alterations')
       .delete()
@@ -61,11 +61,11 @@ export const spellService = {
     if (error) throw error;
     return data.map(spell => ({
       ...spell,
-      effects: spell.effects as unknown as SpellEffect[]
+      effects: JSON.parse(spell.effects as string) as SpellEffect[]
     }));
   },
 
-  async getById(id: string): Promise<Spell | null> {
+  async getById(id: number): Promise<Spell | null> {
     const { data, error } = await supabase
       .from('spells')
       .select('*')
@@ -75,51 +75,49 @@ export const spellService = {
     if (!data) return null;
     return {
       ...data,
-      effects: data.effects as unknown as SpellEffect[]
+      effects: JSON.parse(data.effects as string) as SpellEffect[]
     };
   },
 
   async create(spell: Omit<Spell, 'id' | 'created_at' | 'updated_at'>): Promise<Spell> {
-    // Generate a UUID for the new spell
-    const id = crypto.randomUUID();
-    
+    const formattedSpell = {
+      ...spell,
+      effects: JSON.stringify(spell.effects || [])
+    };
     const { data, error } = await supabase
       .from('spells')
-      .insert({
-        id,
-        ...spell,
-        effects: spell.effects as any
-      })
+      .insert(formattedSpell)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.error('Insert error:', error);
+      throw error;
+    }
     return {
       ...data,
-      effects: data.effects as unknown as SpellEffect[] // Ensure effects are correctly typed
+      effects: JSON.parse(data.effects as string) as SpellEffect[]
     };
   },
 
-  async update(id: string, spell: Partial<Omit<Spell, 'id' | 'created_at' | 'updated_at'>>): Promise<Spell> {
-    const updateData = {
-      ...spell
+  async update(id: number, spell: Partial<Omit<Spell, 'id' | 'created_at' | 'updated_at'>>): Promise<Spell> {
+    const formattedSpell = {
+      ...spell,
+      effects: spell.effects ? JSON.stringify(spell.effects) : undefined
     };
-    if ('effects' in updateData) {
-      updateData.effects = updateData.effects as any;
-    }
     const { data, error } = await supabase
       .from('spells')
-      .update(updateData)
+      .update(formattedSpell)
       .eq('id', id)
       .select()
       .single();
     if (error) throw error;
     return {
       ...data,
-      effects: data.effects as unknown as SpellEffect[]
+      effects: JSON.parse(data.effects as string) as SpellEffect[]
     };
   },
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     const { error } = await supabase
       .from('spells')
       .delete()
@@ -127,12 +125,10 @@ export const spellService = {
     if (error) throw error;
   },
 
-  async getByIds(ids: string[]): Promise<Spell[]> {
-    // Return empty array if no ids provided
+  async getByIds(ids: number[]): Promise<Spell[]> {
     if (!ids || ids.length === 0) return [];
     
-    // Filter out any invalid/null/undefined ids
-    const validIds = ids.filter(id => id && typeof id === 'string');
+    const validIds = ids.filter(id => typeof id === 'number');
     if (validIds.length === 0) return [];
 
     const { data, error } = await supabase
@@ -143,7 +139,7 @@ export const spellService = {
     if (error) throw error;
     return (data || []).map(spell => ({
       ...spell,
-      effects: spell.effects as unknown as SpellEffect[]
+      effects: JSON.parse(spell.effects as string) as SpellEffect[]
     }));
   }
 };
@@ -157,7 +153,7 @@ export const tagService = {
     return data;
   },
 
-  async getById(id: string): Promise<Tag | null> {
+  async getById(id: number): Promise<Tag | null> {
     const { data, error } = await supabase
       .from('tags')
       .select('*')
@@ -168,22 +164,16 @@ export const tagService = {
   },
 
   async create(tag: Omit<Tag, 'id' | 'created_at' | 'updated_at'>): Promise<Tag> {
-    // Generate a UUID for the new tag
-    const id = crypto.randomUUID();
-    
     const { data, error } = await supabase
       .from('tags')
-      .insert({
-        id,
-        ...tag
-      })
+      .insert(tag)
       .select()
       .single();
     if (error) throw error;
     return data;
   },
 
-  async update(id: string, tag: Partial<Omit<Tag, 'id' | 'created_at' | 'updated_at'>>): Promise<Tag> {
+  async update(id: number, tag: Partial<Omit<Tag, 'id' | 'created_at' | 'updated_at'>>): Promise<Tag> {
     const { data, error } = await supabase
       .from('tags')
       .update(tag)
@@ -194,7 +184,7 @@ export const tagService = {
     return data;
   },
 
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     const { error } = await supabase
       .from('tags')
       .delete()
@@ -202,12 +192,10 @@ export const tagService = {
     if (error) throw error;
   },
 
-  async getByIds(ids: string[]): Promise<Tag[]> {
-    // Return empty array if no ids provided
+  async getByIds(ids: number[]): Promise<Tag[]> {
     if (!ids || ids.length === 0) return [];
     
-    // Filter out any invalid/null/undefined ids
-    const validIds = ids.filter(id => id && typeof id === 'string');
+    const validIds = ids.filter(id => typeof id === 'number');
     if (validIds.length === 0) return [];
 
     const { data, error } = await supabase

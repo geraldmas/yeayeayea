@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { Card } from '../types';
-import { saveCard } from '../utils/supabaseClient';
 import TestDiagnostic from './TestDiagnostic';
 
 const TestDebugger: React.FC = () => {
@@ -20,80 +18,7 @@ const TestDebugger: React.FC = () => {
     try {
       log('=== DÉMARRAGE DU TEST DE DIAGNOSTIC ===');
       
-      // Cas 0: Tableau vide (cas qui causait le bug)
-      const testCard0: Card = {
-        id: 'test-card-0',
-        name: 'Test Card Empty Arrays',
-        description: 'Test avec tableaux vides',
-        type: 'personnage',
-        rarity: 'banger',
-        health: 10,
-        image: '',
-        spells: [], // Tableau vide qui causait le problème
-        tags: [],   // Tableau vide qui causait le problème
-        isWIP: true
-      };
-      
-      log('Test 0: Tableau vide (cas du bug)');
-      log(`spells: ${JSON.stringify(testCard0.spells)}`);
-      log(`tags: ${JSON.stringify(testCard0.tags)}`);
-      
-      try {
-        await saveCard(testCard0);
-        log('Test 0 réussi ✅');
-      } catch (error: any) {
-        log(`Test 0 échoué ❌: ${error.message}`);
-      }
-
-      // Cas 1: Test avec tableaux contenant null
-      const testCard1: any = {
-        id: 'test-card-1',
-        name: 'Test Card with Null Arrays',
-        description: 'Test avec tableaux null',
-        type: 'personnage',
-        rarity: 'banger',
-        health: 10,
-        image: '',
-        spells: null,
-        tags: null,
-        isWIP: true
-      };
-      
-      log('Test 1: Tableaux null');
-      log(`spells: ${JSON.stringify(testCard1.spells)}`);
-      log(`tags: ${JSON.stringify(testCard1.tags)}`);
-      
-      try {
-        await saveCard(testCard1 as Card);
-        log('Test 1 réussi ✅');
-      } catch (error: any) {
-        log(`Test 1 échoué ❌: ${error.message}`);
-      }
-
-      // Cas 2: Test avec tableaux contenant des éléments
-      const testCard2: Card = {
-        id: 'test-card-2',
-        name: 'Test Card with String Arrays',
-        description: 'Test avec tableaux de strings',
-        type: 'personnage',
-        rarity: 'banger',
-        health: 10,
-        image: '',
-        spells: ['spell1', 'spell2'],
-        tags: ['tag1', 'tag2'],
-        isWIP: true
-      };
-      
-      log('Test 2: Tableaux de strings');
-      log(`spells: ${JSON.stringify(testCard2.spells)}`);
-      log(`tags: ${JSON.stringify(testCard2.tags)}`);
-      
-      try {
-        await saveCard(testCard2);
-        log('Test 2 réussi ✅');
-      } catch (error: any) {
-        log(`Test 2 échoué ❌: ${error.message}`);
-      }
+      // Removed diagnostic test code
       
       log('=== FIN DU TEST DE DIAGNOSTIC ===');
     } catch (error: any) {

@@ -1,56 +1,8 @@
 import React, { useState } from 'react';
-import { testArrayFormats, setupColumnTypesRPC } from '../utils/arrayTestDiagnostic';
 
 const TestDiagnostic: React.FC = () => {
   const [results, setResults] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const runArrayTests = async () => {
-    setLoading(true);
-    setResults(['Démarrage des tests...']);
-
-    try {
-      // Rediriger console.log vers notre interface
-      const originalConsoleLog = console.log;
-      const originalConsoleError = console.error;
-
-      console.log = (...args) => {
-        originalConsoleLog(...args);
-        setResults(prev => [...prev, args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ')]);
-      };
-
-      console.error = (...args) => {
-        originalConsoleError(...args);
-        setResults(prev => [...prev, `ERROR: ${args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : a).join(' ')}`]);
-      };
-
-      await testArrayFormats();
-
-      // Restaurer console.log
-      console.log = originalConsoleLog;
-      console.error = originalConsoleError;
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
-      setResults(prev => [...prev, `Erreur: ${errorMessage}`]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const showSetupSQL = async () => {
-    setLoading(true);
-    setResults(['Génération du SQL pour la fonction RPC...']);
-
-    try {
-      const sql = await setupColumnTypesRPC();
-      setResults(prev => [...prev, sql]);
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Erreur inconnue';
-      setResults(prev => [...prev, `Erreur: ${errorMessage}`]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -58,7 +10,6 @@ const TestDiagnostic: React.FC = () => {
       
       <div style={{ marginBottom: '20px' }}>
         <button 
-          onClick={runArrayTests} 
           disabled={loading}
           style={{
             padding: '10px 20px',
@@ -74,7 +25,6 @@ const TestDiagnostic: React.FC = () => {
         </button>
 
         <button 
-          onClick={showSetupSQL} 
           disabled={loading}
           style={{
             padding: '10px 20px',

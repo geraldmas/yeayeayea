@@ -19,7 +19,6 @@ interface Filters {
   selectedTags: string[];
   hasSpells: boolean | null;
   hasPassiveEffect: boolean | null;
-  hasTalent: boolean | null;
 }
 
 interface LoadedTagsMap {
@@ -41,8 +40,7 @@ const CardBrowser: React.FC = () => {
     hasDescription: null,
     selectedTags: [],
     hasSpells: null,
-    hasPassiveEffect: null,
-    hasTalent: null
+    hasPassiveEffect: null
   });
 
   const [allCards, setAllCards] = useState<Card[]>([]); // Ajout d'un state pour toutes les cartes non filtrées
@@ -62,7 +60,7 @@ const CardBrowser: React.FC = () => {
       const allTags = new Set<string>();
 
       await Promise.all(allCards.map(async card => {
-        const cardTags = await tagService.getByIds(card.tags as string[]);
+        const cardTags = await tagService.getByIds(card.tags);
         tagsMap[card.id] = cardTags;
         cardTags.forEach(tag => {
           if (tag.name) allTags.add(tag.name);
@@ -100,10 +98,6 @@ const CardBrowser: React.FC = () => {
       if (filters.hasPassiveEffect !== null) {
         if (filters.hasPassiveEffect && !card.passiveEffect) return false;
         if (!filters.hasPassiveEffect && card.passiveEffect) return false;
-      }
-      if (filters.hasTalent !== null) {
-        if (filters.hasTalent && !card.talent) return false;
-        if (!filters.hasTalent && card.talent) return false;
       }
       if (filters.selectedTags.length > 0) {
         const cardTags = loadedTagsMap[card.id] || [];
@@ -183,8 +177,7 @@ const CardBrowser: React.FC = () => {
       hasDescription: null,
       selectedTags: [],
       hasSpells: null,
-      hasPassiveEffect: null,
-      hasTalent: null
+      hasPassiveEffect: null
     });
   };
 

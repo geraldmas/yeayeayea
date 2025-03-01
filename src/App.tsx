@@ -7,7 +7,7 @@ import Notification from './components/Notification';
 import Login from './components/Login';
 import { Help } from './components';
 import TestDebugger from './components/TestDebugger'; // Importer le nouveau composant
-import { Card, Booster } from './types';
+import { Card, Booster, Alteration } from './types';
 import { validateCard } from './utils/validation';
 import { saveCard, getAllCards } from './utils/supabaseClient';
 import './App.css';
@@ -19,7 +19,7 @@ const App: React.FC = () => {
   const [jsonPreview, setJsonPreview] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [cardData, setCardData] = useState<Card>({
-    id: '',
+    id: 0,
     name: '',
     description: '',
     image: '',
@@ -29,6 +29,7 @@ const App: React.FC = () => {
     type: 'personnage',
     rarity: 'gros_bodycount',
     isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
+    isCrap: false,
   });
   const [boosterData, setBoosterData] = useState<Booster>({
     id: '',
@@ -36,6 +37,11 @@ const App: React.FC = () => {
     cards: [],
   });
   const [allCards, setAllCards] = useState<Card[]>([]);
+
+  const handleAlterationChange = (alteration: Alteration) => {
+    // You can add any logic here to handle alteration changes
+    console.log('Alteration changed:', alteration);
+  };
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -55,7 +61,7 @@ const App: React.FC = () => {
           showNotification('Carte sauvegardée avec succès', 'success');
           // Réinitialiser le formulaire
           setCardData({
-            id: '',
+            id: 0,
             name: '',
             description: '',
             image: '',
@@ -65,6 +71,7 @@ const App: React.FC = () => {
             type: 'personnage',
             rarity: 'gros_bodycount',
             isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
+            isCrap: false,
           });
         } catch (error) {
           console.error('Erreur lors de la sauvegarde:', error);
@@ -334,7 +341,7 @@ const App: React.FC = () => {
             </>
           } />
           <Route path="/help" element={<Help />} />
-          <Route path="/alterations" element={<AlterationManager />} />
+          <Route path="/alterations" element={<AlterationManager onChange={handleAlterationChange} />} />
           {/* Ajouter une nouvelle route pour le débogueur */}
           <Route path="/debug" element={<TestDebugger />} />
           <Route path="*" element={<Navigate to="/browser" replace />} />

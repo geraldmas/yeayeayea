@@ -3,8 +3,8 @@ import { Alteration } from '../types';
 import { alterationService } from '../utils/dataService';
 
 interface AlterationListProps {
-  selectedAlteration?: string;
-  onChange: (alterationId: string | undefined) => void;
+  selectedAlteration?: number;
+  onChange: (alterationId: number | undefined) => void;
 }
 
 const AlterationList: React.FC<AlterationListProps> = ({ selectedAlteration, onChange }) => {
@@ -35,12 +35,12 @@ const AlterationList: React.FC<AlterationListProps> = ({ selectedAlteration, onC
     <div className="alteration-selector">
       <select 
         value={selectedAlteration || ''}
-        onChange={(e) => onChange(e.target.value || undefined)}
+        onChange={(e) => onChange(e.target.value ? parseInt(e.target.value) : undefined)}
       >
         <option value="">Sélectionner une altération</option>
         {alterations.map((alteration) => (
           <option key={alteration.id} value={alteration.id}>
-            {alteration.name} ({alteration.type})
+            {alteration.icon} {alteration.name} ({alteration.type})
           </option>
         ))}
       </select>

@@ -56,18 +56,5 @@
       "passiveEffect": "Peut esquiver certaines attaques terrestres"
     }
   ],
-  "passiveEffect": "Gagne +5 de puissance pour chaque tour écoulé",
-  "talent": {
-    "name": "Aura de chaleur",
-    "description": "Dégage une aura qui brûle lentement l'adversaire",
-    "power": 10,
-    "effects": [
-      {
-        "type": "damage",
-        "value": 5,
-        "targetType": "opponent",
-        "duration": 3
-      }
-    ]
-  }
+  "passiveEffect": "Gagne +5 de puissance pour chaque tour écoulé"
 }

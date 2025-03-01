@@ -21,14 +21,13 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
   }, [booster.cards]);
 
   const loadSpellsAndTags = async () => {
-    const spellIds = new Set<string>();
-    const tagIds = new Set<string>();
+    const spellIds = new Set<number>();
+    const tagIds = new Set<number>();
 
     // Collect all spell and tag IDs from cards
     booster.cards.forEach(card => {
-      (card.spells as Json[]).forEach(spell => spellIds.add((spell as any).id));
-      if (card.talent) spellIds.add((card.talent as any).id);
-      (card.tags as Json[]).forEach(tag => tagIds.add((tag as any).id));
+      card.spells.forEach(id => spellIds.add(id));
+      card.tags.forEach(id => tagIds.add(id));
     });
 
     try {
@@ -177,7 +176,7 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
                   <p><strong>Description:</strong> {card.description}</p>
                   <p><strong>Points de vie:</strong> {card.health}</p>
                   <p><strong>Sorts:</strong> {card.spells?.length || 0}</p>
-                  <p><strong>Tags:</strong> {(card.tags as Json[]).map(tag => loadedTags[(tag as any).id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
+                  <p><strong>Tags:</strong> {card.tags.map(id => loadedTags[id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
                 </div>
               )}
             </div>

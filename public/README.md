@@ -31,7 +31,6 @@ Application disponible en ligne : [TCG Card Editor](https://geraldmas.github.io/
 3. Ajoutez des sorts en cliquant sur "Ajouter un sort"
 4. Pour chaque sort, ajoutez des effets en cliquant sur "Ajouter un effet"
 5. Ajoutez des tags en cliquant sur "Ajouter un tag"
-6. Si la carte est un personnage, vous pouvez ajouter un talent
 7. Vérifiez l'aperçu en temps réel de votre carte
 8. La carte est automatiquement sauvegardée lors de vos modifications
 
@@ -81,11 +80,6 @@ Chaque sort peut avoir plusieurs effets:
 Les tags permettent de catégoriser les cartes et d'activer des synergies:
 - **Nom**: Nom du tag (ex: "Feu", "Eau", "Insecte")
 - **Effet passif**: Description de l'effet passif lié à ce tag
-
-#### Talent (spécifique aux personnages)
-Un talent est un sort spécial qui peut être utilisé depuis le banc:
-- Mêmes champs qu'un sort normal
-- Limité à un seul talent par carte de personnage
 
 ### Navigation et recherche
 
@@ -202,7 +196,6 @@ export interface Card {
     type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
     rarity: 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
     isEX?: boolean;
-    talent?: Spell;
     position?: 'active' | 'bench' | 'hand' | 'inventory';
     isWIP: boolean; // Indique si la carte est en cours de travail
 }
