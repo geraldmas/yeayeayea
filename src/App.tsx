@@ -6,6 +6,7 @@ import CardBrowser from './components/CardBrowser';
 import Notification from './components/Notification';
 import Login from './components/Login';
 import { Help } from './components';
+import TestDebugger from './components/TestDebugger'; // Importer le nouveau composant
 import { Card, Booster } from './types';
 import { validateCard } from './utils/validation';
 import { saveCard, getAllCards } from './utils/supabaseClient';
@@ -14,7 +15,7 @@ import AlterationManager from './components/AlterationManager';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations'>('card');
+  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'debug'>('card');
   const [jsonPreview, setJsonPreview] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [cardData, setCardData] = useState<Card>({
@@ -252,6 +253,14 @@ const App: React.FC = () => {
           >
             Altérations
           </Link>
+          {/* Ajouter un nouvel onglet pour le débogueur */}
+          <Link 
+            to="/debug" 
+            className={`tab-button ${activeTab === 'debug' ? 'active' : ''}`}
+            onClick={() => setActiveTab('debug')}
+          >
+            🔍 Débogueur
+          </Link>
           <div className="random-button-container">
             <button 
               className="tab-button random-button"
@@ -326,6 +335,8 @@ const App: React.FC = () => {
           } />
           <Route path="/help" element={<Help />} />
           <Route path="/alterations" element={<AlterationManager />} />
+          {/* Ajouter une nouvelle route pour le débogueur */}
+          <Route path="/debug" element={<TestDebugger />} />
           <Route path="*" element={<Navigate to="/browser" replace />} />
         </Routes>
       </div>

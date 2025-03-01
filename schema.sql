@@ -75,7 +75,7 @@ ALTER TABLE public.cards
 CREATE OR REPLACE FUNCTION check_spell_ids() RETURNS trigger AS $$
 BEGIN
   IF NOT (SELECT bool_and(spell_id IS NOT NULL) 
-          FROM unnest(NEW.spells) spell_id 
+          FROM unnest(NEW.spells::varchar[]) spell_id 
           LEFT JOIN public.spells ON spell_id = spells.id) THEN
     RAISE EXCEPTION 'Invalid spell ID found';
   END IF;
@@ -86,7 +86,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION check_tag_ids() RETURNS trigger AS $$
 BEGIN
   IF NOT (SELECT bool_and(tag_id IS NOT NULL) 
-          FROM unnest(NEW.tags) tag_id 
+          FROM unnest(NEW.tags::varchar[]) tag_id 
           LEFT JOIN public.tags ON tag_id = tags.id) THEN
     RAISE EXCEPTION 'Invalid tag ID found';
   END IF;

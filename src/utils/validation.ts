@@ -1,4 +1,5 @@
 import { Card, Spell, Tag } from '../types';
+import { Json } from '../types/database.types';
 import { spellService, tagService } from './dataService';
 
 export const validateCard = async (card: Card): Promise<string[]> => {
@@ -12,7 +13,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   // Load and validate spells
   if (card.spells?.length > 0) {
     try {
-      const spells = await spellService.getByIds(card.spells);
+      const spells = await spellService.getByIds(card.spells as string[]);
       spells.forEach((spell, index) => {
         const spellErrors = validateSpell(spell);
         spellErrors.forEach(error => errors.push(`Sort #${index + 1}: ${error}`));
@@ -25,7 +26,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   // Validate talent if present
   if (card.talent) {
     try {
-      const talent = await spellService.getById(card.talent);
+      const talent = await spellService.getById(card.talent as string);
       if (talent) {
         const talentErrors = validateSpell(talent);
         talentErrors.forEach(error => errors.push(`Talent: ${error}`));
@@ -40,7 +41,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   // Load and validate tags
   if (card.tags?.length > 0) {
     try {
-      const tags = await tagService.getByIds(card.tags);
+      const tags = await tagService.getByIds(card.tags as string[]);
       tags.forEach((tag, index) => {
         const tagErrors = validateTag(tag);
         tagErrors.forEach(error => errors.push(`Tag #${index + 1}: ${error}`));

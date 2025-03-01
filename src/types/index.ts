@@ -1,3 +1,7 @@
+import type { Json } from './database.types';
+
+export type { Json } from './database.types';
+
 export interface Spell {
     id: string;
     name: string;
@@ -62,14 +66,14 @@ export interface Card {
     name: string;
     description: string;
     image: string;
-    spells: string[]; // IDs des sorts
+    spells: Json[]; // IDs des sorts
     passiveEffect?: string;
     health: number;
-    tags: string[]; // IDs des tags
+    tags: Json[]; // IDs des tags
     type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
     rarity: Rarity;
     isEX?: boolean; // EX cards are worth 2 points
-    talent?: string; // ID du sort talent
+    talent?: Json; // ID du sort talent
     position?: 'active' | 'bench' | 'hand' | 'inventory';
     isWIP: boolean; // Nouvelle propriété
 }

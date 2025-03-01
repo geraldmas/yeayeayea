@@ -6,6 +6,7 @@ import { downloadCSV } from '../utils/csvConverter';
 import './CardBrowser.css';
 import { useNavigate } from 'react-router-dom';
 import { tagService } from '../utils/dataService';
+import { Json } from '../types/database.types';
 
 interface Filters {
   searchTerm: string;
@@ -61,7 +62,7 @@ const CardBrowser: React.FC = () => {
       const allTags = new Set<string>();
 
       await Promise.all(allCards.map(async card => {
-        const cardTags = await tagService.getByIds(card.tags);
+        const cardTags = await tagService.getByIds(card.tags as string[]);
         tagsMap[card.id] = cardTags;
         cardTags.forEach(tag => {
           if (tag.name) allTags.add(tag.name);

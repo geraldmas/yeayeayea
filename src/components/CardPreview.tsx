@@ -105,6 +105,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
     loadAlterations();
     loadSpells();
     loadTags();
+    loadTalent();
   }, [card]);
 
   const loadAlterations = async () => {
@@ -120,32 +121,53 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
     }
   };
 
+  // Add logging to diagnose the error
   const loadSpells = async () => {
     try {
+      console.log('Spells IDs:', card.spells);
       const spellsData = await Promise.all(
-        card.spells.map(id => spellService.getById(id))
+        card.spells.map(id => {
+          const spellId = id as string;
+          return spellService.getById(spellId.toString());
+        })
       );
+      console.log('Loaded Spells Data:', spellsData);
       setLoadedSpells(spellsData.filter((spell): spell is Spell => spell !== null));
-
-      if (card.talent) {
-        const talent = await spellService.getById(card.talent);
-        if (talent) {
-          setLoadedTalent(talent);
-        }
-      }
     } catch (error) {
       console.error('Error loading spells:', error);
     }
   };
 
+  // Add logging to diagnose the error
   const loadTags = async () => {
     try {
+      console.log('Tags IDs:', card.tags);
       const tagsData = await Promise.all(
-        card.tags.map(id => tagService.getById(id))
+        card.tags.map(id => {
+          const tagId = id as string;
+          return tagService.getById(tagId.toString());
+        })
       );
+      console.log('Loaded Tags Data:', tagsData);
       setLoadedTags(tagsData.filter((tag): tag is Tag => tag !== null));
     } catch (error) {
       console.error('Error loading tags:', error);
+    }
+  };
+
+  const loadTalent = async () => {
+    try {
+      if (card.talent) {
+        console.log('Talent ID:', card.talent);
+        const talentId = card.talent as string;
+        const talent = await spellService.getById(talentId.toString());
+        console.log('Loaded Talent:', talent);
+        if (talent) {
+          setLoadedTalent(talent);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading talent:', error);
     }
   };
 

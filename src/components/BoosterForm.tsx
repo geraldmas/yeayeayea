@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Booster, Card, Spell, Tag } from '../types';
 import { spellService, tagService } from '../utils/dataService';
+import { Json } from '../types/database.types';
 
 interface BoosterFormProps {
   booster: Booster;
@@ -25,9 +26,9 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
 
     // Collect all spell and tag IDs from cards
     booster.cards.forEach(card => {
-      card.spells.forEach(id => spellIds.add(id));
-      if (card.talent) spellIds.add(card.talent);
-      card.tags.forEach(id => tagIds.add(id));
+      (card.spells as Json[]).forEach(spell => spellIds.add((spell as any).id));
+      if (card.talent) spellIds.add((card.talent as any).id);
+      (card.tags as Json[]).forEach(tag => tagIds.add((tag as any).id));
     });
 
     try {
@@ -176,7 +177,7 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
                   <p><strong>Description:</strong> {card.description}</p>
                   <p><strong>Points de vie:</strong> {card.health}</p>
                   <p><strong>Sorts:</strong> {card.spells?.length || 0}</p>
-                  <p><strong>Tags:</strong> {card.tags.map(id => loadedTags[id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
+                  <p><strong>Tags:</strong> {(card.tags as Json[]).map(tag => loadedTags[(tag as any).id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
                 </div>
               )}
             </div>

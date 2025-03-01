@@ -80,9 +80,13 @@ export const spellService = {
   },
 
   async create(spell: Omit<Spell, 'id' | 'created_at' | 'updated_at'>): Promise<Spell> {
+    // Generate a UUID for the new spell
+    const id = crypto.randomUUID();
+    
     const { data, error } = await supabase
       .from('spells')
       .insert({
+        id,
         ...spell,
         effects: spell.effects as any
       })
@@ -91,7 +95,7 @@ export const spellService = {
     if (error) throw error;
     return {
       ...data,
-      effects: data.effects as unknown as SpellEffect[]
+      effects: data.effects as unknown as SpellEffect[] // Ensure effects are correctly typed
     };
   },
 
@@ -124,12 +128,23 @@ export const spellService = {
   },
 
   async getByIds(ids: string[]): Promise<Spell[]> {
+    // Return empty array if no ids provided
+    if (!ids || ids.length === 0) return [];
+    
+    // Filter out any invalid/null/undefined ids
+    const validIds = ids.filter(id => id && typeof id === 'string');
+    if (validIds.length === 0) return [];
+
     const { data, error } = await supabase
       .from('spells')
       .select('*')
-      .in('id', ids);
+      .in('id', validIds);
+    
     if (error) throw error;
-    return data;
+    return (data || []).map(spell => ({
+      ...spell,
+      effects: spell.effects as unknown as SpellEffect[]
+    }));
   }
 };
 
@@ -153,9 +168,15 @@ export const tagService = {
   },
 
   async create(tag: Omit<Tag, 'id' | 'created_at' | 'updated_at'>): Promise<Tag> {
+    // Generate a UUID for the new tag
+    const id = crypto.randomUUID();
+    
     const { data, error } = await supabase
       .from('tags')
-      .insert(tag)
+      .insert({
+        id,
+        ...tag
+      })
       .select()
       .single();
     if (error) throw error;
@@ -182,11 +203,19 @@ export const tagService = {
   },
 
   async getByIds(ids: string[]): Promise<Tag[]> {
+    // Return empty array if no ids provided
+    if (!ids || ids.length === 0) return [];
+    
+    // Filter out any invalid/null/undefined ids
+    const validIds = ids.filter(id => id && typeof id === 'string');
+    if (validIds.length === 0) return [];
+
     const { data, error } = await supabase
       .from('tags')
       .select('*')
-      .in('id', ids);
+      .in('id', validIds);
+    
     if (error) throw error;
-    return data;
+    return data || [];
   }
 };

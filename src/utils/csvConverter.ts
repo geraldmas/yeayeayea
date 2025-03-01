@@ -29,7 +29,7 @@ export function convertCardsToCSV(cards: Card[]): string {
       card.isEX ? 'true' : 'false',
       `"${JSON.stringify(card.spells || []).replace(/"/g, '""')}"`,
       `"${card.talent ? JSON.stringify(card.talent).replace(/"/g, '""') : ''}"`,
-      `"${JSON.stringify(card.tags || []).replace(/"/g, '""')}"`
+      `"${JSON.stringify(card.tags || []).replace(/"/g, '""')}"`,
     ];
     return values.join(',');
   });
@@ -63,21 +63,21 @@ export function convertCSVToCards(csv: string): Card[] {
           break;
         case 'spells':
           try {
-            card[header] = JSON.parse(value || '[]');
+            card[header] = JSON.parse(value || '[]').map((id: any) => typeof id === 'object' && id !== null ? id.id : id);
           } catch {
             card[header] = [];
           }
           break;
         case 'talent':
           try {
-            card[header] = value ? JSON.parse(value) : null;
+            card[header] = value ? (typeof JSON.parse(value) === 'object' && JSON.parse(value) !== null ? JSON.parse(value).id : JSON.parse(value)) : null;
           } catch {
             card[header] = null;
           }
           break;
         case 'tags':
           try {
-            card[header] = JSON.parse(value || '[]');
+            card[header] = JSON.parse(value || '[]').map((id: any) => typeof id === 'object' && id !== null ? id.id : id);
           } catch {
             card[header] = [];
           }

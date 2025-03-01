@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Tag } from '../types';
+import { Card, Tag, Json } from '../types';
 import SpellList from './SpellList';
 import TagList from './TagList';
 import CardPreview from './CardPreview';
@@ -313,7 +313,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
         </div>
 
         <SpellList 
-          spellIds={card.spells} 
+          spellIds={card.spells as string[]} 
           onChange={(spells) => setCard(prev => ({...prev, spells}))} 
           isTalent={false}
         />
@@ -322,7 +322,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
           <div className="editor-section">
             <h3>Talent (capacité spéciale depuis le banc)</h3>
             <SpellList 
-              spellIds={card.talent ? [card.talent] : []} 
+              spellIds={card.talent ? [card.talent as string] : []} 
               onChange={(talents) => setCard(prev => ({...prev, talent: talents[0]}))} 
               isTalent={true}
               maxSpells={1}
@@ -331,7 +331,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard }) => {
         )}
 
         <TagList 
-          tagIds={card.tags} 
+          tagIds={card.tags as string[]} 
           onChange={(tagIds: string[]) => setCard(prev => ({...prev, tags: tagIds}))} 
         />
       </div>
