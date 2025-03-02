@@ -1,3 +1,45 @@
+# Documentation du Gestionnaire de Cartes
+
+
+### 2. Types de Données Principaux
+ 
+#### 2.1 Carte (Card)
+- **Propriétés principales** :
+  - `id`: Identifiant unique
+  - `name`: Nom de la carte
+  - `type`: Type de carte ('personnage', 'objet', 'evenement', 'lieu', 'action')
+  - `rarity`: Rareté ('gros_bodycount', 'interessant', 'banger', 'cheate')
+  - `description`: Description textuelle
+  - `image`: URL de l'image
+  - `passive_effect`: Effet passif de la carte
+  - `properties`: Propriétés spécifiques (points de vie, etc.)
+  - `summon_cost`: Coût d'invocation
+  - `is_wip`: Indique si la carte est en cours de développement
+  - `is_crap`: Indique si la carte est à retravailler
+
+#### 2.2 Sort (Spell)
+- **Propriétés principales** :
+  - `id`: Identifiant unique
+  - `name`: Nom du sort
+  - `description`: Description de l'effet
+  - `power`: Puissance de base
+  - `cost`: Coût en ressources
+  - `range_min/max`: Portée du sort
+  - `effects`: Tableau des effets du sort
+  - `is_value_percentage`: Indique si les valeurs sont en pourcentage
+
+#### 2.3 Altération (Alteration)
+- **Propriétés principales** :
+  - `name`: Nom de l'altération
+  - `description`: Description de l'effet
+  - `type`: Type ('buff', 'debuff', 'status', 'other')
+  - `duration`: Durée en tours
+  - `stackable`: Peut être cumulée
+  - `unique_effect`: A un effet unique
+  - `effect`: Configuration détaillée de l'effet
+ 
+
+
 # Canevas Système de Combat – Jeu de Carte Mobile
 
 ## 1. Terrain et Cartes
