@@ -8,6 +8,13 @@ import { getAutocompleteValues, updateCard, insertCard } from '../utils/supabase
 import { updateCardSpells, updateCardTags, Card as CardType } from '../utils/supabaseUtils';
 import './CardForm.css';
 
+// Add this interface for toast notifications
+interface Toast {
+  id: number;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
+
 interface CardFormProps {
   card: Card | null;
   setCard: React.Dispatch<React.SetStateAction<Card | null>>;
@@ -20,6 +27,7 @@ interface CardFormProps {
 const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellIds, tagIds, setTagIds }) => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'info' | 'spells' | 'tags'>('info');
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const [savedValues, setSavedValues] = useState<{
     names: string[];
     descriptions: string[];
@@ -115,14 +123,46 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
     }
   };
 
+  // Add this function to show toast notifications
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+      setToasts(prev => prev.filter(toast => toast.id !== id));
+    }, 3000);
+  };
+
+  // Add validation before sending to API
+  const validateCard = (card: Card) => {
+    const requiredFields = ['name', 'type', 'rarity'];
+    const missingFields = requiredFields.filter(field => !card[field as keyof Card]);
+    
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
+    
+    if (card.type === 'personnage' && (!card.properties?.health || card.properties.health <= 0)) {
+      throw new Error('Personnages must have health greater than 0');
+    }
+    
+    return true;
+  }
+
   const saveCard = async () => {
     if (card) {
       try {
+        // Validate card before saving
+        validateCard(card);
+
         // First save the card data
         let savedCard: Card | null = null;
         
         if (card.id) {
+          console.log("Sending card data:", card);
           const updateResult = await updateCard(card);
+          console.log("API response:", updateResult);
           // Check if we got a valid result
           if (updateResult) {
             savedCard = updateResult as unknown as Card;
@@ -130,11 +170,14 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
             throw new Error("Failed to update card - no data returned");
           }
         } else {
+          console.log("Sending card data:", card);
           const insertResult = await insertCard(card);
+          console.log("API response:", insertResult);
           // Check if we got a valid result
           if (insertResult) {
             savedCard = insertResult as unknown as Card;
           } else {
+            console.error("Insert returned null - checking Supabase for errors");
             throw new Error("Failed to insert card - no data returned");
           }
         }
@@ -150,10 +193,11 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
           throw new Error("Card saved but no ID was returned");
         }
         
-        alert('Carte et relations sauvegardées avec succès');
+        // Show success toast
+        showToast('Carte et relations sauvegardées avec succès', 'success');
       } catch (error) {
         console.error('Erreur lors de la sauvegarde de la carte:', error);
-        alert('Erreur lors de la sauvegarde de la carte');
+        showToast('Erreur lors de la sauvegarde de la carte', 'error');
       }
     }
   };
@@ -385,6 +429,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                 spellIds={spellIds}
                 onChange={setSpellIds}
                 maxSpells={card.type === 'personnage' ? undefined : 1}
+                disableAutocomplete={true} // Disable autocomplete for spells
               />
             </div>
           )}
@@ -398,6 +443,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
               <TagList
                 tagIds={tagIds}
                 onChange={setTagIds}
+                disableAutocomplete={true} // Disable autocomplete for tags
               />
             </div>
           )}
@@ -413,6 +459,15 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
       <div className="card-preview-sidebar">
         <h3>Aperçu en temps réel</h3>
         <CardPreview card={card} />
+      </div>
+
+      {/* Toast notifications */}
+      <div className="toast-container">
+        {toasts.map(toast => (
+          <div key={toast.id} className={`toast ${toast.type}`}>
+            {toast.message}
+          </div>
+        ))}
       </div>
     </div>
   );

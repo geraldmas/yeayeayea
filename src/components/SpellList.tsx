@@ -8,9 +8,10 @@ interface SpellListProps {
   spellIds: number[];
   onChange: (spellIds: number[]) => void;
   maxSpells?: number;
+  disableAutocomplete?: boolean; // New prop
 }
 
-const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) => {
+const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells, disableAutocomplete }) => {
   const [spells, setSpells] = useState<Spell[]>([]);
   const [expandedSpellId, setExpandedSpellId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);

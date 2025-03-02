@@ -6,9 +6,10 @@ import './TagList.css';
 interface TagListProps {
   tagIds: number[];
   onChange: (tagIds: number[]) => void;
+  disableAutocomplete?: boolean; // New prop
 }
 
-const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
+const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete }) => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,17 +21,40 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
 
   const loadTags = async () => {
     try {
-      // Charger les tags sélectionnés
-      const selectedTags = await Promise.all(
-        tagIds.map(id => tagService.getById(id))
-      );
-      setTags(selectedTags.filter((tag): tag is Tag => tag !== null));
+      // Charger les tags sélectionnés - with improved error handling
+      if (tagIds.length > 0) {
+        const selectedTagPromises = tagIds.map(async id => {
+          try {
+            return await tagService.getById(id);
+          } catch (err) {
+            console.error(`Error fetching tag with ID ${id}:`, err);
+            return null;
+          }
+        });
+        
+        const selectedTags = await Promise.all(selectedTagPromises);
+        setTags(selectedTags.filter((tag): tag is Tag => tag !== null));
+      } else {
+        setTags([]);
+      }
 
       // Charger tous les tags disponibles
-      const allTags = await tagService.getAll();
-      setAvailableTags(allTags);
+      try {
+        const allTags = await tagService.getAll();
+        setAvailableTags(allTags || []);
+      } catch (err) {
+        console.error('Error fetching all available tags:', err);
+        setAvailableTags([]);
+      }
     } catch (error) {
       console.error('Error loading tags:', error);
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error(error.message);
+        console.error(error.stack);
+      }
+      setTags([]);
+      setAvailableTags([]);
     } finally {
       setLoading(false);
     }
@@ -194,6 +218,8 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
           + Créer un nouveau tag
         </button>
       </div>
+
+      {!disableAutocomplete && <datalist id="tag-suggestions">...</datalist>}
     </div>
   );
 };

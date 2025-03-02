@@ -221,7 +221,7 @@
 }
 
 .card-item::after {
-  content: "Double-cliquez pour éditer";
+  content: "Cliquer pour visualiser et éditer. ";
   position: absolute;
   bottom: 0;
   left: 0;

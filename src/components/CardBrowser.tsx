@@ -37,7 +37,7 @@ const CardBrowser: React.FC = () => {
   const [filters, setFilters] = useState<Filters>({
     searchTerm: '',
     isWIP: undefined,
-    isCrap: undefined, // Change this to undefined so no filtering happens by default
+    isCrap: false, // Changed from undefined to false - exclude trash cards by default
     rarity: undefined,
     type: undefined,
     hasTags: null,
@@ -180,7 +180,7 @@ const CardBrowser: React.FC = () => {
     setFilters({
       searchTerm: '',
       isWIP: undefined,
-      isCrap: undefined, // Update this to undefined
+      isCrap: false, // Changed from undefined to false - keep excluding trash cards on reset
       rarity: undefined,
       type: undefined,
       hasTags: null,
@@ -376,8 +376,7 @@ const CardBrowser: React.FC = () => {
                 key={card.id}
                 className={`card-item ${selectedCard?.id === card.id ? 'selected' : ''}`}
                 onClick={() => setSelectedCard(card)}
-                onDoubleClick={() => navigate('/card', { state: { card } })} // Pass the card data here
-                title="Double-cliquez pour éditer"
+                title="Cliquez pour visualiser"
               >
                 <div className="card-item-header">
                   <span className="card-name" title={card.name}>
@@ -413,6 +412,14 @@ const CardBrowser: React.FC = () => {
       {selectedCard && (
         <div className="card-preview-container">
           <CardPreview card={selectedCard} />
+          <div className="preview-actions">
+            <button 
+              className="edit-card-button"
+              onClick={() => navigate('/card', { state: { card: selectedCard } })}
+            >
+              Éditer la carte
+            </button>
+          </div>
         </div>
       )}
     </div>

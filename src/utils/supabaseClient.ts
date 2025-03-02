@@ -125,53 +125,36 @@ export async function getAutocompleteValues() {
 }
 
 export const updateCard = async (card: Card) => {
-  const formattedCard = {
-    name: card.name,
-    type: card.type,
-    rarity: card.rarity,
-    description: card.description || null,
-    image: card.image || null,
-    passive_effect: card.passive_effect || null,
-    is_wip: card.is_wip,
-    is_crap: card.is_crap,
-    summon_cost: card.summon_cost || null,
-    properties: card.properties || {}
-  };
-
   const { data, error } = await supabase
     .from('cards')
-    .update(formattedCard)
-    .eq('id', card.id);
-
+    .update(card)
+    .eq('id', card.id)
+    .select() // Make sure to add .select() to return the updated data
+    .single();
+    
   if (error) {
+    console.error('Error updating card:', error);
     throw error;
   }
-
+  
   return data;
 };
 
 export const insertCard = async (card: Card) => {
-  const formattedCard = {
-    name: card.name,
-    type: card.type,
-    rarity: card.rarity,
-    description: card.description || null,
-    image: card.image || null,
-    passive_effect: card.passive_effect || null,
-    is_wip: card.is_wip,
-    is_crap: card.is_crap,
-    summon_cost: card.summon_cost || null,
-    properties: card.properties || {}
-  };
-
+  // Remove id field for new cards
+  const { id, ...cardWithoutId } = card;
+  
   const { data, error } = await supabase
     .from('cards')
-    .insert(formattedCard);
-
+    .insert(cardWithoutId)
+    .select() // Make sure to add .select() to return the inserted data
+    .single();
+    
   if (error) {
+    console.error('Error inserting card:', error);
     throw error;
   }
-
+  
   return data;
 };
 
