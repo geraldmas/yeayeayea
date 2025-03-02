@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tag } from '../types';
 import { tagService } from '../utils/dataService';
+import './TagList.css';
 
 interface TagListProps {
   tagIds: number[];
@@ -11,6 +12,7 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedTagId, setExpandedTagId] = useState<number | null>(null);
 
   useEffect(() => {
     loadTags();
@@ -34,14 +36,7 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
     }
   };
 
-  const handleAddExistingTag = async (tagId: string) => {
-    const numericId = parseInt(tagId);
-    if (!tagIds.includes(numericId)) {
-      onChange([...tagIds, numericId]);
-    }
-  };
-
-  const handleCreateNewTag = async () => {
+  const handleCreateTag = async () => {
     const newTag = {
       name: 'Nouveau tag',
       passive_effect: ''
@@ -51,37 +46,136 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
       const createdTag = await tagService.create(newTag);
       if (createdTag && createdTag.id) {
         onChange([...tagIds, createdTag.id]);
+        setExpandedTagId(createdTag.id);
       }
     } catch (error) {
       console.error('Error creating tag:', error);
     }
   };
 
-  const handleUpdateTag = async (index: number, field: keyof Tag, value: string) => {
-    const tag = tags[index];
+  const handleAddExistingTag = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const tagId = parseInt(e.target.value);
+    if (!isNaN(tagId) && !tagIds.includes(tagId)) {
+      onChange([...tagIds, tagId]);
+      setExpandedTagId(tagId);
+      e.target.value = ''; // Reset select
+    }
+  };
+
+  const handleRemoveTag = async (tagId: number) => {
+    if (window.confirm('Êtes-vous sûr de vouloir retirer ce tag de la carte ?')) {
+      onChange(tagIds.filter(id => id !== tagId));
+      if (expandedTagId === tagId) {
+        setExpandedTagId(null);
+      }
+    }
+  };
+
+  const handleUpdateTag = async (tagId: number, field: keyof Tag, value: any) => {
+    const tagIndex = tags.findIndex(t => t.id === tagId);
+    if (tagIndex === -1) return;
+
     try {
-      await tagService.update(tag.id, { [field]: value });
+      await tagService.update(tagId, { [field]: value });
+      
       const updatedTags = [...tags];
-      updatedTags[index] = { ...updatedTags[index], [field]: value };
+      updatedTags[tagIndex] = { 
+        ...updatedTags[tagIndex], 
+        [field]: value 
+      };
       setTags(updatedTags);
     } catch (error) {
       console.error('Error updating tag:', error);
     }
   };
 
-  const handleRemoveTag = async (index: number) => {
-    onChange(tagIds.filter((_, i) => i !== index));
+  const getTagColorClass = (tagName: string) => {
+    // Generate consistent color class based on tag name
+    const hashCode = tagName.split('').reduce((acc, char) => {
+      return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0);
+    return `tag-color-${Math.abs(hashCode) % 5}`;
   };
 
   if (loading) {
-    return <div>Chargement des tags...</div>;
+    return <div className="loading-container">Chargement des tags...</div>;
   }
 
   return (
     <div className="tag-list">
-      <h3>Tags</h3>
-      <div className="tag-selector">
-        <select onChange={(e) => handleAddExistingTag(e.target.value)}>
+      {tags.length === 0 ? (
+        <div className="empty-state">
+          <p>Aucun tag n'a été ajouté à cette carte.</p>
+        </div>
+      ) : (
+        <div className="tags-container">
+          {tags.map((tag) => (
+            <div 
+              key={tag.id} 
+              className={`tag-card ${expandedTagId === tag.id ? 'expanded' : ''} ${getTagColorClass(tag.name)}`}
+            >
+              <div className="tag-header" onClick={() => setExpandedTagId(expandedTagId === tag.id ? null : tag.id)}>
+                <div className="tag-title">
+                  <span className="tag-name">{tag.name || 'Tag sans nom'}</span>
+                  {tag.passive_effect && (
+                    <span className="tag-badge" title="Ce tag a un effet passif">✨</span>
+                  )}
+                </div>
+                <div className="tag-controls">
+                  <button 
+                    className="remove-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveTag(tag.id);
+                    }}
+                    title="Retirer ce tag"
+                  >
+                    <span className="icon">×</span>
+                  </button>
+                </div>
+              </div>
+
+              {expandedTagId === tag.id && (
+                <div className="tag-details">
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor={`tag-name-${tag.id}`}>Nom</label>
+                      <input
+                        id={`tag-name-${tag.id}`}
+                        type="text"
+                        value={tag.name}
+                        onChange={(e) => handleUpdateTag(tag.id, 'name', e.target.value)}
+                        placeholder="Nom du tag"
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor={`tag-effect-${tag.id}`}>Effet passif</label>
+                      <textarea
+                        id={`tag-effect-${tag.id}`}
+                        value={tag.passive_effect || ''}
+                        onChange={(e) => handleUpdateTag(tag.id, 'passive_effect', e.target.value)}
+                        placeholder="Effet passif du tag (optionnel)"
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="tag-actions">
+        <select 
+          onChange={handleAddExistingTag} 
+          className="tag-select"
+          value=""
+        >
           <option value="">Sélectionner un tag existant...</option>
           {availableTags
             .filter(tag => !tagIds.includes(tag.id))
@@ -89,39 +183,16 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
               <option key={tag.id} value={tag.id}>
                 {tag.name}
               </option>
-            ))}
+            ))
+          }
         </select>
-        <button onClick={handleCreateNewTag}>Créer un nouveau tag</button>
-      </div>
-      <div className="selected-tags">
-        {tags.map((tag, index) => (
-          <div key={tag.id} className="tag-item">
-            <div className="form-row">
-              <div className="form-group">
-                <label>Nom</label>
-                <input
-                  type="text"
-                  value={tag.name}
-                  onChange={(e) => handleUpdateTag(index, 'name', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>Effet passif</label>
-                <input
-                  type="text"
-                  value={tag.passive_effect || ''}
-                  onChange={(e) => handleUpdateTag(index, 'passive_effect', e.target.value)}
-                />
-              </div>
-              <button
-                onClick={() => handleRemoveTag(index)}
-                className="remove-tag"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        ))}
+        
+        <button 
+          onClick={handleCreateTag}
+          className="add-tag-button"
+        >
+          + Créer un nouveau tag
+        </button>
       </div>
     </div>
   );

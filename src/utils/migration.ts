@@ -2,8 +2,20 @@ import { supabase } from './supabaseClient';
 import { Card, Spell, Tag, SpellEffect, Alteration } from '../types';
 
 interface OldCard {
-  spells: Spell[];
-  tags: Tag[];
+  id: number;
+  name: string;
+  description: string | null;
+  type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
+  rarity: string;
+  health: number;
+  image: string | null;
+  passive_effect: string | null;
+  spells: number[];
+  tags: number[];
+  is_wip: boolean;
+  is_crap: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const migrationService = {
@@ -61,49 +73,19 @@ export const migrationService = {
         const oldCard = card as unknown as OldCard;
         
         // Migrer les sorts
-        for (const spell of oldCard.spells) {
-          const { data: spellData, error: spellError } = await supabase
-            .from('spells')
-            .insert({
-              name: spell.name,
-              description: spell.description,
-              power: spell.power,
-              cost: spell.cost,
-              range_min: spell.range_min || 0,
-              range_max: spell.range_max || 0,
-              effects: spell.effects
-            })
-            .select()
-            .single();
+        for (const spellId of oldCard.spells) {
+          const { error: spellError } = await supabase
+            .from('card_spells')
+            .insert({ card_id: oldCard.id, spell_id: spellId });
           if (spellError) throw spellError;
-
-          // Mise à jour des références de sorts dans la carte
-          await supabase
-            .from('cards')
-            .update({
-              spells: [...(card.spells || []), spellData.id]
-            })
-            .eq('id', card.id);
         }
 
         // Migrer les tags
-        for (const tag of oldCard.tags) {
-          const { data: tagData, error: tagError } = await supabase
-            .from('tags')
-            .insert({
-              name: tag.name,
-              passive_effect: tag.passive_effect
-            })
-            .select()
-            .single();
+        for (const tagId of oldCard.tags) {
+          const { error: tagError } = await supabase
+            .from('card_tags')
+            .insert({ card_id: oldCard.id, tag_id: tagId });
           if (tagError) throw tagError;
-
-          await supabase
-            .from('cards')
-            .update({
-              tags: [...(card.tags || []), tagData.id]
-            })
-            .eq('id', card.id);
         }
       }
 

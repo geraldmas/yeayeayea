@@ -1,6 +1,7 @@
 import { Card, Spell, Tag } from '../types';
 import { Json } from '../types/database.types';
-import { spellService, tagService } from './dataService';
+import { spellService, tagService, joinTableService } from './dataService';
+import { supabase } from './supabaseClient';
 
 export const validateCard = async (card: Card): Promise<string[]> => {
   const errors: string[] = [];
@@ -8,32 +9,42 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   if (!card.name) errors.push('Le nom est requis');
   if (!card.type) errors.push('Le type est requis');
   if (!card.rarity) errors.push('La rareté est requise');
-  if (typeof card.health !== 'number') errors.push('Les points de vie doivent être un nombre');
+  if (!card.properties || typeof card.properties !== 'object') errors.push('Les propriétés doivent être un objet JSON');
 
   // Load and validate spells
-  if (card.spells?.length > 0) {
-    try {
-      const spells = await spellService.getByIds(card.spells);
-      spells.forEach((spell, index) => {
-        const spellErrors = validateSpell(spell);
-        spellErrors.forEach(error => errors.push(`Sort #${index + 1}: ${error}`));
-      });
-    } catch (error) {
-      errors.push('Erreur lors de la validation des sorts');
+  try {
+    const cardSpells = await getCardSpells(card.id);
+    if (cardSpells.length > 0) {
+      try {
+        const spells = await spellService.getByIds(cardSpells.map((spell: { spell_id: number }) => spell.spell_id));
+        spells.forEach((spell, index) => {
+          const spellErrors = validateSpell(spell);
+          spellErrors.forEach(error => errors.push(`Sort #${index + 1}: ${error}`));
+        });
+      } catch (error) {
+        errors.push('Erreur lors de la validation des sorts');
+      }
     }
+  } catch (error) {
+    console.warn('Impossible de charger les sorts de la carte, la table card_spells pourrait ne pas exister', error);
   }
 
   // Load and validate tags
-  if (card.tags?.length > 0) {
-    try {
-      const tags = await tagService.getByIds(card.tags);
-      tags.forEach((tag, index) => {
-        const tagErrors = validateTag(tag);
-        tagErrors.forEach(error => errors.push(`Tag #${index + 1}: ${error}`));
-      });
-    } catch (error) {
-      errors.push('Erreur lors de la validation des tags');
+  try {
+    const cardTags = await getCardTags(card.id);
+    if (cardTags.length > 0) {
+      try {
+        const tags = await tagService.getByIds(cardTags.map((tag: { tag_id: number }) => tag.tag_id));
+        tags.forEach((tag, index) => {
+          const tagErrors = validateTag(tag);
+          tagErrors.forEach(error => errors.push(`Tag #${index + 1}: ${error}`));
+        });
+      } catch (error) {
+        errors.push('Erreur lors de la validation des tags');
+      }
     }
+  } catch (error) {
+    console.warn('Impossible de charger les tags de la carte, la table card_tags pourrait ne pas exister', error);
   }
 
   return errors;
@@ -68,4 +79,64 @@ export const validateTag = (tag: Tag): string[] => {
   if (!tag.name) errors.push('Le nom est requis');
 
   return errors;
+};
+
+export const getCardTags = async (cardId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('card_tags')
+      .select('tag_id')
+      .eq('card_id', cardId);
+      
+    if (error) {
+      console.error('Error fetching card tags:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Fatal error fetching card tags:', error);
+    return [];
+  }
+};
+
+export const getCardSpells = async (cardId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('card_spells')
+      .select('spell_id')
+      .eq('card_id', cardId);
+      
+    if (error) {
+      console.error('Error fetching card spells:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Fatal error fetching card spells:', error);
+    return [];
+  }
+};
+
+// Extract tag IDs from CardTag objects
+export const getCardTagIds = async (cardId: number): Promise<number[]> => {
+  try {
+    const tags = await getCardTags(cardId);
+    return tags.map(tag => tag.tag_id);
+  } catch (error) {
+    console.warn('Error getting card tag IDs:', error);
+    return [];
+  }
+};
+
+// Extract spell IDs from CardSpell objects
+export const getCardSpellIds = async (cardId: number): Promise<number[]> => {
+  try {
+    const spells = await getCardSpells(cardId);
+    return spells.map(spell => spell.spell_id);
+  } catch (error) {
+    console.warn('Error getting card spell IDs:', error);
+    return [];
+  }
 };

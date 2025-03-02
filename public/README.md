@@ -1,224 +1,116 @@
-# TCG Card Editor
+# Canevas Système de Combat – Jeu de Carte Mobile
 
-Un éditeur de cartes pour jeu de cartes à collectionner (TCG) qui vous permet de créer et modifier des cartes facilement en renseignant une structure prédéfinie.
+## 1. Terrain et Cartes
 
-Application disponible en ligne : [TCG Card Editor](https://geraldmas.github.io/yeayeayea/)
+### 1.1. Cartes Personnage
+- **Nombre maximum par joueur** : `{max_personnages}` (ex. 3)
+- **Attributs principaux** :
+  - Points de vie (PV)
+  - Sorts
+  - Tags (ex. `#NUIT`, `#JOUR`, `#FRAGILE`, etc.)
+- **Exemples d'effets liés aux tags** :
+  - `#NUIT` : Soin de 5% des PV par tour (via le lieu "Bar")
+  - `#JOUR` : Réduction de 20% d'attaque (via le lieu "Bar")
 
-## Caractéristiques
+### 1.2. Cartes Lieu
+- **Distribution** :
+  - Chaque joueur a `{nombre_lieu_joueur}` cartes lieu dans son booster (ex. 3)
+  - En début de partie, `{total_lieux_communs}` cartes lieu sont mises en commun (ex. 6)
+- **Sélection** :
+  - Un lieu actif est choisi aléatoirement parmi ces cartes
+- **Effets passifs** :
+  - S'appliquent uniquement tant que le lieu est actif
+  - Exemple : Lieu "Bar" – bonus pour `#NUIT`, malus pour `#JOUR`
+- **Extensions** :
+  - Possibilité d'utiliser des cartes action pour changer le lieu et valoriser l'ensemble du pool
 
-- Création et édition de cartes avec tous les champs (sorts, effets, tags, etc.)
-- Prévisualisation en temps réel des cartes avec leur apparence finale
-- Sauvegarde automatique des cartes en cours d'édition
-- Interface intuitive pour la gestion des éléments complexes (sorts, effets, tags)
-- Validation de données pour éviter les erreurs de structure
-- Support complet pour tous les types de cartes et d'effets
-- Système de rareté avec badges visuels
-- Gestion des images avec support des URLs
-- Sélection aléatoire de cartes à compléter
-- Stockage des données dans une base de données en ligne
-- Navigation et recherche dans la collection de cartes existantes
+### 1.3. Cartes Objet
+- **Emplacements par joueur** : `{emplacements_objet}` (ex. 3)
+- **Fonctions** :
+  - Effets passifs en jeu
+  - Option de vente contre du charisme
+- **Exemples d'effets** :
+  - Augmentation de la motivation (+20%)
+  - Modification de la génération ou de la dépense de charisme
 
-## Utilisation
+### 1.4. Cartes Action et Événement
+- **Cartes Action** :
+  - Coût en points de motivation
+  - Fonctionnement similaire aux sorts
+- **Cartes Événement** :
+  - Effets instantanés, temporaires ou permanents
+  - Peuvent modifier des paramètres de la partie
 
-### Créer une carte
+## 2. Mécanique de Combat
 
-1. Sélectionnez l'onglet "Carte"
-2. Remplissez les champs requis (ID, nom, type, etc.)
-   - L'application suggère automatiquement les valeurs précédemment utilisées pour :
-     - Les noms de cartes
-     - Les descriptions
-     - Les URLs d'images
-3. Ajoutez des sorts en cliquant sur "Ajouter un sort"
-4. Pour chaque sort, ajoutez des effets en cliquant sur "Ajouter un effet"
-5. Ajoutez des tags en cliquant sur "Ajouter un tag"
-7. Vérifiez l'aperçu en temps réel de votre carte
-8. La carte est automatiquement sauvegardée lors de vos modifications
+### 2.1. Déroulement du Tour
+- **Tour par tour** :
+  - Chaque joueur reçoit un budget de motivation renouvelé en début de tour
+- **Utilisation des ressources** :
+  - Possibilité de lancer des sorts et d'utiliser des cartes action de n'importe quel personnage sur le terrain, dans l'ordre choisi, dans la limite du budget
+- **Ciblage** :
+  - Par défaut, aléatoire
+  - Possibilité d'altérer ce comportement au cas par cas
 
-### Compléter une carte au hasard
+### 2.2. Résolution des Actions et Sorts
+- **Résolution simultanée** des actions (à valider selon tests)
+- **Interactions entre sorts** :
+  - Effets variables en fonction des tags
+  - Exemples :
+    - Sort infligeant 10% de dégâts supplémentaires aux cibles avec le tag `#FRAGILE`
+    - Sort exclusif avec des effets conditionnels (ex. : empoisonnement)
 
-1. Dans l'onglet "Carte", cliquez sur le bouton "Remplir aléatoirement"
-2. Choisissez le type de complètement souhaité :
-   - Image : sélectionne une carte sans image
-   - Description : sélectionne une carte sans description
-   - Tags : sélectionne une carte sans tags
-   - Sorts : sélectionne une carte sans sorts
-   - En cours : sélectionne une carte marquée comme "en cours" (WIP)
-3. La carte sélectionnée sera chargée dans l'éditeur pour que vous puissiez la compléter
+## 3. Gestion des Ressources
 
-### Guide détaillé des champs
+### 3.1. Motivation
+- **Régénération** :
+  - Se renouvelle à chaque début de tour
+- **Coûts** :
+  - Chaque sort, action ou carte a un coût en motivation (peut être 0 ou variable)
+- **Modificateurs** :
+  - Objets, lieux ou sorts peuvent augmenter ou diminuer la motivation (ex. : objet +20% / lieu -50%)
 
-#### Informations de base d'une carte
-- **ID**: Identifiant unique de la carte (généré automatiquement si non spécifié)
-- **Nom**: Nom de la carte (obligatoire)
-- **Description**: Description de la carte
-- **Image**: URL ou chemin d'accès à l'image de la carte
-- **Type**: Type de la carte (personnage, objet, événement, lieu, action)
-- **Points de vie**: Santé de la carte (pour les personnages)
-- **Effet passif**: Effet qui s'applique en permanence sans action requise
-- **Rareté**: Niveau de rareté de la carte (gros bodycount, intéressant, banger, cheaté)
-- **Carte EX**: Cochez si la carte vaut 2 points au lieu de 1
-- **Position**: Position initiale de la carte (active, banc, main, inventaire)
+### 3.2. Charisme
+- **Acquisition** :
+  - Gagné lors de la mort d’un adversaire, en fonction de sa rareté :
+    - Rareté 1 : `{pts_rareté1}` pts (ex. 5 pts)
+    - Rareté 2 : `{pts_rareté2}` pts (ex. 10 pts)
+    - Rareté 3 : `{pts_rareté3}` pts (ex. 20 pts)
+    - Rareté 4 : `{pts_rareté4}` pts (ex. 40 pts)
+- **Utilisation** :
+  - Invoquer un nouveau personnage ou un objet
+- **Stockage** :
+  - Ressource cumulable, non réinitialisée à chaque tour, avec une limite maximale à définir
+- **Influence externe** :
+  - Certains objets et événements peuvent modifier sa génération ou son utilisation
 
-#### Sorts
-Chaque carte peut avoir plusieurs sorts avec les champs suivants:
-- **Nom**: Nom du sort
-- **Description**: Description du comportement du sort
-- **Puissance**: Valeur de base de puissance du sort
-- **Portée Min/Max**: Portée minimale et maximale (en cases) du sort
-- **Coût**: Coût en points d'action pour utiliser le sort
+## 4. Base et Attaques
 
-#### Effets de sort
-Chaque sort peut avoir plusieurs effets:
-- **Type**: Le type d'effet (dégâts, soins, statut, pioche, poison, ressource, spécial)
-- **Valeur**: Puissance/valeur numérique de l'effet
-- **Type de cible**: Qui est affecté par l'effet (soi-même, adversaire, tous, tag spécifique)
-- **Tag ciblé**: Si le type de cible est "tagged", spécifiez quel tag est ciblé
-- **Chance**: Probabilité (en %) que l'effet se produise
-- **Durée**: Nombre de tours pendant lesquels l'effet persiste
+### 4.1. Base du Joueur
+- **Points de vie** :
+  - Par exemple, 100 PV par base
+- **Objectif principal** :
+  - Détruire la base adverse
 
-#### Tags
-Les tags permettent de catégoriser les cartes et d'activer des synergies:
-- **Nom**: Nom du tag (ex: "Feu", "Eau", "Insecte")
-- **Effet passif**: Description de l'effet passif lié à ce tag
+### 4.2. Attaques sur la Base
+- **Condition** :
+  - L’adversaire ne peut être attaqué directement tant qu'il a au moins un personnage sur le terrain
+- **Dégâts** :
+  - Dégâts sur la base divisés par deux (modifiable via objets/événements)
+- **Continuité des effets** :
+  - L'adversaire peut continuer à utiliser ses cartes action, objets et effets de lieu (ex. contre-attaques, défenses)
 
-### Navigation et recherche
+## 5. Paramétrage et Testabilité
 
-L'application dispose d'un système complet de navigation et de filtrage :
+- **Fichier de configuration JSON** :
+  - Permet de modifier avant le début de partie :
+    - Nombre de personnages sur le terrain
+    - PV de la base
+    - Budget de motivation par tour
+    - Taille du deck (ex. 30 cartes)
+    - Autorisation ou non de personnages "cheatés"
+- **Utilisation** :
+  - Paramétrage initial pour tests et équilibrage
+  - Modifications avant le début de la partie pour éviter les bugs
 
-#### Recherche
-- Barre de recherche textuelle pour trouver rapidement une carte par son nom, sa description ou son type
-- Affichage en temps réel du nombre de cartes correspondant aux critères
 
-#### Filtres
-1. **Statut**
-   - 🚧 En cours (WIP)
-   - ✅ Terminé
-2. **Type**
-   - 👤 Personnage
-   - 🎁 Objet
-   - ⚡ Événement
-   - 🏰 Lieu
-   - 🎯 Action
-3. **Rareté**
-   - Gros bodycount
-   - Intéressant
-   - Banger (avec animation)
-   - Cheaté (avec animation)
-4. **🚨 Éléments manquants**
-   - Sans image
-   - Sans description
-   - Sans tags
-   - Sans sorts
-5. **Tags spécifiques**
-   - Sélection multiple de tags
-   - Filtrage par combinaison de tags (ET logique)
-
-#### Fonctionnalités supplémentaires
-- Double-clic sur une carte pour l'éditer
-- Prévisualisation de la carte sélectionnée
-- Export des cartes filtrées au format CSV
-- Réinitialisation rapide de tous les filtres
-
-## Sauvegarde des données
-
-### Sauvegarde automatique
-- Les modifications sont sauvegardées automatiquement dans la base de données en ligne
-- Les valeurs fréquemment utilisées (noms, descriptions, URLs d'images) sont mémorisées localement pour faciliter la saisie
-- Une copie de secours des cartes est conservée dans le stockage local du navigateur
-
-### Synchronisation
-- Les cartes sont automatiquement synchronisées avec la base de données
-- Les modifications sont immédiatement visibles dans l'interface de navigation
-- La recherche et le filtrage sont mis à jour en temps réel
-
-## Validation des données
-
-L'application effectue automatiquement les validations suivantes :
-- Tous les champs obligatoires sont remplis
-- Les valeurs numériques sont dans des plages acceptables
-- Les types d'effets correspondent aux options autorisées
-- Les relations entre les différents éléments sont cohérentes
-
-## Dépannage
-
-### Problèmes courants et solutions
-
-1. **La sauvegarde ne fonctionne pas**
-   - Vérifiez votre connexion internet
-   - Rafraîchissez la page
-   - Vérifiez que tous les champs obligatoires sont remplis
-
-2. **Les effets de sort ne s'affichent pas correctement**
-   - Vérifiez que le type d'effet est l'un des types autorisés
-   - Assurez-vous que les valeurs des effets sont des nombres
-
-3. **La prévisualisation ne se met pas à jour**
-   - Essayez de cliquer en dehors du champ que vous venez de modifier
-   - Vérifiez qu'il n'y a pas d'erreurs dans la console du navigateur
-
-## Structure des données
-
-L'application est basée sur la structure suivante :
-
-```typescript
-export interface Spell {
-    name: string;
-    description: string;
-    power: number;
-    range?: { min: number, max: number };
-    effects: SpellEffect[];
-    cost?: number;
-}
-
-export interface SpellEffect {
-    type: 'damage' | 'heal' | 'status' | 'draw' | 'poison' | 'resource' | 'special';
-    value: number;
-    targetType?: 'self' | 'opponent' | 'all' | 'tagged';
-    tagTarget?: string;
-    chance?: number;
-    duration?: number;
-}
-
-export interface Tag {
-    name: string;
-    passiveEffect: string;
-}
-
-export interface Card {
-    id: string;
-    name: string;
-    description: string;
-    image: string;
-    spells: Spell[];
-    passiveEffect?: string;
-    health: number;
-    tags: Tag[];
-    type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
-    rarity: 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
-    isEX?: boolean;
-    position?: 'active' | 'bench' | 'hand' | 'inventory';
-    isWIP: boolean; // Indique si la carte est en cours de travail
-}
-
-export interface Booster {
-    id: string;
-    name: string;
-    cards: Card[];
-}
-```
-
-## Bonnes pratiques
-
-1. **Identifiants uniques** - Utilisez toujours des ID uniques et descriptifs pour vos cartes
-2. **Description claire** - Écrivez des descriptions précises pour faciliter la compréhension du gameplay
-3. **Équilibrage** - Veillez à équilibrer la puissance des cartes et des effets
-4. **Organisation** - Utilisez les tags de manière cohérente pour créer des synergies
-5. **Vérification** - Relisez vos cartes pour vérifier la cohérence des effets
-
-## Contribuer
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request pour suggérer des améliorations.
-
-## Licence
-
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.

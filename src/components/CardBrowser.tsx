@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Rarity, Tag } from '../types';
+import { Card, Rarity, Tag, Spell } from '../types';
 import CardPreview from './CardPreview';
 import { getAllCards, searchCards } from '../utils/supabaseClient';
-import { downloadCSV } from '../utils/csvConverter';
 import './CardBrowser.css';
 import { useNavigate } from 'react-router-dom';
-import { tagService } from '../utils/dataService';
-import { Json } from '../types/database.types';
+import { tagService, spellService } from '../utils/dataService';
+import { getCardTags, getCardSpells } from '../utils/validation';
 
 interface Filters {
   searchTerm: string;
   isWIP?: boolean;
+  isCrap?: boolean; // Nouveau filtre pour les cartes poubelle
   rarity?: Rarity;
   type?: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
   hasTags: boolean | null;
@@ -25,6 +25,10 @@ interface LoadedTagsMap {
   [cardId: string]: Tag[];
 }
 
+interface LoadedSpellsMap {
+  [cardId: string]: Spell[];
+}
+
 const CardBrowser: React.FC = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
@@ -33,6 +37,7 @@ const CardBrowser: React.FC = () => {
   const [filters, setFilters] = useState<Filters>({
     searchTerm: '',
     isWIP: undefined,
+    isCrap: undefined, // Change this to undefined so no filtering happens by default
     rarity: undefined,
     type: undefined,
     hasTags: null,
@@ -45,6 +50,7 @@ const CardBrowser: React.FC = () => {
 
   const [allCards, setAllCards] = useState<Card[]>([]); // Ajout d'un state pour toutes les cartes non filtrées
   const [loadedTagsMap, setLoadedTagsMap] = useState<LoadedTagsMap>({});
+  const [loadedSpellsMap, setLoadedSpellsMap] = useState<LoadedSpellsMap>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,7 +66,10 @@ const CardBrowser: React.FC = () => {
       const allTags = new Set<string>();
 
       await Promise.all(allCards.map(async card => {
-        const cardTags = await tagService.getByIds(card.tags);
+        const cardTagsData = await getCardTags(card.id);
+        const tagIds = cardTagsData.map(tag => tag.tag_id);
+        const cardTags = await tagService.getByIds(tagIds);
+        
         tagsMap[card.id] = cardTags;
         cardTags.forEach(tag => {
           if (tag.name) allTags.add(tag.name);
@@ -76,12 +85,14 @@ const CardBrowser: React.FC = () => {
 
   const filterCards = useCallback((cards: Card[]) => {
     return cards.filter(card => {
-      if (filters.isWIP !== undefined && card.isWIP !== filters.isWIP) return false;
+      if (filters.isWIP !== undefined && card.is_wip !== filters.isWIP) return false;
+      if (filters.isCrap !== undefined && card.is_crap !== filters.isCrap) return false;
       if (filters.rarity && card.rarity !== filters.rarity) return false;
       if (filters.type && card.type !== filters.type) return false;
       if (filters.hasTags !== null) {
-        if (filters.hasTags && (!card.tags || card.tags.length === 0)) return false;
-        if (!filters.hasTags && card.tags && card.tags.length > 0) return false;
+        const cardTags = loadedTagsMap[card.id] || [];
+        if (filters.hasTags && cardTags.length === 0) return false;
+        if (!filters.hasTags && cardTags.length > 0) return false;
       }
       if (filters.hasImage !== null) {
         if (filters.hasImage && !card.image) return false;
@@ -92,12 +103,13 @@ const CardBrowser: React.FC = () => {
         if (!filters.hasDescription && card.description) return false;
       }
       if (filters.hasSpells !== null) {
-        if (filters.hasSpells && (!card.spells || card.spells.length === 0)) return false;
-        if (!filters.hasSpells && card.spells && card.spells.length > 0) return false;
+        const cardSpells = loadedSpellsMap[card.id] || [];
+        if (filters.hasSpells && cardSpells.length === 0) return false;
+        if (!filters.hasSpells && cardSpells.length > 0) return false;
       }
       if (filters.hasPassiveEffect !== null) {
-        if (filters.hasPassiveEffect && !card.passiveEffect) return false;
-        if (!filters.hasPassiveEffect && card.passiveEffect) return false;
+        if (filters.hasPassiveEffect && !card.passive_effect) return false;
+        if (!filters.hasPassiveEffect && card.passive_effect) return false;
       }
       if (filters.selectedTags.length > 0) {
         const cardTags = loadedTagsMap[card.id] || [];
@@ -108,27 +120,9 @@ const CardBrowser: React.FC = () => {
       }
       return true;
     });
-  }, [filters, loadedTagsMap]);
+  }, [filters, loadedTagsMap, loadedSpellsMap]);
 
-  useEffect(() => {
-    // Appliquer les filtres chaque fois qu'ils changent
-    if (allCards.length > 0) {
-      setCards(filterCards(allCards));
-    }
-  }, [filters, filterCards, allCards]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (filters.searchTerm) {
-        handleSearch();
-      } else {
-        loadCards();
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [filters.searchTerm]);
-
+  // Define loadCards before it's used in any dependency array
   const loadCards = async () => {
     setLoading(true);
     try {
@@ -141,6 +135,14 @@ const CardBrowser: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Now we can use loadCards in this useEffect
+  useEffect(() => {
+    // Appliquer les filtres chaque fois qu'ils changent
+    if (allCards.length > 0) {
+      setCards(filterCards(allCards));
+    }
+  }, [filters, filterCards, allCards]);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -155,6 +157,18 @@ const CardBrowser: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (filters.searchTerm) {
+        handleSearch();
+      } else {
+        loadCards();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters.searchTerm]);
+
   const handleFilterChange = (filterName: keyof Filters, value: any) => {
     setFilters(prev => ({
       ...prev,
@@ -162,14 +176,11 @@ const CardBrowser: React.FC = () => {
     }));
   };
 
-  const handleExportCSV = () => {
-    downloadCSV(cards);
-  };
-
   const handleResetFilters = () => {
     setFilters({
       searchTerm: '',
       isWIP: undefined,
+      isCrap: undefined, // Update this to undefined
       rarity: undefined,
       type: undefined,
       hasTags: null,
@@ -219,6 +230,18 @@ const CardBrowser: React.FC = () => {
                     onClick={() => handleFilterChange('isWIP', filters.isWIP === false ? undefined : false)}
                   >
                     ✅ Terminé
+                  </button>
+                  <button
+                    className={`filter-button ${filters.isCrap === false ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('isCrap', filters.isCrap === false ? undefined : false)}
+                  >
+                    🗑️ Exclure poubelle
+                  </button>
+                  <button
+                    className={`filter-button ${filters.isCrap === true ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('isCrap', filters.isCrap === true ? undefined : true)}
+                  >
+                    🗑️ Afficher uniquement poubelle
                   </button>
                 </div>
               </div>
@@ -340,12 +363,6 @@ const CardBrowser: React.FC = () => {
               </div>
             </div>
           </div>
-
-          <div className="browser-actions">
-            <button className="export-button" onClick={handleExportCSV}>
-              📊 Exporter en CSV
-            </button>
-          </div>
         </div>
 
         <div className="cards-grid">
@@ -359,13 +376,13 @@ const CardBrowser: React.FC = () => {
                 key={card.id}
                 className={`card-item ${selectedCard?.id === card.id ? 'selected' : ''}`}
                 onClick={() => setSelectedCard(card)}
-                onDoubleClick={() => navigate('/card', { state: { card } })}
+                onDoubleClick={() => navigate('/card', { state: { card } })} // Pass the card data here
                 title="Double-cliquez pour éditer"
               >
                 <div className="card-item-header">
                   <span className="card-name" title={card.name}>
                     {card.name}
-                    {card.isWIP && <span className="wip-badge-small">WIP</span>}
+                    {card.is_wip && <span className="wip-badge-small">WIP</span>}
                   </span>
                 </div>
                 <div className="card-item-info">
@@ -374,7 +391,7 @@ const CardBrowser: React.FC = () => {
                     {card.rarity.replace('_', ' ')}
                   </span>
                 </div>
-                {card.tags.length > 0 && (
+                {loadedTagsMap[card.id] && loadedTagsMap[card.id].length > 0 && (
                   <div className="card-tags">
                     {loadedTagsMap[card.id]?.map((tag, index) => (
                       <span

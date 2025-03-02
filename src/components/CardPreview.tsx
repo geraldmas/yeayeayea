@@ -5,6 +5,7 @@ import { saveCropData, getCropData } from '../utils/imageCropManager';
 import { alterationService, spellService, tagService } from '../utils/dataService';
 import 'react-image-crop/dist/ReactCrop.css';
 import './CardPreview.css';
+import { getCardTags, getCardSpells } from '../utils/validation';
 
 interface CardPreviewProps {
   card: Card;
@@ -102,8 +103,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
 
   useEffect(() => {
     loadAlterations();
-    loadSpells();
-    loadTags();
+    loadSpellsAndTags();
   }, [card]);
 
   const loadAlterations = async () => {
@@ -119,32 +119,31 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
     }
   };
 
-  // Add logging to diagnose the error
   const loadSpells = async () => {
     try {
-      console.log('Spells IDs:', card.spells);
-      const spellsData = await Promise.all(
-        card.spells.map(id => spellService.getById(id))
-      );
-      console.log('Loaded Spells Data:', spellsData);
-      setLoadedSpells(spellsData.filter((spell): spell is Spell => spell !== null));
+      const spellIds = await getCardSpells(card.id);
+      const spellIdNumbers = spellIds.map(spellObj => spellObj.spell_id);
+      const spellsData = await spellService.getByIds(spellIdNumbers);
+      setLoadedSpells(spellsData.filter(spell => spell !== null));
     } catch (error) {
       console.error('Error loading spells:', error);
     }
   };
 
-  // Add logging to diagnose the error
   const loadTags = async () => {
     try {
-      console.log('Tags IDs:', card.tags);
-      const tagsData = await Promise.all(
-        card.tags.map(id => tagService.getById(id))
-      );
-      console.log('Loaded Tags Data:', tagsData);
-      setLoadedTags(tagsData.filter((tag): tag is Tag => tag !== null));
+      const tagIds = await getCardTags(card.id);
+      const tagIdNumbers = tagIds.map(tagObj => tagObj.tag_id);
+      const tagsData = await tagService.getByIds(tagIdNumbers);
+      setLoadedTags(tagsData.filter(tag => tag !== null));
     } catch (error) {
       console.error('Error loading tags:', error);
     }
+  };
+
+  const loadSpellsAndTags = async () => {
+    await loadSpells();
+    await loadTags();
   };
 
   // Charger le recadrage sauvegardé
@@ -239,7 +238,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
 
   return (
     <div className={`card-preview ${card.type}`} data-rarity={card.rarity}>
-      {card.isWIP && <div className="wip-badge">WIP</div>}
+      {card.is_wip && <div className="wip-badge">WIP</div>}
       <div className="rarity-badge" data-rarity={card.rarity}>
         {getRarityLabel(card.rarity)}
       </div>
@@ -248,7 +247,9 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
           <span className="type-icon">{getTypeIcon(card.type)}</span>
           {card.name}
         </div>
-        {card.health > 0 && <span className="card-health">❤️ {card.health}</span>}
+        {card.type === 'personnage' && card.properties?.health && card.properties.health > 0 && (
+          <span className="card-health">❤️ {card.properties.health}</span>
+        )}
       </div>
 
       <div className="card-image">
@@ -296,9 +297,9 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card }) => {
           <p className="card-description">{card.description}</p>
         )}
 
-        {card.passiveEffect && (
+        {card.passive_effect && (
           <div className="passive-effect">
-            <p>🔄 {card.passiveEffect}</p>
+            <p>🔄 {card.passive_effect}</p>
           </div>
         )}
 

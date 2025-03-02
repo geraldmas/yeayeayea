@@ -5,11 +5,10 @@ CREATE TABLE IF NOT EXISTS public.cards (
   description text,
   type text NOT NULL CHECK (type IN ('personnage', 'objet', 'evenement', 'lieu', 'action')),
   rarity text NOT NULL,
-  health integer NOT NULL,
+  properties jsonb DEFAULT '{}',
+  summon_cost integer, -- Nouveau: coût en charisme pour les cartes invoquables
   image text,
-  passive_effect text,
-  spells integer[] DEFAULT '{}',
-  tags integer[] DEFAULT '{}',
+  passive_effect jsonb, -- Modifié: text -> jsonb
   is_wip boolean DEFAULT true,
   is_crap boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
@@ -20,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.alterations (
   id bigserial PRIMARY KEY,
   name varchar NOT NULL,
   description text,
-  effect text NOT NULL,
+  effect jsonb NOT NULL, -- Modifié: text -> jsonb
   icon varchar NOT NULL,
   duration integer,
   stackable boolean DEFAULT false,
@@ -47,9 +46,21 @@ CREATE TABLE IF NOT EXISTS public.spells (
 CREATE TABLE IF NOT EXISTS public.tags (
   id bigserial PRIMARY KEY,
   name varchar NOT NULL,
-  passive_effect text,
+  passive_effect jsonb, -- Modifié: text -> jsonb
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
+);
+
+CREATE TABLE IF NOT EXISTS public.card_spells (
+  card_id bigint REFERENCES public.cards(id) ON DELETE CASCADE,
+  spell_id bigint REFERENCES public.spells(id) ON DELETE CASCADE,
+  PRIMARY KEY (card_id, spell_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.card_tags (
+  card_id bigint REFERENCES public.cards(id) ON DELETE CASCADE,
+  tag_id bigint REFERENCES public.tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (card_id, tag_id)
 );
 
 -- Création des triggers pour mettre à jour updated_at
@@ -88,40 +99,38 @@ CREATE TRIGGER set_updated_at
   FOR EACH ROW
   EXECUTE PROCEDURE update_updated_at_column();
 
--- Création des fonctions de validation des références
-CREATE OR REPLACE FUNCTION check_spell_ids() RETURNS trigger AS $$
+-- Modification of the validation functions to work with junction tables instead of direct columns
+CREATE OR REPLACE FUNCTION check_spell_references() RETURNS trigger AS $$
 BEGIN
-  IF NEW.spells IS NOT NULL AND NOT (
-    SELECT bool_and(spell_id::text IS NOT NULL)
-    FROM unnest(NEW.spells) spell_id
-    LEFT JOIN public.spells ON spell_id::text = spells.id::text
-  ) THEN
-    RAISE EXCEPTION 'Invalid spell ID found';
+  -- This checks if the spell_id in card_spells exists in the spells table
+  IF NOT EXISTS (SELECT 1 FROM public.spells WHERE id = NEW.spell_id) THEN
+    RAISE EXCEPTION 'Invalid spell ID: %', NEW.spell_id;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION check_tag_ids() RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION check_tag_references() RETURNS trigger AS $$
 BEGIN
-  IF NEW.tags IS NOT NULL AND NOT (
-    SELECT bool_and(tag_id::text IS NOT NULL)
-    FROM unnest(NEW.tags) tag_id
-    LEFT JOIN public.tags ON tag_id::text = tags.id::text
-  ) THEN
-    RAISE EXCEPTION 'Invalid tag ID found';
+  -- This checks if the tag_id in card_tags exists in the tags table
+  IF NOT EXISTS (SELECT 1 FROM public.tags WHERE id = NEW.tag_id) THEN
+    RAISE EXCEPTION 'Invalid tag ID: %', NEW.tag_id;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Création des triggers de validation
-CREATE TRIGGER check_spell_ids_trigger
-  BEFORE INSERT OR UPDATE ON cards
-  FOR EACH ROW
-  EXECUTE FUNCTION check_spell_ids();
+-- Drop the old triggers that reference non-existent columns
+DROP TRIGGER IF EXISTS check_spell_ids_trigger ON cards;
+DROP TRIGGER IF EXISTS check_tag_ids_trigger ON cards;
 
-CREATE TRIGGER check_tag_ids_trigger
-  BEFORE INSERT OR UPDATE ON cards
+-- Create new triggers on the junction tables
+CREATE TRIGGER check_spell_references_trigger
+  BEFORE INSERT OR UPDATE ON card_spells
   FOR EACH ROW
-  EXECUTE FUNCTION check_tag_ids();
+  EXECUTE FUNCTION check_spell_references();
+
+CREATE TRIGGER check_tag_references_trigger
+  BEFORE INSERT OR UPDATE ON card_tags
+  FOR EACH ROW
+  EXECUTE FUNCTION check_tag_references();

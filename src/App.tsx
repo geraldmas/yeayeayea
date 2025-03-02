@@ -10,36 +10,36 @@ import TestDebugger from './components/TestDebugger'; // Importer le nouveau com
 import { Card, Booster, Alteration } from './types';
 import { validateCard } from './utils/validation';
 import { saveCard, getAllCards } from './utils/supabaseClient';
+import { getCardTags, getCardSpells } from './utils/validation';
 import './App.css';
 import AlterationManager from './components/AlterationManager';
+
+interface LoadedTagsMap {
+  [cardId: number]: { id: number; name: string; passive_effect: string | null }[];
+}
+
+interface LoadedSpellsMap {
+  [cardId: number]: { id: number; name: string; description: string | null; power: number; cost: number | null; range_min: number | null; range_max: number | null; effects: any[]; is_value_percentage: boolean }[];
+}
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'debug'>('card');
   const [jsonPreview, setJsonPreview] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [cardData, setCardData] = useState<Card>({
-    id: 0,
-    name: '',
-    description: '',
-    image: '',
-    health: 0,
-    spells: [],
-    tags: [],
-    type: 'personnage',
-    rarity: 'gros_bodycount',
-    isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
-    isCrap: false,
-  });
+  const [cardData, setCardData] = useState<Card | null>(null);
   const [boosterData, setBoosterData] = useState<Booster>({
     id: '',
     name: '',
     cards: [],
   });
   const [allCards, setAllCards] = useState<Card[]>([]);
+  const [spellIds, setSpellIds] = useState<number[]>([]);
+  const [tagIds, setTagIds] = useState<number[]>([]);
+  const [loadedTagsMap, setLoadedTagsMap] = useState<LoadedTagsMap>({});
+  const [loadedSpellsMap, setLoadedSpellsMap] = useState<LoadedSpellsMap>({});
 
   const handleAlterationChange = (alteration: Alteration) => {
-    // You can add any logic here to handle alteration changes
     console.log('Alteration changed:', alteration);
   };
 
@@ -50,6 +50,11 @@ const App: React.FC = () => {
   const handleExportJSON = async () => {
     try {
       if (activeTab === 'card') {
+        if (!cardData) {
+          showNotification('Aucune carte à valider', 'error');
+          return;
+        }
+
         const errors = await validateCard(cardData);
         if (errors.length > 0) {
           showNotification(`Erreurs de validation : ${errors.join(', ')}`, 'error');
@@ -57,7 +62,12 @@ const App: React.FC = () => {
         }
 
         try {
-          await saveCard(cardData);
+          // Sauvegarder la carte sans les propriétés spells et tags
+          const savedCard = await saveCard(cardData);
+
+          // Sauvegarder les spells et tags séparément si nécessaire
+          // Vous pouvez ajouter ici la logique pour sauvegarder les spells et tags
+
           showNotification('Carte sauvegardée avec succès', 'success');
           // Réinitialiser le formulaire
           setCardData({
@@ -65,20 +75,20 @@ const App: React.FC = () => {
             name: '',
             description: '',
             image: '',
-            health: 0,
-            spells: [],
-            tags: [],
             type: 'personnage',
             rarity: 'gros_bodycount',
-            isWIP: true, // Par défaut, les nouvelles cartes sont en WIP
-            isCrap: false,
+            properties: {},
+            is_wip: true, // Par défaut, les nouvelles cartes sont en WIP
+            is_crap: false, // Ensure this matches the database schema
+            passive_effect: '',
+            summon_cost: 0
           });
+          setSpellIds([]);
+          setTagIds([]);
         } catch (error) {
-          console.error('Erreur lors de la sauvegarde:', error);
+          console.error('Erreur lors de la sauvegarde de la carte :', error);
           showNotification('Erreur lors de la sauvegarde de la carte', 'error');
         }
-      } else {
-        // ...existing booster export code...
       }
     } catch (error) {
       console.error("Erreur lors de l'exportation :", error);
@@ -99,8 +109,11 @@ const App: React.FC = () => {
               // Assurez-vous que les tableaux sont définis
               parsed.spells = parsed.spells || [];
               parsed.tags = parsed.tags || [];
-              
-              setCardData(parsed as Card);
+              setCardData({
+                ...parsed,
+                summon_cost: parsed.summon_cost || 0,
+                rarity: parsed.rarity || 'gros_bodycount'
+              } as Card);
               showNotification('Carte importée avec succès', 'success');
             } else if (activeTab === 'booster' && parsed.id && parsed.name && Array.isArray(parsed.cards)) {
               setBoosterData(parsed as Booster);
@@ -139,12 +152,22 @@ const App: React.FC = () => {
     try {
       const data = await getAllCards();
       setAllCards(data);
+      const tagsMap: LoadedTagsMap = {};
+      const spellsMap: LoadedSpellsMap = {};
+      await Promise.all(data.map(async card => {
+        const cardTags = await getCardTags(card.id);
+        tagsMap[card.id] = cardTags.map(tag => ({ id: tag.tag_id, name: '', passive_effect: '' }));
+        const cardSpells = await getCardSpells(card.id);
+        spellsMap[card.id] = cardSpells.map(spell => ({ id: spell.spell_id, name: '', description: '', power: 0, cost: 0, range_min: 0, range_max: 0, effects: [], is_value_percentage: false }));
+      }));
+      setLoadedTagsMap(tagsMap);
+      setLoadedSpellsMap(spellsMap);
     } catch (error) {
       console.error('Error loading cards:', error);
     }
   };
 
-  const handleRandomEdit = (type?: string) => {
+  const handleRandomEdit = (type: string | undefined, setActiveTab: React.Dispatch<React.SetStateAction<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'debug'>>) => {
     let cardToEdit: Card | null = null;
     const getRandomCard = (filterFn?: (card: Card) => boolean) => {
       const eligibleCards = filterFn ? allCards.filter(filterFn) : allCards;
@@ -161,16 +184,22 @@ const App: React.FC = () => {
         cardToEdit = getRandomCard(card => !card.description);
         break;
       case 'tags':
-        cardToEdit = getRandomCard(card => !card.tags || card.tags.length === 0);
+        cardToEdit = getRandomCard(card => {
+          const cardTags = loadedTagsMap[card.id] || [];
+          return cardTags.length === 0;
+        });
         break;
       case 'spells':
-        cardToEdit = getRandomCard(card => !card.spells || card.spells.length === 0);
+        cardToEdit = getRandomCard(card => {
+          const cardSpells = loadedSpellsMap[card.id] || [];
+          return cardSpells.length === 0;
+        });
         break;
       case 'passiveEffect':
-        cardToEdit = getRandomCard(card => !card.passiveEffect);
+        cardToEdit = getRandomCard(card => !card.passive_effect);
         break;
       default:
-        cardToEdit = getRandomCard(card => card.isWIP);
+        cardToEdit = getRandomCard(card => card.is_wip);
     }
 
     if (cardToEdit) {
@@ -179,11 +208,11 @@ const App: React.FC = () => {
         ...cardToEdit,
         image: cardToEdit.image || '',
         description: cardToEdit.description || '',
-        spells: cardToEdit.spells || [],
-        tags: cardToEdit.tags || [],
-        passiveEffect: cardToEdit.passiveEffect || '',
+        rarity: cardToEdit.rarity || 'gros_bodycount'
       };
       setCardData(completeCard);
+      setSpellIds(loadedSpellsMap[cardToEdit.id]?.map(spell => spell.id) || []);
+      setTagIds(loadedTagsMap[cardToEdit.id]?.map(tag => tag.id) || []);
       setActiveTab('card');
     } else {
       showNotification('Aucune carte ne correspond à ces critères !', 'info');
@@ -271,7 +300,7 @@ const App: React.FC = () => {
           <div className="random-button-container">
             <button 
               className="tab-button random-button"
-              onClick={() => handleRandomEdit()}
+              onClick={() => handleRandomEdit(undefined, setActiveTab)}
             >
               🎲 Hasard
             </button>
@@ -286,19 +315,19 @@ const App: React.FC = () => {
               ▼
             </button>
             <div className="random-menu">
-              <button onClick={() => handleRandomEdit('image')}>
+              <button onClick={() => handleRandomEdit('image', setActiveTab)}>
                 🖼️ Compléter les images
               </button>
-              <button onClick={() => handleRandomEdit('description')}>
+              <button onClick={() => handleRandomEdit('description', setActiveTab)}>
                 📝 Compléter les descriptions
               </button>
-              <button onClick={() => handleRandomEdit('tags')}>
+              <button onClick={() => handleRandomEdit('tags', setActiveTab)}>
                 🏷️ Compléter les tags
               </button>
-              <button onClick={() => handleRandomEdit('spells')}>
+              <button onClick={() => handleRandomEdit('spells', setActiveTab)}>
                 ⚡ Compléter les sorts
               </button>
-              <button onClick={() => handleRandomEdit('passiveEffect')}>
+              <button onClick={() => handleRandomEdit('passiveEffect', setActiveTab)}>
                 🔄 Compléter les effets passifs
               </button>
             </div>
@@ -309,7 +338,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/browser" />} />
           <Route path="/card" element={
             <>
-              <CardForm card={cardData} setCard={setCardData} />
+              <CardForm card={cardData} setCard={setCardData} spellIds={spellIds} setSpellIds={setSpellIds} tagIds={tagIds} setTagIds={setTagIds} />
               <div className="editor-section">
                 <div className="form-row">
                   <button onClick={handleExportJSON}>

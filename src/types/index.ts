@@ -66,16 +66,41 @@ export interface Card {
   id: number;
   name: string;
   description: string | null;
-  image: string | null;
-  spells: number[]; // IDs des sorts
-  passiveEffect?: string;
-  health: number;
-  tags: number[]; // IDs des tags
   type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
-  rarity: Rarity;
-  position?: 'active' | 'bench' | 'hand' | 'inventory';
-  isWIP: boolean; // Indique si la carte est en cours de travail
-  isCrap: boolean; // Indique si la carte est à jeter
+  rarity: Rarity | string;
+  properties: {
+    health?: number;
+    [key: string]: any;
+  };
+  summon_cost: number | null;  // Nouveau: coût en charisme pour les cartes invoquables
+  image: string | null;
+  passive_effect: string | null;
+  is_wip: boolean;
+  is_crap: boolean;
+  // Note: spells and tags are no longer direct properties
+  // They should be fetched using getCardSpells and getCardTags
+}
+
+// Frontend representation (camelCase)
+export interface CardFrontend extends Omit<Card, 'passive_effect' | 'is_wip' | 'is_crap' | 'summon_cost'> {
+  passiveEffect: string | null;
+  isWIP: boolean;
+  isCrap: boolean;
+  summonCost: number | null;  // Version camelCase pour la représentation frontend
+  spells?: number[];  // Frontend virtual property
+  tags?: number[];    // Frontend virtual property
+}
+
+export interface CardSpell {
+  id?: number;
+  card_id: number;
+  spell_id: number;
+}
+
+export interface CardTag {
+  id?: number;
+  card_id: number; 
+  tag_id: number;
 }
 
 export interface Booster {

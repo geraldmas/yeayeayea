@@ -1,0 +1,268 @@
+.spell-list {
+  width: 100%;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.spells-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.spell-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border-left: 4px solid #2196f3;
+  transition: box-shadow 0.2s;
+}
+
+.spell-card.expanded {
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.spell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.spell-header:hover {
+  background-color: #f5f5f5;
+}
+
+.spell-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 1;
+}
+
+.spell-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.spell-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.spell-power, .spell-cost {
+  background: #f5f5f5;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.spell-power {
+  color: #d32f2f;
+}
+
+.spell-cost {
+  color: #1976d2;
+}
+
+.spell-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.spell-controls button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.spell-controls button:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.remove-button {
+  color: #f44336;
+}
+
+.remove-button .icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.spell-details {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  background-color: #f9f9f9;
+}
+
+/* Effects section styling */
+.effects-section {
+  margin-top: 20px;
+}
+
+.effects-section h4 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.no-effects {
+  color: #666;
+  font-style: italic;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.effects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.effect-card {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.effect-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.effect-type {
+  font-weight: 500;
+}
+
+.remove-effect-button {
+  background: transparent;
+  border: none;
+  color: #f44336;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 5px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.remove-effect-button:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.effect-content {
+  padding: 12px;
+}
+
+.add-effect-button {
+  width: 100%;
+  padding: 8px;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px dashed #a5d6a7;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.add-effect-button:hover {
+  background-color: #c8e6c9;
+}
+
+.alteration-section {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #ddd;
+}
+
+/* Checkbox group styling */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* Spell actions styling */
+.spell-actions {
+  margin-top: 15px;
+}
+
+.add-spell-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.add-spell-button:hover {
+  background-color: #1565c0;
+}
+
+.add-spell-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .spell-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

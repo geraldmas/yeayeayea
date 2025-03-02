@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Booster, Card, Spell, Tag } from '../types';
 import { spellService, tagService } from '../utils/dataService';
-import { Json } from '../types/database.types';
+import { getCardTags, getCardSpells } from '../utils/validation';
 
 interface BoosterFormProps {
   booster: Booster;
@@ -15,6 +15,8 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [loadedSpells, setLoadedSpells] = useState<Record<string, Spell>>({});
   const [loadedTags, setLoadedTags] = useState<Record<string, Tag>>({});
+  const [cardSpellsMap, setCardSpellsMap] = useState<Record<number, number[]>>({});
+  const [cardTagsMap, setCardTagsMap] = useState<Record<number, number[]>>({});
 
   useEffect(() => {
     loadSpellsAndTags();
@@ -23,30 +25,59 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
   const loadSpellsAndTags = async () => {
     const spellIds = new Set<number>();
     const tagIds = new Set<number>();
+    const spellsMap: Record<number, number[]> = {};
+    const tagsMap: Record<number, number[]> = {};
 
-    // Collect all spell and tag IDs from cards
-    booster.cards.forEach(card => {
-      card.spells.forEach(id => spellIds.add(id));
-      card.tags.forEach(id => tagIds.add(id));
-    });
+    // Collect all spell and tag IDs from cards using the join table approach
+    await Promise.all(booster.cards.map(async (card) => {
+      // Get spells for this card
+      const cardSpells = await getCardSpells(card.id);
+      const cardSpellIds = cardSpells.map(spell => spell.spell_id);
+      spellsMap[card.id] = cardSpellIds;
+      cardSpellIds.forEach(id => spellIds.add(id));
+      
+      // Get tags for this card
+      const cardTags = await getCardTags(card.id);
+      const cardTagIds = cardTags.map(tag => tag.tag_id);
+      tagsMap[card.id] = cardTagIds;
+      cardTagIds.forEach(id => tagIds.add(id));
+    }));
+
+    setCardSpellsMap(spellsMap);
+    setCardTagsMap(tagsMap);
 
     try {
       const spells = await spellService.getByIds(Array.from(spellIds));
-      const spellsMap = spells.reduce((acc, spell) => {
+      const spellsRecord = spells.reduce((acc, spell) => {
         acc[spell.id] = spell;
         return acc;
       }, {} as Record<string, Spell>);
-      setLoadedSpells(spellsMap);
+      setLoadedSpells(spellsRecord);
 
       const tags = await tagService.getByIds(Array.from(tagIds));
-      const tagsMap = tags.reduce((acc, tag) => {
+      const tagsRecord = tags.reduce((acc, tag) => {
         acc[tag.id] = tag;
         return acc;
       }, {} as Record<string, Tag>);
-      setLoadedTags(tagsMap);
+      setLoadedTags(tagsRecord);
     } catch (error) {
       console.error('Error loading spells and tags:', error);
     }
+  };
+
+  const loadBoosterData = async () => {
+    const spellIds = new Set<number>();
+    const tagIds = new Set<number>();
+
+    await Promise.all(booster.cards.map(async (card) => {
+      const cardSpells = await getCardSpells(card.id);
+      cardSpells.forEach(spell => spellIds.add(spell.spell_id));
+      
+      const cardTags = await getCardTags(card.id);
+      cardTags.forEach(tag => tagIds.add(tag.tag_id));
+    }));
+
+    // ...existing code...
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,9 +205,13 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
                   <p><strong>ID:</strong> {card.id}</p>
                   <p><strong>Type:</strong> {card.type}</p>
                   <p><strong>Description:</strong> {card.description}</p>
-                  <p><strong>Points de vie:</strong> {card.health}</p>
-                  <p><strong>Sorts:</strong> {card.spells?.length || 0}</p>
-                  <p><strong>Tags:</strong> {card.tags.map(id => loadedTags[id]?.name).filter(Boolean).join(', ') || 'Aucun'}</p>
+                  <p><strong>Points de vie:</strong> {card.properties?.health || 0}</p>
+                  <p><strong>Sorts:</strong> {cardSpellsMap[card.id]?.length || 0}</p>
+                  <p><strong>Tags:</strong> {
+                    cardTagsMap[card.id]?.map(tagId => loadedTags[tagId]?.name)
+                      .filter(Boolean)
+                      .join(', ') || 'Aucun'
+                  }</p>
                 </div>
               )}
             </div>

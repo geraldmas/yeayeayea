@@ -4,6 +4,59 @@ import { Spell, Tag, Alteration, SpellEffect } from '../types';
 
 type Tables = Database['public']['Tables'];
 
+// Add joinTableService implementation
+export const joinTableService = {
+  async getTagsByCardId(cardId: number) {
+    const { data, error } = await supabase
+      .from('card_tags')  // Assuming the join table is named card_tags
+      .select('*')
+      .eq('card_id', cardId);
+    return { data, error };
+  },
+  
+  async getSpellsByCardId(cardId: number) {
+    const { data, error } = await supabase
+      .from('card_spells')  // Assuming the join table is named card_spells
+      .select('*')
+      .eq('card_id', cardId);
+    return { data, error };
+  },
+
+  async addTagToCard(cardId: number, tagId: number) {
+    const { data, error } = await supabase
+      .from('card_tags')
+      .insert({ card_id: cardId, tag_id: tagId })
+      .select();
+    return { data, error };
+  },
+
+  async removeTagFromCard(cardId: number, tagId: number) {
+    const { data, error } = await supabase
+      .from('card_tags')
+      .delete()
+      .eq('card_id', cardId)
+      .eq('tag_id', tagId);
+    return { data, error };
+  },
+
+  async addSpellToCard(cardId: number, spellId: number) {
+    const { data, error } = await supabase
+      .from('card_spells')
+      .insert({ card_id: cardId, spell_id: spellId })
+      .select();
+    return { data, error };
+  },
+
+  async removeSpellFromCard(cardId: number, spellId: number) {
+    const { data, error } = await supabase
+      .from('card_spells')
+      .delete()
+      .eq('card_id', cardId)
+      .eq('spell_id', spellId);
+    return { data, error };
+  }
+};
+
 export const alterationService = {
   async getAll(): Promise<Alteration[]> {
     const { data, error } = await supabase

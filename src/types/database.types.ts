@@ -25,9 +25,30 @@ export type Spell = {
   is_value_percentage?: boolean;
 }
 
+// Définition d'un type pour les effets passifs
+export type PassiveEffect = {
+  action?: string;
+  value?: number;
+  description?: string;
+  targetType?: string;
+  conditions?: Json;
+  [key: string]: Json | undefined;
+}
+
 export type Tag = {
   name: string;
-  passiveEffect: string;
+  passiveEffect: PassiveEffect | null;
+}
+
+// Définition d'un type pour les effets d'altération
+export type AlterationEffect = {
+  action?: string;
+  value?: number;
+  description?: string;
+  targetType?: string;
+  duration?: number;
+  conditions?: Json;
+  [key: string]: Json | undefined;
 }
 
 export interface Database {
@@ -40,11 +61,10 @@ export interface Database {
           description: string | null;
           type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
           rarity: string;
-          health: number;
+          properties: Json;
+          summon_cost: number | null;  // Nouveau: coût en charisme pour les cartes invoquables
           image: string | null;
-          passive_effect: string | null;
-          spells: number[];
-          tags: number[];
+          passive_effect: PassiveEffect | null;
           is_wip: boolean;
           is_crap: boolean;
           created_at?: string;
@@ -74,7 +94,7 @@ export interface Database {
         Row: {
           id: number;
           name: string;
-          passive_effect: string | null;
+          passive_effect: PassiveEffect | null;
           created_at?: string;
           updated_at?: string;
         }
@@ -86,7 +106,7 @@ export interface Database {
           id: number;
           name: string;
           description: string | null;
-          effect: string;
+          effect: AlterationEffect;
           icon: string;
           duration: number | null;
           stackable: boolean;
