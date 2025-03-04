@@ -11,50 +11,36 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-export const saveCard = async (card: Card): Promise<Card> => {
+export const saveCard = async (card: Card) => {
   try {
-    // Vérifier que les champs obligatoires sont présents
-    if (!card.name || !card.type || !card.rarity) {
-      throw new Error('Les champs name, type et rarity sont obligatoires');
-    }
-
-    // Vérifier que les champs optionnels sont correctement formatés
     const formattedCard = {
-      id: card.id,
-      name: card.name,
-      type: card.type,
-      rarity: card.rarity,
-      description: card.description || null,
-      image: card.image || null,
-      passive_effect: card.passive_effect || null,
-      is_wip: card.is_wip,
-      is_crap: card.is_crap,
-      summon_cost: card.summon_cost || null,
-      properties: card.properties || {}
+      ...card,
+      properties: card.properties || {},
     };
 
-    console.log('Données envoyées à Supabase:', formattedCard);
+    if (card.id) {
+      const { data, error } = await supabase
+        .from('cards')
+        .update(formattedCard)
+        .eq('id', card.id)
+        .select()
+        .single();
 
-    const { data, error } = await supabase
-      .from('cards')
-      .upsert(formattedCard)
-      .select() // Ensure we get a single object
-      .single();
+      if (error) throw error;
+      return { data, error: null };
+    } else {
+      const { data, error } = await supabase
+        .from('cards')
+        .insert(formattedCard)
+        .select()
+        .single();
 
-    console.log('Réponse de Supabase:', { data, error });
-
-    if (error) {
-      throw new Error(`Erreur lors de la sauvegarde: ${error.message}`);
+      if (error) throw error;
+      return { data, error: null };
     }
-
-    if (!data) {
-      throw new Error('Erreur lors de la sauvegarde: aucune donnée retournée');
-    }
-
-    return data as Card;
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la carte:', error);
-    throw error;
+    return { data: null, error };
   }
 };
 
@@ -93,7 +79,7 @@ export async function searchCards(query: string) {
   })) as Card[];
 }
 
-export async function deleteCard(id: string) {
+export async function deleteCard(id: number) {
   const { error } = await supabase
     .from('cards')
     .delete()

@@ -5,10 +5,10 @@ import { getCardTags, getCardSpells } from '../utils/validation';
 
 interface BoosterFormProps {
   booster: Booster;
-  setBooster: React.Dispatch<React.SetStateAction<Booster>>;
+  onSave: (booster: Booster) => void;
 }
 
-const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
+const BoosterForm: React.FC<BoosterFormProps> = ({ booster, onSave }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [availableCards, setAvailableCards] = useState<Card[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,28 +82,29 @@ const BoosterForm: React.FC<BoosterFormProps> = ({ booster, setBooster }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setBooster(prev => ({
-      ...prev,
+    const updatedBooster: Booster = {
+      ...booster,
       [name]: value
-    }));
+    };
+    onSave(updatedBooster);
   };
 
   const handleAddCard = (card: Card) => {
-    setBooster(prev => ({
-      ...prev,
-      cards: [...prev.cards, card]
-    }));
+    const updatedBooster: Booster = {
+      ...booster,
+      cards: [...booster.cards, card]
+    };
+    onSave(updatedBooster);
   };
 
   const handleRemoveCard = (index: number) => {
-    setBooster(prev => {
-      const newCards = [...prev.cards];
-      newCards.splice(index, 1);
-      return {
-        ...prev,
-        cards: newCards
-      };
-    });
+    const newCards = [...booster.cards];
+    newCards.splice(index, 1);
+    const updatedBooster: Booster = {
+      ...booster,
+      cards: newCards
+    };
+    onSave(updatedBooster);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

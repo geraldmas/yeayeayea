@@ -11,7 +11,7 @@ export interface Card {
  * @param cardId The ID of the card
  * @param spellIds Array of spell IDs to associate with the card
  */
-export async function updateCardSpells(cardId: string, spellIds: string[]): Promise<void> {
+export async function updateCardSpells(cardId: number, spellIds: number[]): Promise<void> {
   try {
     // First delete existing relationships
     await supabase
@@ -41,7 +41,7 @@ export async function updateCardSpells(cardId: string, spellIds: string[]): Prom
  * @param cardId The ID of the card
  * @param tagIds Array of tag IDs to associate with the card
  */
-export async function updateCardTags(cardId: string, tagIds: string[]): Promise<void> {
+export async function updateCardTags(cardId: number, tagIds: number[]): Promise<void> {
   try {
     // First delete existing relationships
     await supabase

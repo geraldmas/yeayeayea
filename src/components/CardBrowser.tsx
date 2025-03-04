@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Rarity, Tag, Spell } from '../types';
+import { Card, Rarity, Tag, Spell, LoadedSpellsMap } from '../types';
 import CardPreview from './CardPreview';
 import { getAllCards, searchCards } from '../utils/supabaseClient';
 import './CardBrowser.css';
@@ -10,7 +10,7 @@ import { getCardTags, getCardSpells } from '../utils/validation';
 interface Filters {
   searchTerm: string;
   isWIP?: boolean;
-  isCrap?: boolean; // Nouveau filtre pour les cartes poubelle
+  isCrap?: boolean;
   rarity?: Rarity;
   type?: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
   hasTags: boolean | null;
@@ -21,23 +21,26 @@ interface Filters {
   hasPassiveEffect: boolean | null;
 }
 
-interface LoadedTagsMap {
-  [cardId: string]: Tag[];
+interface CardBrowserProps {
+  cards: Card[];
+  onCardSelect: (card: Card) => void;
+  loadedSpellsMap: LoadedSpellsMap;
 }
 
-interface LoadedSpellsMap {
-  [cardId: string]: Spell[];
-}
-
-const CardBrowser: React.FC = () => {
-  const [cards, setCards] = useState<Card[]>([]);
+const CardBrowser: React.FC<CardBrowserProps> = ({
+  cards: initialCards,
+  onCardSelect,
+  loadedSpellsMap: initialSpellsMap
+}) => {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [loading, setLoading] = useState(false);
   const [allTags, setAllTags] = useState<string[]>([]);
+  const [cards, setCards] = useState<Card[]>(initialCards);
+  const [loadedSpellsMap, setLoadedSpellsMap] = useState<LoadedSpellsMap>(initialSpellsMap);
   const [filters, setFilters] = useState<Filters>({
     searchTerm: '',
     isWIP: undefined,
-    isCrap: false, // Changed from undefined to false - exclude trash cards by default
+    isCrap: false,
     rarity: undefined,
     type: undefined,
     hasTags: null,
@@ -48,9 +51,8 @@ const CardBrowser: React.FC = () => {
     hasPassiveEffect: null
   });
 
-  const [allCards, setAllCards] = useState<Card[]>([]); // Ajout d'un state pour toutes les cartes non filtrées
-  const [loadedTagsMap, setLoadedTagsMap] = useState<LoadedTagsMap>({});
-  const [loadedSpellsMap, setLoadedSpellsMap] = useState<LoadedSpellsMap>({});
+  const [allCards, setAllCards] = useState<Card[]>(initialCards);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,24 +62,16 @@ const CardBrowser: React.FC = () => {
   useEffect(() => {
     if (!allCards) return;
     
-    // Load all tags for each card
     const loadTagsForCards = async () => {
-      const tagsMap: LoadedTagsMap = {};
-      const allTags = new Set<string>();
+      const allTagsSet = new Set<string>();
 
-      await Promise.all(allCards.map(async card => {
-        const cardTagsData = await getCardTags(card.id);
-        const tagIds = cardTagsData.map(tag => tag.tag_id);
-        const cardTags = await tagService.getByIds(tagIds);
-        
-        tagsMap[card.id] = cardTags;
-        cardTags.forEach(tag => {
-          if (tag.name) allTags.add(tag.name);
+      allCards.forEach(card => {
+        card.tags?.forEach(tag => {
+          if (tag.name) allTagsSet.add(tag.name);
         });
-      }));
+      });
 
-      setLoadedTagsMap(tagsMap);
-      setAllTags(Array.from(allTags).sort());
+      setAllTags(Array.from(allTagsSet).sort());
     };
 
     loadTagsForCards();
@@ -90,7 +84,7 @@ const CardBrowser: React.FC = () => {
       if (filters.rarity && card.rarity !== filters.rarity) return false;
       if (filters.type && card.type !== filters.type) return false;
       if (filters.hasTags !== null) {
-        const cardTags = loadedTagsMap[card.id] || [];
+        const cardTags = card.tags || [];
         if (filters.hasTags && cardTags.length === 0) return false;
         if (!filters.hasTags && cardTags.length > 0) return false;
       }
@@ -112,17 +106,15 @@ const CardBrowser: React.FC = () => {
         if (!filters.hasPassiveEffect && card.passive_effect) return false;
       }
       if (filters.selectedTags.length > 0) {
-        const cardTags = loadedTagsMap[card.id] || [];
-        const cardTagNames = cardTags.map(tag => tag.name);
+        const cardTagNames = card.tags?.map(tag => tag.name) || [];
         if (!filters.selectedTags.every(tag => cardTagNames.includes(tag))) {
           return false;
         }
       }
       return true;
     });
-  }, [filters, loadedTagsMap, loadedSpellsMap]);
+  }, [filters, loadedSpellsMap]);
 
-  // Define loadCards before it's used in any dependency array
   const loadCards = async () => {
     setLoading(true);
     try {
@@ -136,9 +128,7 @@ const CardBrowser: React.FC = () => {
     }
   };
 
-  // Now we can use loadCards in this useEffect
   useEffect(() => {
-    // Appliquer les filtres chaque fois qu'ils changent
     if (allCards.length > 0) {
       setCards(filterCards(allCards));
     }
@@ -180,7 +170,7 @@ const CardBrowser: React.FC = () => {
     setFilters({
       searchTerm: '',
       isWIP: undefined,
-      isCrap: false, // Changed from undefined to false - keep excluding trash cards on reset
+      isCrap: false,
       rarity: undefined,
       type: undefined,
       hasTags: null,
@@ -390,9 +380,9 @@ const CardBrowser: React.FC = () => {
                     {card.rarity.replace('_', ' ')}
                   </span>
                 </div>
-                {loadedTagsMap[card.id] && loadedTagsMap[card.id].length > 0 && (
+                {card.tags && card.tags.length > 0 && (
                   <div className="card-tags">
-                    {loadedTagsMap[card.id]?.map((tag, index) => (
+                    {card.tags.map((tag, index) => (
                       <span
                         key={index} 
                         className="card-tag"

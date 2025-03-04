@@ -6,10 +6,9 @@ import './TagList.css';
 interface TagListProps {
   tagIds: number[];
   onChange: (tagIds: number[]) => void;
-  disableAutocomplete?: boolean; // New prop
 }
 
-const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete }) => {
+const TagList: React.FC<TagListProps> = ({ tagIds, onChange }) => {
   const [tags, setTags] = useState<Tag[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete
 
   const loadTags = async () => {
     try {
-      // Charger les tags sélectionnés - with improved error handling
+      // Charger les tags sélectionnés
       if (tagIds.length > 0) {
         const selectedTagPromises = tagIds.map(async id => {
           try {
@@ -48,11 +47,6 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete
       }
     } catch (error) {
       console.error('Error loading tags:', error);
-      // Log more detailed error information
-      if (error instanceof Error) {
-        console.error(error.message);
-        console.error(error.stack);
-      }
       setTags([]);
       setAvailableTags([]);
     } finally {
@@ -63,15 +57,26 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete
   const handleCreateTag = async () => {
     const newTag = {
       name: 'Nouveau tag',
-      passive_effect: ''
+      passive_effect: null
     };
 
     try {
+      // Créer le tag
       const createdTag = await tagService.create(newTag);
-      if (createdTag && createdTag.id) {
-        onChange([...tagIds, createdTag.id]);
-        setExpandedTagId(createdTag.id);
+      if (!createdTag?.id) {
+        throw new Error('Échec de la création du tag');
       }
+
+      // Mettre à jour la liste des tags
+      const updatedTagIds = [...tagIds, createdTag.id];
+      onChange(updatedTagIds);
+
+      // Mettre à jour l'état local
+      setTags(prevTags => [...prevTags, createdTag]);
+      setExpandedTagId(createdTag.id);
+
+      // Recharger les tags pour s'assurer que tout est synchronisé
+      await loadTags();
     } catch (error) {
       console.error('Error creating tag:', error);
     }
@@ -108,6 +113,9 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete
         [field]: value 
       };
       setTags(updatedTags);
+
+      // Recharger les tags pour s'assurer que tout est synchronisé
+      await loadTags();
     } catch (error) {
       console.error('Error updating tag:', error);
     }
@@ -218,8 +226,6 @@ const TagList: React.FC<TagListProps> = ({ tagIds, onChange, disableAutocomplete
           + Créer un nouveau tag
         </button>
       </div>
-
-      {!disableAutocomplete && <datalist id="tag-suggestions">...</datalist>}
     </div>
   );
 };

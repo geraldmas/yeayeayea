@@ -1,6 +1,15 @@
-import type { Json } from './database.types';
+import type { Json, Database } from './database.types';
 
 export type { Json } from './database.types';
+export type {
+    User,
+    UserSettings,
+    CardInventoryItem,
+    Deck,
+    DeckCard,
+    Achievement,
+    UserAchievement
+} from './userTypes';
 
 export interface Spell {
   id: number;
@@ -38,11 +47,24 @@ export interface SpellEffect {
   alteration?: number;
 }
 
+export interface AlterationEffect {
+  action?: string;
+  value?: number;
+  description?: string;
+  targetType?: 'self' | 'opponent' | 'all' | 'tagged';
+  duration?: number;
+  conditions?: {
+    type: 'has_tag' | 'missing_tag' | 'health_below' | 'health_above' | 'chance';
+    value?: number;
+    tag?: string;
+  };
+}
+
 export interface Alteration {
   id: number;
   name: string;
   description: string | null;
-  effect: string;
+  effect: AlterationEffect;
   icon: string;
   duration: number | null;
   stackable: boolean;
@@ -72,23 +94,20 @@ export interface Card {
     health?: number;
     [key: string]: any;
   };
-  summon_cost: number | null;  // Nouveau: coût en charisme pour les cartes invoquables
+  summon_cost: number | null;
   image: string | null;
   passive_effect: string | null;
   is_wip: boolean;
   is_crap: boolean;
-  // Note: spells and tags are no longer direct properties
-  // They should be fetched using getCardSpells and getCardTags
 }
 
-// Frontend representation (camelCase)
 export interface CardFrontend extends Omit<Card, 'passive_effect' | 'is_wip' | 'is_crap' | 'summon_cost'> {
   passiveEffect: string | null;
   isWIP: boolean;
   isCrap: boolean;
-  summonCost: number | null;  // Version camelCase pour la représentation frontend
-  spells?: number[];  // Frontend virtual property
-  tags?: number[];    // Frontend virtual property
+  summonCost: number | null;
+  spells?: number[];
+  tags?: number[];
 }
 
 export interface CardSpell {

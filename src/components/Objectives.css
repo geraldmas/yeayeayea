@@ -1,0 +1,177 @@
+.objectives-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  max-width: 800px;
+  backdrop-filter: blur(5px);
+  transition: transform 0.3s ease;
+  border-radius: 0;
+  border-bottom-right-radius: 8px;
+  z-index: 1000;
+  transform: translateX(-100%);
+}
+
+.objectives-container.expanded {
+  transform: translateX(0);
+}
+
+.toggle-button {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.98);
+  border: none;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  font-size: 20px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.toggle-button::before {
+  content: '🎯';
+  font-size: 24px;
+}
+
+.objectives-container.expanded .toggle-button::before {
+  content: '×';
+  font-size: 32px;
+}
+
+.toggle-button:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #333;
+  width: 45px;
+}
+
+.objectives-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  font-size: 0.85em;
+  min-width: 600px;
+}
+
+.objectives-column h3 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.objective-item {
+  margin-bottom: 8px;
+}
+
+.objective-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.objective-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
+}
+
+.objective-count {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background-color: #eee;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-fill[data-complete="true"] {
+  background-color: #2196F3;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+/* Styles spécifiques pour les différents types d'objectifs */
+.objectives-column:nth-child(1) .progress-fill { /* Tags */
+  background-color: #9C27B0;
+}
+
+.objectives-column:nth-child(2) .progress-fill { /* Raretés */
+  background-color: #FF9800;
+}
+
+.objectives-column:nth-child(3) .progress-fill { /* Types */
+  background-color: #4CAF50;
+}
+
+/* Animation pour les objectifs complétés */
+.progress-fill[data-complete="true"] {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 8px 8px;
+  animation: 
+    pulse 2s infinite,
+    progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+  from { background-position: 8px 0; }
+  to { background-position: 0 0; }
+}
+
+/* Media query pour les petits écrans */
+@media (max-width: 768px) {
+  .objectives-container {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .objectives-grid {
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .objectives-container.expanded .toggle-button {
+    transform: translateX(100%) translateY(-50%);
+  }
+} 

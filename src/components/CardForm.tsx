@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Card } from '../types';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { Card } from '../types';
 import SpellList from './SpellList';
 import TagList from './TagList';
 import CardPreview from './CardPreview';
-import { getAutocompleteValues, updateCard, insertCard } from '../utils/supabaseClient';
-import { updateCardSpells, updateCardTags, Card as CardType } from '../utils/supabaseUtils';
+import { updateCard, insertCard } from '../utils/supabaseClient';
+import { updateCardSpells, updateCardTags } from '../utils/supabaseUtils';
+import { getCardSpells, getCardTags } from '../utils/validation';
 import './CardForm.css';
 
 // Add this interface for toast notifications
@@ -17,48 +18,112 @@ interface Toast {
 
 interface CardFormProps {
   card: Card | null;
-  setCard: React.Dispatch<React.SetStateAction<Card | null>>;
+  onSave: (card: Card) => void;
+  onDelete: (card: Card) => void;
   spellIds: number[];
-  setSpellIds: React.Dispatch<React.SetStateAction<number[]>>;
   tagIds: number[];
-  setTagIds: React.Dispatch<React.SetStateAction<number[]>>;
+  onSpellIdsChange: (ids: number[]) => void;
+  onTagIdsChange: (ids: number[]) => void;
 }
 
-const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellIds, tagIds, setTagIds }) => {
+type CardInputEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+
+const defaultCard: Card = {
+  id: 0,
+  name: '',
+  type: 'personnage',
+  description: '',
+  image: '',
+  rarity: 'gros_bodycount',
+  summon_cost: 0,
+  passive_effect: '',
+  is_wip: true,
+  is_crap: false,
+  properties: {}
+};
+
+const CardForm: React.FC<CardFormProps> = ({
+  card,
+  onSave,
+  onDelete,
+  spellIds,
+  tagIds,
+  onSpellIdsChange,
+  onTagIdsChange
+}) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'info' | 'spells' | 'tags'>('info');
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [savedValues, setSavedValues] = useState<{
-    names: string[];
-    descriptions: string[];
-    images: string[];
-    passive_effects: string[];
-  }>({
-    names: [],
-    descriptions: [],
-    images: [],
-    passive_effects: []
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [shouldRefreshPreview, setShouldRefreshPreview] = useState(0);
+  const [localCard, setLocalCard] = useState<Card>(card || defaultCard);
 
-  // Load autocomplete values
-  useEffect(() => {
-    const loadSuggestions = async () => {
-      try {
-        const suggestions = await getAutocompleteValues();
-        setSavedValues(suggestions);
-      } catch (error) {
-        console.error('Erreur lors du chargement des suggestions:', error);
-      }
-    };
-    loadSuggestions();
+  // Fonction pour forcer le rafraîchissement de la prévisualisation
+  const refreshPreview = useCallback(() => {
+    setShouldRefreshPreview(prev => prev + 1);
   }, []);
 
-  // Initialize form state with selected card values
+  // Gestionnaires pour les mises à jour des sorts et tags
+  const handleSpellsChange = useCallback((newSpellIds: number[]) => {
+    onSpellIdsChange(newSpellIds);
+    refreshPreview();
+  }, [onSpellIdsChange, refreshPreview]);
+
+  const handleTagsChange = useCallback((newTagIds: number[]) => {
+    onTagIdsChange(newTagIds);
+    refreshPreview();
+  }, [onTagIdsChange, refreshPreview]);
+
+  // Initialize form state with selected card values and load its spells and tags
   useEffect(() => {
-    if (location.state && location.state.card) {
-      setCard(location.state.card);
-    }
-  }, [location.state, setCard]);
+    const loadCardData = async () => {
+      // If we have a card from location state, use it
+      if (location.state?.card) {
+        onSave(location.state.card);
+      }
+
+      // Reset spells and tags if card is null or has no id
+      if (!card?.id) {
+        onSpellIdsChange([]);
+        onTagIdsChange([]);
+        return;
+      }
+
+      // Load spells and tags only if we have a card with an id
+      try {
+        const cardSpells = await getCardSpells(card.id);
+        onSpellIdsChange(cardSpells.map(spell => spell.spell_id));
+
+        const cardTags = await getCardTags(card.id);
+        onTagIdsChange(cardTags.map(tag => tag.tag_id));
+      } catch (error) {
+        console.error('Error loading card data:', error);
+      }
+    };
+
+    loadCardData();
+  }, [location.state]);
+
+  // Load spells and tags when card ID changes
+  useEffect(() => {
+    const loadRelations = async () => {
+      if (!card?.id) return;
+
+      try {
+        const cardSpells = await getCardSpells(card.id);
+        onSpellIdsChange(cardSpells.map(spell => spell.spell_id));
+
+        const cardTags = await getCardTags(card.id);
+        onTagIdsChange(cardTags.map(tag => tag.tag_id));
+      } catch (error) {
+        console.error('Error loading card relations:', error);
+      }
+    };
+
+    loadRelations();
+  }, [card?.id]);
 
   // Update summon_cost automatically based on rarity
   useEffect(() => {
@@ -69,62 +134,20 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
       'cheate': 80
     };
 
-    // Only update if there's a valid rarity
-    if (card?.rarity && rarityCostMap[card.rarity as keyof typeof rarityCostMap]) {
+    // Only update if there's a valid rarity and no manual summon_cost has been set
+    if (card?.rarity && 
+        rarityCostMap[card.rarity as keyof typeof rarityCostMap] && 
+        card.summon_cost === undefined) {
       const newCost = rarityCostMap[card.rarity as keyof typeof rarityCostMap];
-
-      // Only update if cost is different to avoid infinite render loops
-      if (card.summon_cost !== newCost) {
-        setCard(prev => (prev ? {
-          ...prev,
-          summon_cost: newCost
-        } : prev));
-      }
+      const updatedCard: Card = {
+        ...card,
+        summon_cost: newCost
+      };
+      onSave(updatedCard);
     }
-  }, [card?.rarity, card?.summon_cost, setCard]);
+  }, [card?.rarity, card, onSave]);
 
-  // Handle form field changes
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-
-    if (name === 'health') {
-      const numValue = parseInt(value);
-      setCard((prev) => (prev ? {
-        ...prev,
-        properties: {
-          ...prev.properties,
-          health: isNaN(numValue) ? undefined : numValue
-        }
-      } : null));
-    } else if (name === 'isWIP') {
-      const isChecked = (e.target as HTMLInputElement).checked;
-      setCard((prev) => (prev ? {
-        ...prev,
-        is_wip: isChecked
-      } : null));
-    } else if (name === 'is_crap') {
-      const isChecked = (e.target as HTMLInputElement).checked;
-      setCard((prev) => (prev ? {
-        ...prev,
-        is_crap: isChecked
-      } : null));
-    } else if (name === 'passive_effect') {
-      setCard((prev) => (prev ? {
-        ...prev,
-        passive_effect: value
-      } : null));
-    } else {
-      setCard((prev) => (prev ? {
-        ...prev,
-        [name]: value
-      } : null));
-    }
-  };
-
-  // Add this function to show toast notifications
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     
@@ -132,92 +155,128 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
     }, 3000);
+  }, []);
+
+  const saveToDatabase = useCallback(async (cardToSave: Card) => {
+    try {
+      const result = await updateCard(cardToSave);
+      if (result) {
+        showToast('Modifications sauvegardées', 'success');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la carte:', error);
+      showToast('Erreur lors de la sauvegarde', 'error');
+      // Revert to the last known good state
+      if (location.state?.card) {
+        onSave(location.state.card);
+      }
+    }
+  }, [location.state?.card, onSave, showToast]);
+
+  const debouncedSave = useCallback((cardToSave: Card) => {
+    if (cardToSave.id) {
+      setTimeout(() => saveToDatabase(cardToSave), 500);
+    }
+  }, [saveToDatabase]);
+
+  const handleChange = (e: CardInputEvent) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked
+      }));
+      return;
+    }
+
+    if (name === 'summon_cost') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        summon_cost: parseInt(value) || 0
+      }));
+      return;
+    }
+
+    if (name === 'type') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        type: value as Card['type']
+      }));
+      return;
+    }
+
+    if (name === 'rarity') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        rarity: value as Card['rarity']
+      }));
+      return;
+    }
+
+    setLocalCard((prev: Card): Card => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   // Add validation before sending to API
-  const validateCard = (card: Card) => {
+  const validateCard = async (card: Card): Promise<string[]> => {
     const requiredFields = ['name', 'type', 'rarity'];
     const missingFields = requiredFields.filter(field => !card[field as keyof Card]);
     
     if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      return missingFields;
     }
     
     if (card.type === 'personnage' && (!card.properties?.health || card.properties.health <= 0)) {
-      throw new Error('Personnages must have health greater than 0');
+      return ['Personnages must have health greater than 0'];
     }
     
-    return true;
+    return [];
   }
 
-  const saveCard = async () => {
-    if (card) {
-      try {
-        // Validate card before saving
-        validateCard(card);
-
-        // First save the card data
-        let savedCard: Card | null = null;
-        
-        if (card.id) {
-          console.log("Sending card data:", card);
-          const updateResult = await updateCard(card);
-          console.log("API response:", updateResult);
-          // Check if we got a valid result
-          if (updateResult) {
-            savedCard = updateResult as unknown as Card;
-          } else {
-            throw new Error("Failed to update card - no data returned");
-          }
-        } else {
-          console.log("Sending card data:", card);
-          const insertResult = await insertCard(card);
-          console.log("API response:", insertResult);
-          // Check if we got a valid result
-          if (insertResult) {
-            savedCard = insertResult as unknown as Card;
-          } else {
-            console.error("Insert returned null - checking Supabase for errors");
-            throw new Error("Failed to insert card - no data returned");
-          }
-        }
-        
-        // Then update relationships with spells and tags
-        if (savedCard?.id) {
-          // Save spell associations
-          await updateCardSpells(String(savedCard.id), spellIds.map(id => String(id)));
-          
-          // Save tag associations
-          await updateCardTags(String(savedCard.id), tagIds.map(id => String(id)));
-        } else {
-          throw new Error("Card saved but no ID was returned");
-        }
-        
-        // Show success toast
-        showToast('Carte et relations sauvegardées avec succès', 'success');
-      } catch (error) {
-        console.error('Erreur lors de la sauvegarde de la carte:', error);
-        showToast('Erreur lors de la sauvegarde de la carte', 'error');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      if (!localCard) {
+        throw new Error('Aucune carte à sauvegarder');
       }
-    }
-  };
 
-  const resetCard = () => {
-    setCard({
-      id: card?.id ?? 0,
-      name: '',
-      type: '' as typeof cardTypes[number],
-      rarity: '',
-      description: '',
-      image: '',
-      passive_effect: '',
-      properties: {
-        health: 0
-      },
-      is_wip: false,
-      is_crap: false,
-      summon_cost: 0
-    });
+      // Valider la carte avant la sauvegarde
+      const validationErrors = await validateCard(localCard);
+      if (validationErrors.length > 0) {
+        showToast('Erreurs de validation : ' + validationErrors.join(', '), 'error');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Sauvegarder la carte
+      const savedCard = await updateCard(localCard);
+      if (!savedCard) {
+        throw new Error('Échec de la sauvegarde de la carte');
+      }
+
+      // Mettre à jour les relations avec les tags et les sorts en parallèle
+      await Promise.all([
+        updateCardTags(savedCard.id, tagIds),
+        updateCardSpells(savedCard.id, spellIds)
+      ]);
+
+      // Forcer le rafraîchissement de la prévisualisation
+      refreshPreview();
+
+      showToast('Carte sauvegardée avec succès', 'success');
+      onSave(savedCard);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      showToast('Erreur lors de la sauvegarde : ' + (error as Error).message, 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const cardTypes = ['personnage', 'objet', 'evenement', 'lieu', 'action'] as const;
@@ -233,7 +292,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
     }
   };
 
-  if (!card) {
+  if (!localCard) {
     return <div>Chargement...</div>;
   }
 
@@ -273,18 +332,12 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                     type="text"
                     id="name"
                     name="name"
-                    value={card.name}
+                    value={localCard.name}
                     onChange={handleChange}
                     placeholder="Nom de la carte"
-                    list="saved-names"
                     required
                     className="form-input"
                   />
-                  <datalist id="saved-names">
-                    {savedValues.names.map((name, index) => (
-                      <option key={index} value={name} />
-                    ))}
-                  </datalist>
                 </div>
 
                 <div className="form-row">
@@ -293,10 +346,10 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                     <select
                       id="type"
                       name="type"
-                      value={card.type}
+                      value={localCard.type}
                       onChange={handleChange}
                       required
-                      className={`form-input card-type-select ${card.type}`}
+                      className={`form-input card-type-select ${localCard.type}`}
                     >
                       <option value="">Sélectionner un type</option>
                       {cardTypes.map(type => (
@@ -312,10 +365,10 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                     <select
                       id="rarity"
                       name="rarity"
-                      value={card.rarity}
+                      value={localCard.rarity}
                       onChange={handleChange}
                       required
-                      className={`form-input card-rarity-select ${card.rarity}`}
+                      className={`form-input card-rarity-select ${localCard.rarity}`}
                     >
                       <option value="">Sélectionner une rareté</option>
                       {rarityTypes.map(rarity => (
@@ -332,7 +385,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                   <textarea
                     id="description"
                     name="description"
-                    value={card.description || ''}
+                    value={localCard.description || ''}
                     onChange={handleChange}
                     placeholder="Description de la carte"
                     rows={3}
@@ -341,14 +394,14 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                 </div>
 
                 <div className="form-row">
-                  {card.type === 'personnage' && (
+                  {localCard.type === 'personnage' && (
                     <div className="form-group">
                       <label htmlFor="health" className="required-field">Points de vie</label>
                       <input
                         type="number"
                         id="health"
                         name="health"
-                        value={card.properties?.health || 0}
+                        value={localCard.properties?.health || 0}
                         onChange={handleChange}
                         min="0"
                         required
@@ -364,17 +417,11 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                     type="text"
                     id="image"
                     name="image"
-                    value={card.image || ''}
+                    value={localCard.image || ''}
                     onChange={handleChange}
                     placeholder="URL de l'image"
-                    list="saved-images"
                     className="form-input"
                   />
-                  <datalist id="saved-images">
-                    {savedValues.images.map((url, index) => (
-                      <option key={index} value={url} />
-                    ))}
-                  </datalist>
                 </div>
 
                 <div className="form-group">
@@ -382,7 +429,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                   <textarea
                     id="passive_effect"
                     name="passive_effect"
-                    value={card.passive_effect || ''}
+                    value={localCard.passive_effect || ''}
                     onChange={handleChange}
                     placeholder="Effet passif de la carte"
                     rows={2}
@@ -395,8 +442,8 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                     <label className="checkbox-label">
                       <input
                         type="checkbox"
-                        name="isWIP"
-                        checked={card.is_wip}
+                        name="is_wip"
+                        checked={localCard.is_wip}
                         onChange={handleChange}
                       />
                       En cours (WIP)
@@ -408,7 +455,7 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
                       <input
                         type="checkbox"
                         name="is_crap"
-                        checked={card.is_crap}
+                        checked={localCard.is_crap}
                         onChange={handleChange}
                       />
                       Carte poubelle
@@ -423,14 +470,30 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
             <div className="card-spells-section">
               <div className="section-description">
                 <h3>Sorts et capacités</h3>
-                <p>Ajoutez et configurez les sorts disponibles pour cette carte. {card.type === 'personnage' ? 'Les personnages peuvent avoir plusieurs sorts avec des effets différents.' : ''}</p>
+                <p>Ajoutez et configurez les sorts disponibles pour cette carte. {localCard.type === 'personnage' ? 'Les personnages peuvent avoir plusieurs sorts avec des effets différents.' : ''}</p>
               </div>
               <SpellList
                 spellIds={spellIds}
-                onChange={setSpellIds}
-                maxSpells={card.type === 'personnage' ? undefined : 1}
-                disableAutocomplete={true} // Disable autocomplete for spells
+                onChange={handleSpellsChange}
+                maxSpells={localCard.type === 'personnage' ? undefined : 1}
               />
+              <div className="section-actions">
+                <button 
+                  className="validate-button"
+                  onClick={async () => {
+                    try {
+                      await updateCardSpells(localCard.id, spellIds);
+                      showToast('Sorts mis à jour avec succès', 'success');
+                      refreshPreview();
+                    } catch (error) {
+                      console.error('Erreur lors de la mise à jour des sorts:', error);
+                      showToast('Erreur lors de la mise à jour des sorts', 'error');
+                    }
+                  }}
+                >
+                  Valider les sorts
+                </button>
+              </div>
             </div>
           )}
 
@@ -442,23 +505,43 @@ const CardForm: React.FC<CardFormProps> = ({ card, setCard, spellIds, setSpellId
               </div>
               <TagList
                 tagIds={tagIds}
-                onChange={setTagIds}
-                disableAutocomplete={true} // Disable autocomplete for tags
+                onChange={handleTagsChange}
               />
+              <div className="section-actions">
+                <button 
+                  className="validate-button"
+                  onClick={async () => {
+                    try {
+                      await updateCardTags(localCard.id, tagIds);
+                      showToast('Tags mis à jour avec succès', 'success');
+                      refreshPreview();
+                    } catch (error) {
+                      console.error('Erreur lors de la mise à jour des tags:', error);
+                      showToast('Erreur lors de la mise à jour des tags', 'error');
+                    }
+                  }}
+                >
+                  Valider les tags
+                </button>
+              </div>
             </div>
           )}
         </div>
         
         {/* Unified buttons outside of tab system */}
         <div className="form-buttons unified-buttons">
-          <button onClick={saveCard} className="save-button">Sauvegarder la carte et ses relations</button>
-          <button onClick={resetCard} className="reset-button">Réinitialiser</button>
+          <button onClick={handleSubmit} className="save-button">Sauvegarder la carte et ses relations</button>
         </div>
       </div>
 
       <div className="card-preview-sidebar">
         <h3>Aperçu en temps réel</h3>
-        <CardPreview card={card} />
+        <CardPreview 
+          key={shouldRefreshPreview} 
+          card={localCard} 
+          spellIds={spellIds}
+          tagIds={tagIds}
+        />
       </div>
 
       {/* Toast notifications */}

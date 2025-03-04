@@ -54,6 +54,21 @@ export type AlterationEffect = {
 export interface Database {
   public: {
     Tables: {
+      migrations: {
+        Row: {
+          id: number;
+          version: string;
+          name: string;
+          applied_at: string;
+          batch: number;
+          dependencies: string[];
+          status: 'pending' | 'applied' | 'failed' | 'rolled_back';
+          error?: string;
+          created_at?: string;
+        }
+        Insert: Omit<Database['public']['Tables']['migrations']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['migrations']['Insert']>
+      },
       cards: {
         Row: {
           id: number;
@@ -72,6 +87,73 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['cards']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['cards']['Insert']>
+      },
+      users: {
+        Row: {
+          id: string;
+          username: string;
+          password_hash: string;
+          experience_points: number;
+          level: number;
+          currency: number;
+          settings: Json;
+          created_at: string;
+          last_login: string | null;
+        }
+        Insert: Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['users']['Insert']>
+      },
+      card_inventory: {
+        Row: {
+          user_id: string;
+          card_id: number;
+          quantity: number;
+          favorite: boolean;
+          acquired_at: string;
+        }
+        Insert: Omit<Database['public']['Tables']['card_inventory']['Row'], 'acquired_at'>
+        Update: Partial<Database['public']['Tables']['card_inventory']['Insert']>
+      },
+      decks: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        }
+        Insert: Omit<Database['public']['Tables']['decks']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['decks']['Insert']>
+      },
+      deck_cards: {
+        Row: {
+          deck_id: string;
+          card_id: number;
+          quantity: number;
+        }
+        Insert: Database['public']['Tables']['deck_cards']['Row']
+        Update: Partial<Database['public']['Tables']['deck_cards']['Insert']>
+      },
+      achievements: {
+        Row: {
+          id: number;
+          name: string;
+          description: string | null;
+          points: number;
+          icon_url: string | null;
+        }
+        Insert: Omit<Database['public']['Tables']['achievements']['Row'], 'id'>
+        Update: Partial<Database['public']['Tables']['achievements']['Insert']>
+      },
+      user_achievements: {
+        Row: {
+          user_id: string;
+          achievement_id: number;
+          unlocked_at: string;
+        }
+        Insert: Omit<Database['public']['Tables']['user_achievements']['Row'], 'unlocked_at'>
+        Update: Partial<Database['public']['Tables']['user_achievements']['Insert']>
       },
       spells: {
         Row: {
@@ -117,6 +199,45 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['alterations']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['alterations']['Insert']>
+      },
+      game_config: {
+        Row: {
+          id: number;
+          key: string;
+          value: Json;
+          description: string | null;
+          created_at?: string;
+          updated_at?: string;
+        }
+        Insert: Omit<Database['public']['Tables']['game_config']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['game_config']['Insert']>
+      },
+      simulation_results: {
+        Row: {
+          id: number;
+          simulation_type: 'training' | 'performance' | 'metrics';
+          deck_id: string;
+          opponent_deck_id: string;
+          result: Json;
+          metadata: Json;
+          created_at?: string;
+          updated_at?: string;
+        }
+        Insert: Omit<Database['public']['Tables']['simulation_results']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['simulation_results']['Insert']>
+      },
+      debug_logs: {
+        Row: {
+          id: number;
+          log_type: 'tag_interaction' | 'performance' | 'error';
+          severity: 'info' | 'warning' | 'error' | 'critical';
+          message: string;
+          context: Json;
+          stack_trace?: string;
+          created_at?: string;
+        }
+        Insert: Omit<Database['public']['Tables']['debug_logs']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['debug_logs']['Insert']>
       }
     }
     Views: {

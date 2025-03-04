@@ -24,8 +24,25 @@ END;
 $$;
   `;
 
-  console.log('SQL pour créer la fonction RPC nécessaire:');
-  console.log(sql);
-  
   return 'Utilisez ces requêtes SQL dans votre console Supabase pour créer les fonctions nécessaires';
+}
+
+export function generateRPCFunction(tableName: string, columnName: string): string {
+  const sql = `
+    CREATE OR REPLACE FUNCTION public.get_${tableName}_${columnName}_ids(card_id bigint)
+    RETURNS bigint[]
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      result bigint[];
+    BEGIN
+      SELECT array_agg(${columnName}_id)
+      INTO result
+      FROM ${tableName}
+      WHERE card_id = $1;
+      RETURN result;
+    END;
+    $$;
+  `;
+  return sql;
 }
