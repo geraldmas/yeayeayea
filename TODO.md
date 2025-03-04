@@ -3,50 +3,26 @@
 ## 1. Architecture et Infrastructure
 
 ### 1.1 Base de données
-- [ ] Finaliser le schéma de la base de données pour les cartes et leurs interactions
-  - [x] Implémenter la table `game_config` pour les paramètres configurables
-    - [x] max_personnages (paramétrable)
-    - [x] emplacements_objet (paramétrable)
-    - [x] budget_motivation_initial (10 par défaut)
-    - [x] pv_base_initial (100 par défaut)
-  - [x] Créer la table `simulation_results` pour le système d'IA
-    - [x] Métriques de performance
-    - [x] Données d'entraînement
-    - [x] Résultats des simulations
-  - [x] Implémenter la table `debug_logs` pour le monitoring
-    - [x] Logs des interactions entre tags
-    - [x] Logs des performances
-    - [x] Logs des erreurs
-- [x] Implémenter un système de migrations de base de données
-  - [x] Créer la table `migrations`
-  - [x] Mettre en place un système de versioning
-  - [x] Créer un service de gestion des migrations
-  - [x] Implémenter les fonctions de sauvegarde et restauration
-- [x] Implémenter les tests unitaires
-  - [x] Tests du service de migrations
-  - [x] Tests de la migration initiale
-  - [x] Tests du script d'exécution
-- [x] Créer les scripts de seed pour les données initiales
-  - [x] Données de base pour les cartes personnage
-    - [x] PV de base selon la rareté
-    - [x] Sorts de base
-    - [x] Tags prédéfinis (#NUIT, #JOUR, #FRAGILE)
-  - [x] Données de base pour les cartes lieu
-    - [x] 3 cartes lieu par joueur
-    - [x] 6 cartes lieu en commun
-    - [x] Mécaniques de sélection active
-  - [x] Données de base pour les cartes objet
-    - [x] Effets passifs (ex: +20% charisme, +20% motivation)
-    - [x] Système d'emplacements
-    - [x] Valeurs de vente en charisme
-  - [x] Données de base pour les cartes action et événement
-    - [x] Coûts en motivation
-    - [x] Effets instantanés
-    - [x] Système de distribution secrète
-  - [x] Configuration initiale des paramètres du jeu
-    - [x] Valeurs par défaut des paramètres configurables
-    - [x] Règles de base du jeu
-    - [x] Système de motivation et charisme
+- [ ] Implémenter le système de migrations de base de données
+  - [ ] Créer la table `migrations`
+  - [ ] Mettre en place un système de versioning
+  - [ ] Créer un service de gestion des migrations
+  - [ ] Implémenter les fonctions de sauvegarde et restauration
+- [ ] Implémenter les tests unitaires
+  - [ ] Tests du service de migrations
+  - [ ] Tests de la migration initiale
+  - [ ] Tests du script d'exécution
+- [ ] Créer les scripts de seed pour les données initiales
+  - [ ] Données de base pour les cartes personnage
+    - [ ] PV de base selon la rareté
+    - [ ] Sorts de base
+    - [ ] Tags prédéfinis (#NUIT, #JOUR, #FRAGILE)
+  - [ ] Données de base pour les cartes lieu
+    - [ ] 3 cartes lieu par joueur
+    - [ ] 6 cartes lieu en commun
+    - [ ] Mécaniques de sélection active
+  - [ ] Données de base pour les cartes objet
+    - [ ] Effets passifs (ex: +20% charisme, +20% motivation)
 
 ### 1.2 API Backend
 - [ ] Mettre en place les routes CRUD pour les cartes
@@ -73,8 +49,9 @@
 - [ ] Implémenter le système d'authentification
   - [ ] Système de login/register
     - [ ] Gestion des comptes utilisateurs
+    - [ ] Vérification de la propriété `isAdmin` pour déterminer l'interface
     - [ ] Système de progression (XP, niveau)
-    - [ ] Gestion du charisme
+    - [ ] Gestion du charisme et de la monnaie
   - [ ] Gestion des sessions
     - [ ] Système de matchmaking
     - [ ] Gestion des parties en cours
@@ -83,6 +60,16 @@
     - [ ] Accès aux fonctionnalités de debug
     - [ ] Gestion des droits administrateur
     - [ ] Restrictions par niveau
+- [ ] Créer les endpoints pour la gestion des boosters et la collection
+  - [ ] Gestion des boosters
+    - [ ] Création de boosters avec différentes raretés
+    - [ ] Distribution aléatoire des cartes dans les boosters
+    - [ ] Endpoint d'ouverture de booster
+    - [ ] Historique des boosters ouverts
+  - [ ] Gestion de la collection
+    - [ ] Ajout de cartes à l'inventaire
+    - [ ] Vente/échange de cartes
+    - [ ] Filtrage et tri des cartes
 - [ ] Créer les endpoints pour la gestion des parties
   - [ ] Création de partie
     - [ ] Initialisation des decks
@@ -118,81 +105,218 @@
     - [ ] Logs des interactions problématiques
     - [ ] Système d'alertes
 
-### 1.3 Frontend
-- [ ] Restructurer l'application en modules distincts
-  - [ ] Module de gestion des cartes
-    - [ ] Interface d'édition des cartes
-    - [ ] Visualisation des synergies
-    - [ ] Gestion des tags et effets
-  - [ ] Module de combat
-    - [ ] Interface de jeu principale
-    - [ ] Système de ciblage tactique
-    - [ ] Visualisation des effets et synergies
-  - [ ] Module de collection
-    - [ ] Gestion de l'inventaire
-    - [ ] Système de vente d'objets
-    - [ ] Progression et récompenses
-  - [ ] Module de debug
-    - [ ] Panneau de configuration en temps réel
-    - [ ] Visualisation des paramètres du jeu
-    - [ ] Outils de test des synergies
-  - [ ] Module de simulation
-    - [ ] Interface de configuration des scénarios
-    - [ ] Visualisation des résultats
-    - [ ] Analyse des métriques
+### 1.3 Frontend - Interface Commune
+- [ ] Implémenter la détection du type d'utilisateur
+  - [ ] Redirection vers l'interface administrateur si `isAdmin` est vrai
+  - [ ] Redirection vers l'interface joueur si `isAdmin` est faux
+  - [ ] Gestion des erreurs d'authentification
 - [ ] Mettre en place le système de routage
-  - [ ] Routes principales
-    - [ ] Page d'accueil
-    - [ ] Collection
-    - [ ] Éditeur de cartes
-  - [ ] Routes de jeu
-    - [ ] Interface de combat
-    - [ ] Matchmaking
-    - [ ] Historique des parties
-  - [ ] Routes d'administration
-    - [ ] Gestion des utilisateurs
-    - [ ] Configuration du jeu
-    - [ ] Monitoring
-  - [ ] Gestion des transitions
-    - [ ] Animations de navigation
-    - [ ] États de chargement
-    - [ ] Gestion des erreurs
+  - [ ] Routes d'authentification
+    - [ ] Login
+    - [ ] Register
+    - [ ] Récupération de mot de passe
+  - [ ] Routes protégées
+    - [ ] Vérification d'authentification
+    - [ ] Vérification des droits d'accès
+    - [ ] Redirection en cas d'accès non autorisé
 - [ ] Implémenter le state management (Redux/Context)
-  - [ ] Store pour l'état du jeu
-    - [ ] État de la partie en cours
-    - [ ] Gestion des tours
-    - [ ] Système de motivation (10 par tour)
-    - [ ] Gestion des cartes lieu (3 par joueur, 6 en commun)
-  - [ ] Store pour la collection
-    - [ ] Inventaire des cartes
-    - [ ] Système de charisme
-    - [ ] Progression du joueur
-  - [ ] Store pour les paramètres
-    - [ ] Configuration du jeu
-    - [ ] Préférences utilisateur
-    - [ ] Paramètres de debug
-  - [ ] Store pour le debug
-    - [ ] Logs en temps réel
-    - [ ] Métriques de performance
-    - [ ] États de simulation
-- [ ] Créer les composants de base réutilisables
-  - [ ] Composants de carte
-    - [ ] Affichage des PV et coûts
-    - [ ] Visualisation des tags
-    - [ ] Système de drag & drop
-    - [ ] Effets visuels des synergies
-  - [ ] Composants d'interface
-    - [ ] Zones de jeu (terrain, main, pioche)
-    - [ ] Interface de ciblage tactique
-    - [ ] Système de notifications
-  - [ ] Composants de feedback
-    - [ ] Animations des effets
-    - [ ] Indicateurs d'état
-    - [ ] Messages d'erreur
-  - [ ] Composants de debug
-    - [ ] Panneau de configuration
-    - [ ] Visualisation des logs
-    - [ ] Outils de test
+  - [ ] Store pour l'authentification
+    - [ ] État de connexion
+    - [ ] Information utilisateur (isAdmin, etc.)
+    - [ ] Gestion des tokens
+  - [ ] Store pour les messages système
+    - [ ] Notifications
+    - [ ] Erreurs
+    - [ ] Confirmations
+
+### 1.4 Frontend - Interface Administrateur (Desktop)
+- [ ] Concevoir le layout desktop pour l'administration
+  - [ ] Sidebar de navigation
+    - [ ] Accès aux différents modules
+    - [ ] Indicateurs d'état du système
+    - [ ] Raccourcis d'administration
+  - [ ] Header avec statut système
+    - [ ] État des services
+    - [ ] Nombre d'utilisateurs connectés
+    - [ ] Alertes système
+  - [ ] Footer avec informations
+    - [ ] Version du système
+    - [ ] Statistiques globales
+    - [ ] Liens utiles
+  - [ ] Dashboard principal responsive
+    - [ ] Widgets configurables
+    - [ ] Graphiques d'activité
+    - [ ] Statistiques en temps réel
+- [ ] Créer le module de gestion des cartes
+  - [ ] Interface d'édition des cartes
+    - [ ] Formulaire complet avec validation
+    - [ ] Prévisualisation en temps réel
+    - [ ] Gestion des images et assets
+  - [ ] Gestionnaire de tags et effets
+    - [ ] Création/édition de tags
+    - [ ] Configuration des effets
+    - [ ] Test des synergies
+  - [ ] Visualisation des relations
+    - [ ] Graphique des synergies
+    - [ ] Matrice d'interactions
+    - [ ] Analyse d'équilibre
+- [ ] Développer le module de gestion des utilisateurs
+  - [ ] Liste des utilisateurs
+    - [ ] Filtre et recherche avancée
+    - [ ] Actions groupées
+    - [ ] Export des données
+  - [ ] Édition des profils
+    - [ ] Modification des informations
+    - [ ] Ajustement des droits
+    - [ ] Gestion de la monnaie et des ressources
+  - [ ] Monitoring des activités
+    - [ ] Journal des connexions
+    - [ ] Suivi des actions
+    - [ ] Détection d'anomalies
+- [ ] Implémenter le module de configuration du jeu
+  - [ ] Éditeur de paramètres
+    - [ ] Modification des valeurs par défaut
+    - [ ] Prévisualisation des impacts
+    - [ ] Historique des modifications
+  - [ ] Gestionnaire de boosters
+    - [ ] Configuration des types de boosters
+    - [ ] Définition des taux de drop
+    - [ ] Planification des événements spéciaux
+  - [ ] Outils de simulation
+    - [ ] Tests de scénarios
+    - [ ] Analyse d'équilibre
+    - [ ] Graphiques de performance
+- [ ] Créer le module d'analyse et statistiques
+  - [ ] Rapports d'utilisation
+    - [ ] Cartes les plus utilisées
+    - [ ] Taux de victoire par deck
+    - [ ] Comportements des joueurs
+  - [ ] Visualisation des données
+    - [ ] Graphiques interactifs
+    - [ ] Tableaux de bord configurables
+    - [ ] Export des rapports
+  - [ ] Outils de data mining
+    - [ ] Détection de patterns
+    - [ ] Prédictions de tendances
+    - [ ] Suggestions d'amélioration
+
+### 1.5 Frontend - Interface Joueur (Mobile)
+- [ ] Concevoir le layout mobile responsive
+  - [ ] Navigation mobile intuitive
+    - [ ] Menu hamburger accessible
+    - [ ] Barre de navigation inférieure
+    - [ ] Gestes tactiles optimisés
+  - [ ] Affichage adaptatif
+    - [ ] Design pour différentes tailles d'écran
+    - [ ] Mode portrait et paysage
+    - [ ] Optimisation pour écrans tactiles
+  - [ ] Performance mobile
+    - [ ] Temps de chargement optimisés
+    - [ ] Utilisation mémoire réduite
+    - [ ] Gestion de la batterie
+- [ ] Développer le menu principal
+  - [ ] Interface de profil joueur
+    - [ ] Affichage du niveau et XP
+    - [ ] Statistiques de jeu
+    - [ ] Accomplissements et badges
+  - [ ] Système de monnaie et ressources
+    - [ ] Affichage du solde
+    - [ ] Historique des transactions
+    - [ ] Options d'achat (future intégration)
+  - [ ] Navigation principale
+    - [ ] Lancement de partie
+    - [ ] Accès à la collection
+    - [ ] Ouverture de boosters
+    - [ ] Classements et communauté
+- [ ] Créer le module d'ouverture de boosters
+  - [ ] Interface d'achat de boosters
+    - [ ] Différents types de boosters
+    - [ ] Prix et contenu attendu
+    - [ ] Boosters spéciaux/promotionnels
+  - [ ] Animation d'ouverture
+    - [ ] Séquence interactive
+    - [ ] Effets visuels selon la rareté
+    - [ ] Son et retour haptique
+  - [ ] Affichage des résultats
+    - [ ] Présentation des cartes obtenues
+    - [ ] Mise en évidence des raretés
+    - [ ] Options pour ajouter à la collection
+  - [ ] Historique d'ouverture
+    - [ ] Liste des boosters récents
+    - [ ] Statistiques de drop
+    - [ ] Cartes manquantes/recherchées
+- [ ] Implémenter le module de collection/inventaire
+  - [ ] Visualisation de l'inventaire
+    - [ ] Filtres par type, rareté, tag
+    - [ ] Tri personnalisable
+    - [ ] Vue galerie et vue détaillée
+  - [ ] Détail des cartes
+    - [ ] Visualisation 3D/animation
+    - [ ] Informations complètes
+    - [ ] Synergies et combinaisons
+  - [ ] Gestion de decks
+    - [ ] Création et modification
+    - [ ] Suggestions automatiques
+    - [ ] Analyse de performance
+  - [ ] Options d'inventaire
+    - [ ] Marquer comme favoris
+    - [ ] Vente/échange de cartes
+    - [ ] Fusion pour amélioration
+- [ ] Développer l'interface de matchmaking et lancement de partie
+  - [ ] Sélection du mode de jeu
+    - [ ] Partie classée
+    - [ ] Partie amicale
+    - [ ] Tournois et événements
+  - [ ] Sélection de deck
+    - [ ] Choix parmi les decks sauvegardés
+    - [ ] Deck aléatoire
+    - [ ] Deck du jour
+  - [ ] Matchmaking
+    - [ ] Animation d'attente
+    - [ ] Informations sur l'adversaire
+    - [ ] Option d'annulation
+  - [ ] Transition vers le jeu
+    - [ ] Écran de chargement informatif
+    - [ ] Présentation des joueurs
+    - [ ] Conseils et astuces
+- [ ] Concevoir l'interface de partie
+  - [ ] Zone de jeu tactile
+    - [ ] Plateau adapté au mobile
+    - [ ] Cartes redimensionnées
+    - [ ] Interactions tactiles fluides
+  - [ ] Affichage des informations
+    - [ ] Barre de statut (PV, motivation)
+    - [ ] Main du joueur
+    - [ ] État du terrain
+  - [ ] Système de tour
+    - [ ] Indicateur de phase
+    - [ ] Minuteur
+    - [ ] Actions disponibles
+  - [ ] Actions tactiles
+    - [ ] Drag & drop des cartes
+    - [ ] Sélection des cibles
+    - [ ] Zoom sur les cartes
+  - [ ] Feedback visuel
+    - [ ] Animations d'effets
+    - [ ] Indicateurs de dégâts/soins
+    - [ ] Notifications d'événements
+  - [ ] Interface de fin de partie
+    - [ ] Récapitulatif
+    - [ ] Récompenses
+    - [ ] Options post-partie
+- [ ] Implémenter les fonctionnalités sociales
+  - [ ] Liste d'amis
+    - [ ] Ajout et gestion
+    - [ ] Statut en ligne
+    - [ ] Invitations
+  - [ ] Chat in-game
+    - [ ] Messages prédéfinis
+    - [ ] Emotes et réactions
+    - [ ] Options de modération
+  - [ ] Classements et ladders
+    - [ ] Classement global
+    - [ ] Progression personnelle
+    - [ ] Récompenses de saison
 
 ## 2. Système de Cartes
 
@@ -774,4 +898,34 @@
     - [ ] Monitoring
     - [ ] Métriques
     - [ ] Alertes
-    - [ ] Logs 
+    - [ ] Logs
+
+## 8. Tâches Réalisées
+
+### 8.1 Base de données
+- [x] Finaliser le schéma de la base de données pour les cartes et leurs interactions
+  - [x] Implémenter la table `game_config` pour les paramètres configurables
+    - [x] max_personnages (paramétrable)
+    - [x] emplacements_objet (paramétrable)
+    - [x] budget_motivation_initial (10 par défaut)
+    - [x] pv_base_initial (100 par défaut)
+  - [x] Créer la table `simulation_results` pour le système d'IA
+    - [x] Métriques de performance
+    - [x] Données d'entraînement
+    - [x] Résultats des simulations
+  - [x] Implémenter la table `debug_logs` pour le monitoring
+    - [x] Logs des interactions entre tags
+    - [x] Logs des performances
+    - [x] Logs des erreurs
+- [x] Créer les scripts de seed pour les données initiales
+  - [x] Données de base pour les cartes action et événement
+    - [x] Coûts en motivation
+    - [x] Effets instantanés
+    - [x] Système de distribution secrète
+  - [x] Configuration initiale des paramètres du jeu
+    - [x] Valeurs par défaut des paramètres configurables
+    - [x] Règles de base du jeu
+    - [x] Système de motivation et charisme
+  - [x] Données de base pour les cartes objet
+    - [x] Système d'emplacements
+    - [x] Valeurs de vente en charisme

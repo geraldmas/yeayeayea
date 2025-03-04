@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Débogage Utilisateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button.success {
+            background-color: #4CAF50;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .info {
+            margin-top: 20px;
+            color: #666;
+            text-align: left;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        .section {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Débogage Utilisateur</h1>
+        <p>Cette page vous permet de déboguer votre session utilisateur et de résoudre les problèmes d'authentification.</p>
+        
+        <div class="section">
+            <h2>1. Nettoyage du localStorage</h2>
+            <button onclick="clearAll()">Effacer TOUT le localStorage</button>
+            <button onclick="clearLoginData()">Effacer seulement les données de connexion</button>
+        </div>
+        
+        <div class="section">
+            <h2>2. Utilisateur Actuel</h2>
+            <div id="current-user">Chargement...</div>
+            <button onclick="forceAdmin()" class="success">Forcer le statut Admin</button>
+            <button onclick="refreshUserInfo()" class="success">Rafraîchir</button>
+        </div>
+        
+        <div class="section">
+            <h2>3. Contenu Complet du localStorage</h2>
+            <pre id="storage-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Afficher le contenu actuel
+        function showStorageContent() {
+            const content = document.getElementById('storage-content');
+            content.innerHTML = '';
+            
+            if (localStorage.length === 0) {
+                content.textContent = "Le localStorage est vide.";
+                return;
+            }
+            
+            let items = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key) {
+                    try {
+                        items[key] = localStorage.getItem(key);
+                    } catch (e) {
+                        items[key] = "Erreur de lecture";
+                    }
+                }
+            }
+            
+            content.textContent = JSON.stringify(items, null, 2);
+            
+            // Mettre à jour les infos utilisateur aussi
+            refreshUserInfo();
+        }
+        
+        // Effacer tout le localStorage
+        function clearAll() {
+            localStorage.clear();
+            alert("Le localStorage a été entièrement effacé. Veuillez vous reconnecter à l'application.");
+            showStorageContent();
+        }
+        
+        // Effacer seulement les données de connexion
+        function clearLoginData() {
+            localStorage.removeItem('rememberedUser');
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            alert("Les données de connexion ont été effacées. Veuillez vous reconnecter à l'application.");
+            showStorageContent();
+        }
+        
+        // Forcer le statut admin
+        function forceAdmin() {
+            let userData = null;
+            
+            // Essayer rememberedUser d'abord
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            if (rememberedUser) {
+                userData = JSON.parse(rememberedUser);
+                userData.is_admin = true;
+                localStorage.setItem('rememberedUser', JSON.stringify(userData));
+            }
+            
+            // Essayer user
+            const user = localStorage.getItem('user');
+            if (user) {
+                userData = JSON.parse(user);
+                userData.is_admin = true;
+                localStorage.setItem('user', JSON.stringify(userData));
+            }
+            
+            if (userData) {
+                alert("Le statut admin a été forcé à TRUE. Rafraîchissez l'application principale pour voir les changements.");
+            } else {
+                alert("Aucun utilisateur trouvé dans le localStorage. Veuillez vous connecter d'abord.");
+            }
+            
+            showStorageContent();
+        }
+        
+        // Afficher les informations utilisateur
+        function refreshUserInfo() {
+            const userInfo = document.getElementById('current-user');
+            let html = '';
+            
+            // Essayer rememberedUser d'abord
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            if (rememberedUser) {
+                const userData = JSON.parse(rememberedUser);
+                html += '<h3>Utilisateur mémorisé (rememberedUser):</h3>';
+                html += '<pre>' + JSON.stringify(userData, null, 2) + '</pre>';
+                html += '<p><strong>Statut Admin:</strong> ' + (userData.is_admin ? '✅ OUI' : '❌ NON') + '</p>';
+            }
+            
+            // Essayer user
+            const user = localStorage.getItem('user');
+            if (user) {
+                const userData = JSON.parse(user);
+                html += '<h3>Utilisateur (user):</h3>';
+                html += '<pre>' + JSON.stringify(userData, null, 2) + '</pre>';
+                html += '<p><strong>Statut Admin:</strong> ' + (userData.is_admin ? '✅ OUI' : '❌ NON') + '</p>';
+            }
+            
+            if (html === '') {
+                userInfo.innerHTML = '<p>Aucun utilisateur connecté.</p>';
+            } else {
+                userInfo.innerHTML = html;
+            }
+        }
+        
+        // Initialiser l'affichage
+        showStorageContent();
+    </script>
+</body>
+</html> 
