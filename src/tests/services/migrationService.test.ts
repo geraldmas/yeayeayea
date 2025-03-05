@@ -69,7 +69,7 @@ describe('MigrationService', () => {
   describe('registerMigration', () => {
     it('devrait enregistrer une migration avec succès', async () => {
       await migrationService.registerMigration(mockMigration);
-      
+
       // Simplifier le test pour éviter de dépendre de getPendingMigrations
       expect(migrationService['migrations'].get('001')).toBe(mockMigration);
     });
@@ -131,7 +131,7 @@ describe('MigrationService', () => {
       mockMigration.up.mockRejectedValueOnce(new Error('Execution error'));
       
       await migrationService.registerMigration(mockMigration);
-      
+
       // Configurer les mocks pour que la migration soit tentée
       (supabase.rpc as jest.Mock).mockImplementation((functionName) => {
         if (functionName === 'can_apply_migration') {
@@ -145,7 +145,7 @@ describe('MigrationService', () => {
         }
         return Promise.resolve({ data: null, error: null });
       });
-      
+
       // Configurer le mock pour l'insertion d'une migration échouée
       (supabase.from as jest.Mock).mockImplementation((table) => {
         return {

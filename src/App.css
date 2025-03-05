@@ -775,6 +775,12 @@ button:hover {
   color: white;
 }
 
+.todo-progress-nav-item {
+  margin-left: auto !important;
+  display: flex;
+  align-items: center;
+}
+
 .logout-button {
   background-color: var(--error-color) !important;
   color: white !important;

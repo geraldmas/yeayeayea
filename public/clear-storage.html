@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Débogage Utilisateur & Authentification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2196f3;
+            border-bottom: 2px solid #2196f3;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .button:hover {
+            background-color: #1976d2;
+        }
+        .button.dangerous {
+            background-color: #f44336;
+        }
+        .button.dangerous:hover {
+            background-color: #d32f2f;
+        }
+        .button.warning {
+            background-color: #ff9800;
+        }
+        .button.warning:hover {
+            background-color: #f57c00;
+        }
+        .button.success {
+            background-color: #4caf50;
+        }
+        .button.success:hover {
+            background-color: #388e3c;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .help-text {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status.success {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        .status.error {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .status.warning {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Débogage Utilisateur & Authentification</h1>
+    
+    <div class="section">
+        <h2>Statut de Connexion</h2>
+        <div class="help-text">
+            Cette section affiche le statut de connexion actuel et permet de vérifier si vous êtes correctement authentifié.
+        </div>
+        <div id="login-status">Vérification en cours...</div>
+        <br>
+        <button class="button" onclick="refreshUserInfo()">Rafraîchir les informations</button>
+    </div>
+
+    <div class="section">
+        <h2>Information Utilisateur</h2>
+        <div class="help-text">
+            Détails complets de l'utilisateur connecté, y compris le statut administrateur.
+        </div>
+        <div id="user-info">
+            <p>Aucun utilisateur connecté.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Outils de Diagnostic</h2>
+        <div class="help-text">
+            Ces outils permettent de manipuler les données d'authentification pour résoudre les problèmes.
+        </div>
+        
+        <h3>Nettoyage</h3>
+        <button class="button dangerous" onclick="clearAll()">Effacer TOUT le localStorage</button>
+        <button class="button warning" onclick="clearLoginData()">Effacer seulement les données de connexion</button>
+        
+        <h3>Modification du statut</h3>
+        <button class="button success" onclick="forceAdmin()">Forcer le statut Admin</button>
+        <button class="button warning" onclick="removeAdmin()">Retirer le statut Admin</button>
+        
+        <h3>Vérification Base de Données</h3>
+        <button class="button" onclick="checkDatabaseUser()">Vérifier l'utilisateur en BDD</button>
+        <div id="database-check-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>État Complet du localStorage</h2>
+        <div class="help-text">
+            Contenu brut du localStorage, utile pour le débogage avancé.
+        </div>
+        <pre id="localstorage-content">Chargement...</pre>
+    </div>
+
+    <div class="section">
+        <h2>Actions</h2>
+        <a href="../" class="button">Retour à l'application</a>
+    </div>
+
+    <script>
+        // Fonctions de débogage
+        function refreshUserInfo() {
+            updateLoginStatus();
+            updateUserInfo();
+            updateLocalStorageContent();
+        }
+
+        function updateLoginStatus() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser') || 'null');
+            const statusElement = document.getElementById('login-status');
+            
+            if (user) {
+                statusElement.innerHTML = `
+                    <div class="status success">Connecté</div>
+                    <p>Utilisateur: <strong>${user.username}</strong></p>
+                    <p>Statut Admin: <strong>${user.is_admin ? 'OUI' : 'NON'}</strong></p>
+                    <p>Session "Se souvenir de moi": <strong>${rememberedUser ? 'Activée' : 'Désactivée'}</strong></p>
+                `;
+            } else {
+                statusElement.innerHTML = `
+                    <div class="status error">Non connecté</div>
+                    <p>Aucune session active dans localStorage</p>
+                    <p>Session "Se souvenir de moi": <strong>${rememberedUser ? 'Présente' : 'Absente'}</strong></p>
+                `;
+            }
+        }
+
+        function updateUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const userInfoElement = document.getElementById('user-info');
+            
+            if (user) {
+                let userDetails = `
+                <table>
+                    <tr>
+                        <th>Propriété</th>
+                        <th>Valeur</th>
+                        <th>Type</th>
+                    </tr>
+                `;
+                
+                // Afficher toutes les propriétés avec leur type
+                for (const [key, value] of Object.entries(user)) {
+                    userDetails += `
+                    <tr>
+                        <td>${key}</td>
+                        <td>${JSON.stringify(value)}</td>
+                        <td>${typeof value}</td>
+                    </tr>
+                    `;
+                }
+                
+                userDetails += `</table>`;
+                userInfoElement.innerHTML = userDetails;
+            } else {
+                userInfoElement.innerHTML = `<p>Aucun utilisateur connecté.</p>`;
+            }
+        }
+
+        function updateLocalStorageContent() {
+            const content = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key) {
+                    try {
+                        content[key] = JSON.parse(localStorage.getItem(key));
+                    } catch (e) {
+                        content[key] = localStorage.getItem(key);
+                    }
+                }
+            }
+            document.getElementById('localstorage-content').textContent = JSON.stringify(content, null, 2);
+        }
+
+        function clearAll() {
+            if (confirm('Êtes-vous sûr de vouloir effacer toutes les données de localStorage ?')) {
+                localStorage.clear();
+                alert('LocalStorage effacé avec succès !');
+                refreshUserInfo();
+            }
+        }
+
+        function clearLoginData() {
+            if (confirm('Êtes-vous sûr de vouloir effacer les données de connexion ?')) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('rememberedUser');
+                alert('Données de connexion effacées !');
+                refreshUserInfo();
+            }
+        }
+
+        function forceAdmin() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                alert('Aucun utilisateur connecté !');
+                return;
+            }
+            
+            // Forcer le statut admin
+            user.is_admin = true;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Mettre à jour aussi rememberedUser si présent
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser') || 'null');
+            if (rememberedUser) {
+                rememberedUser.is_admin = true;
+                localStorage.setItem('rememberedUser', JSON.stringify(rememberedUser));
+            }
+            
+            alert('Statut admin forcé !');
+            refreshUserInfo();
+        }
+
+        function removeAdmin() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                alert('Aucun utilisateur connecté !');
+                return;
+            }
+            
+            // Retirer le statut admin
+            user.is_admin = false;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Mettre à jour aussi rememberedUser si présent
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser') || 'null');
+            if (rememberedUser) {
+                rememberedUser.is_admin = false;
+                localStorage.setItem('rememberedUser', JSON.stringify(rememberedUser));
+            }
+            
+            alert('Statut admin retiré !');
+            refreshUserInfo();
+        }
+
+        async function checkDatabaseUser() {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                alert('Aucun utilisateur connecté !');
+                return;
+            }
+
+            document.getElementById('database-check-result').innerHTML = "<p>Vérification en cours...</p>";
+
+            try {
+                // Récupérer les informations de l'API Supabase (si disponible)
+                const response = await fetch(`${window.location.origin}/api/check-user?userId=${user.id}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('database-check-result').innerHTML = `
+                        <div class="status success">Utilisateur trouvé en base de données</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    document.getElementById('database-check-result').innerHTML = `
+                        <div class="status error">Erreur lors de la vérification</div>
+                        <p>Impossible de vérifier l'utilisateur en base de données.</p>
+                        <p>Utilisez directement l'interface Supabase pour vérifier l'utilisateur #${user.id}.</p>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('database-check-result').innerHTML = `
+                    <div class="status warning">API non disponible</div>
+                    <p>L'API de vérification n'est pas disponible.</p>
+                    <p>Utilisez directement l'interface Supabase pour vérifier l'utilisateur #${user.id}.</p>
+                `;
+            }
+        }
+
+        // Initialisation
+        window.onload = function() {
+            refreshUserInfo();
+        };
+    </script>
+</body>
+</html> 

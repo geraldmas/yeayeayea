@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
+    "types": ["jest", "node"]
+  },
+  "include": [
+    "src/tests/**/*.ts"
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  }
+} 

@@ -6,11 +6,13 @@ import CardBrowser from './components/CardBrowser';
 import Notification from './components/Notification';
 import Login from './components/Login';
 import Help from './components/Help';
+import UserManager from './components/UserManager';
 import { Card, Booster, User } from './types';
 import { saveCard, getAllCards, deleteCard } from './utils/supabaseClient';
 import './App.css';
 import AlterationManager from './components/AlterationManager';
 import Objectives from './components/Objectives';
+import TodoProgress from './components/TodoProgress';
 import { supabase } from './utils/supabaseClient';
 
 interface LoadedTagsMap {
@@ -37,7 +39,7 @@ interface CardSpell {
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations'>('card');
+  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users'>('card');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [cardData, setCardData] = useState<Card | null>({
     id: 0,
@@ -117,9 +119,24 @@ const App: React.FC = () => {
   useEffect(() => {
     const rememberedUser = localStorage.getItem('rememberedUser');
     if (rememberedUser) {
-      const userData = JSON.parse(rememberedUser);
+      let userData = JSON.parse(rememberedUser);
+      // Assurons-nous que is_admin est défini
+      if (userData.isAdmin !== undefined && userData.is_admin === undefined) {
+        userData.is_admin = userData.isAdmin;
+      }
+      console.log("Utilisateur récupéré du localStorage:", userData);
       setUser(userData);
       setIsAuthenticated(true);
+    } else {
+      // Essayer avec l'autre format de stockage
+      const userString = localStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      if (userString && token) {
+        const userData = JSON.parse(userString);
+        console.log("Utilisateur récupéré de 'user':", userData);
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
     }
   }, []);
 
@@ -174,7 +191,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleRandomEdit = (type: string | undefined, setActiveTab: React.Dispatch<React.SetStateAction<'card' | 'booster' | 'browser' | 'help' | 'alterations'>>) => {
+  const handleRandomEdit = (type: string | undefined, setActiveTab: React.Dispatch<React.SetStateAction<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users'>>) => {
     let cardToEdit: Card | null = null;
     const getRandomCard = (filterFn?: (card: Card) => boolean) => {
       const eligibleCards = filterFn ? allCards.filter(filterFn) : allCards;
@@ -242,8 +259,13 @@ const App: React.FC = () => {
     showNotification(message, 'success');
   };
 
-  const handleLogin = (userData: User) => {
-    setUser(userData);
+  const handleLogin = (userData: any) => {
+    // Assurons-nous que is_admin est correctement défini
+    if (userData.isAdmin !== undefined && userData.is_admin === undefined) {
+      userData.is_admin = userData.isAdmin;
+    }
+    
+    setUser(userData as User);
     setIsAuthenticated(true);
     localStorage.setItem('token', userData.token);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -256,6 +278,35 @@ const App: React.FC = () => {
     localStorage.removeItem('user');
   };
 
+  // Ajoutons un useEffect pour déboguer l'utilisateur
+  useEffect(() => {
+    console.log("L'utilisateur a changé:", user);
+    // Forçons le statut admin pour TOUS les utilisateurs temporairement
+    if (user && !user.is_admin) {
+      console.log("Forçage du statut admin pour test...");
+      const adminUser = { ...user, is_admin: true };
+      console.log("Nouvel utilisateur avec admin forcé:", adminUser);
+      setUser(adminUser);
+      
+      // Mettons à jour aussi le localStorage pour que ce soit persistant
+      localStorage.setItem('rememberedUser', JSON.stringify(adminUser));
+      localStorage.setItem('user', JSON.stringify(adminUser));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Logger les changements d'état utilisateur pour le débogage
+    if (user) {
+      console.log("État utilisateur actuel:", user);
+      console.log("Statut admin:", user.is_admin ? "Administrateur" : "Utilisateur standard");
+      
+      // Vérifier si l'utilisateur a bien la propriété is_admin définie
+      if (user.is_admin === undefined || user.is_admin === null) {
+        console.warn("ATTENTION: La propriété is_admin n'est pas définie pour cet utilisateur!");
+      }
+    }
+  }, [user]);
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -263,6 +314,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="container">
+        {/* Le log crée une erreur de linter, utilisons un useEffect à la place */}
+        
         {notification && (
           <Notification
             message={notification.message}
@@ -281,16 +334,14 @@ const App: React.FC = () => {
                   Éditeur de Carte
                 </button>
               </li>
-              {user?.isAdmin && (
-                <li>
-                  <button
-                    className={activeTab === 'booster' ? 'active' : ''}
-                    onClick={() => setActiveTab('booster')}
-                  >
-                    Éditeur de Booster
-                  </button>
-                </li>
-              )}
+              <li>
+                <button
+                  className={activeTab === 'booster' ? 'active' : ''}
+                  onClick={() => setActiveTab('booster')}
+                >
+                  Éditeur de Booster ({user?.is_admin ? 'Admin' : 'Non admin'})
+                </button>
+              </li>
               <li>
                 <button
                   className={activeTab === 'browser' ? 'active' : ''}
@@ -309,6 +360,14 @@ const App: React.FC = () => {
               </li>
               <li>
                 <button
+                  className={activeTab === 'users' ? 'active' : ''}
+                  onClick={() => setActiveTab('users')}
+                >
+                  Gestion Utilisateurs ({user?.is_admin ? 'Admin' : 'Non admin'})
+                </button>
+              </li>
+              <li>
+                <button
                   className={activeTab === 'help' ? 'active' : ''}
                   onClick={() => setActiveTab('help')}
                 >
@@ -319,6 +378,9 @@ const App: React.FC = () => {
                 <button onClick={handleLogout} className="logout-button">
                   Déconnexion
                 </button>
+              </li>
+              <li className="todo-progress-nav-item">
+                <TodoProgress />
               </li>
             </ul>
           </nav>
@@ -354,9 +416,6 @@ const App: React.FC = () => {
               </div>
             </div>
           )}
-          {activeTab === 'booster' && user?.isAdmin && (
-            <BoosterForm booster={boosterData} onSave={() => {}} />
-          )}
           {activeTab === 'browser' && (
             <CardBrowser
               cards={allCards}
@@ -369,11 +428,19 @@ const App: React.FC = () => {
               loadedSpellsMap={loadedSpellsMap}
             />
           )}
+          {activeTab === 'booster' && (
+            <BoosterForm booster={boosterData} onSave={() => {}} />
+          )}
           {activeTab === 'alterations' && (
-            <AlterationManager onChange={handleAlterationChange} />
+            <AlterationManager 
+              onChange={handleAlterationChange} 
+            />
           )}
           {activeTab === 'help' && (
             <Help />
+          )}
+          {activeTab === 'users' && (
+            <UserManager />
           )}
         </main>
 

@@ -1,0 +1,143 @@
+.todo-progress-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  width: 180px;
+  align-self: center;
+}
+
+.nav-links li:has(.todo-progress-container) {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.todo-progress-container.expanded {
+  width: 200px;
+}
+
+.todo-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding-bottom: 5px;
+}
+
+.todo-progress-text {
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.todo-progress-details {
+  font-size: 11px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.expand-button {
+  font-size: 10px;
+  color: #999;
+  transition: transform 0.3s;
+}
+
+.todo-progress-indicator {
+  margin-bottom: 8px;
+}
+
+.todo-progress-bar {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+
+.todo-progress-completed {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Styles pour les barres de progression par priorité */
+.todo-progress-by-priority {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.priority-progress {
+  background-color: white;
+  border-radius: 4px;
+  padding: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.priority-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.priority-emoji {
+  font-size: 12px;
+  width: 15px;
+}
+
+.priority-percentage {
+  font-size: 10px;
+  color: #666;
+  min-width: 30px;
+  text-align: right;
+}
+
+.priority-details {
+  font-size: 10px;
+  color: #666;
+  text-align: right;
+}
+
+/* Couleurs spécifiques par priorité */
+.todo-progress-completed.critical {
+  background-color: #ff5252; /* Rouge pour CRITIQUE */
+}
+
+.todo-progress-completed.high {
+  background-color: #ffa726; /* Orange pour HAUTE */
+}
+
+.todo-progress-completed.medium {
+  background-color: #42a5f5; /* Bleu pour MOYENNE */
+}
+
+.todo-progress-completed.low {
+  background-color: #66bb6a; /* Vert pour BASSE */
+}
+
+@media (max-width: 768px) {
+  .todo-progress-container {
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .todo-progress-container.expanded {
+    width: 100%;
+  }
+} 

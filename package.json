@@ -43,8 +43,11 @@
     "dev": "concurrently \"npm run start\" \"npm run server\"",
     "build": "react-app-rewired build",
     "test": "jest",
+    "test:auth": "jest \".*(userService|adminService|user-password-hash).*\\.ts\"",
+    "test:ci": "jest --ci",
+    "precommit": "npm run test:auth",
     "eject": "react-scripts eject",
-    "predeploy": "npm run build",
+    "predeploy": "npm run test:ci && npm run build",
     "deploy": "gh-pages -d build"
   },
   "eslintConfig": {

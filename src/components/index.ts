@@ -4,3 +4,5 @@ export { default as CardForm } from './CardForm';
 export { default as BoosterForm } from './BoosterForm';
 export { default as Notification } from './Notification';
 export { default as Help } from './Help';
+export { default as UserManager } from './UserManager';
+export { default as TodoProgress } from './TodoProgress';

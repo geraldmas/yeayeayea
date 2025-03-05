@@ -1,777 +1,251 @@
-# TODO List - TCG Card Editor
+# TODO Liste - TCG Card Editor
 
-## 1. Architecture et Infrastructure
+Ce document est organisé par niveaux de priorité pour permettre un développement et des tests optimaux du TCG Card Editor, conformément au cahier des charges et aux principes établis dans CURSOR_RULES.md.
+
+## Légende des priorités
+- 🔥 **CRITIQUE** : Fonctionnalité essentielle pour le fonctionnement de base
+- 🚀 **HAUTE** : Nécessaire pour une expérience complète
+- ⚡ **MOYENNE** : Amélioration importante mais non bloquante
+- 🌱 **BASSE** : Amélioration ou optimisation future
+
+## 1. Système de Base de Données et Backend
 
 ### 1.1 Base de données
-- [ ] Finaliser le schéma de la base de données pour les cartes et leurs interactions
-  - [x] Implémenter la table `game_config` pour les paramètres configurables
-    - [x] max_personnages (paramétrable)
-    - [x] emplacements_objet (paramétrable)
-    - [x] budget_motivation_initial (10 par défaut)
-    - [x] pv_base_initial (100 par défaut)
-  - [x] Créer la table `simulation_results` pour le système d'IA
-    - [x] Métriques de performance
-    - [x] Données d'entraînement
-    - [x] Résultats des simulations
-  - [x] Implémenter la table `debug_logs` pour le monitoring
-    - [x] Logs des interactions entre tags
-    - [x] Logs des performances
-    - [x] Logs des erreurs
-- [x] Implémenter un système de migrations de base de données
-  - [x] Créer la table `migrations`
-  - [x] Mettre en place un système de versioning
-  - [x] Créer un service de gestion des migrations
-  - [x] Implémenter les fonctions de sauvegarde et restauration
-- [x] Implémenter les tests unitaires
-  - [x] Tests du service de migrations
-  - [x] Tests de la migration initiale
-  - [x] Tests du script d'exécution
-- [x] Créer les scripts de seed pour les données initiales
-  - [x] Données de base pour les cartes personnage
-    - [x] PV de base selon la rareté
-    - [x] Sorts de base
-    - [x] Tags prédéfinis (#NUIT, #JOUR, #FRAGILE)
-  - [x] Données de base pour les cartes lieu
-    - [x] 3 cartes lieu par joueur
-    - [x] 6 cartes lieu en commun
-    - [x] Mécaniques de sélection active
-  - [x] Données de base pour les cartes objet
-    - [x] Effets passifs (ex: +20% charisme, +20% motivation)
-    - [x] Système d'emplacements
-    - [x] Valeurs de vente en charisme
-  - [x] Données de base pour les cartes action et événement
-    - [x] Coûts en motivation
-    - [x] Effets instantanés
-    - [x] Système de distribution secrète
-  - [x] Configuration initiale des paramètres du jeu
-    - [x] Valeurs par défaut des paramètres configurables
-    - [x] Règles de base du jeu
-    - [x] Système de motivation et charisme
+- [x] 🔥 Définir le schéma de base de données pour les cartes et les interactions
+- [x] 🔥 Créer les types et interfaces TypeScript pour les structures de données
+- [x] 🔥 Mettre en place la connexion à la base de données (Supabase)
+- [x] 🔥 Créer la table des utilisateurs et le système d'authentification
+- [ ] Implémenter le système de migrations de base de données
+  - [x] 🔥 Créer la première migration d'initialisation
+  - [ ] 🚀 Créer le service de gestion des migrations
+  - [ ] ⚡ Implémenter les fonctions de sauvegarde et restauration
+- [ ] Implémenter les tests unitaires pour la couche de données
+  - [x] 🚀 Tests du service d'authentification
+  - [ ] 🚀 Tests des opérations CRUD sur les cartes
+  - [ ] ⚡ Tests de la migration initiale
 
 ### 1.2 API Backend
-- [ ] Mettre en place les routes CRUD pour les cartes
-  - [ ] Routes pour les cartes personnage
-    - [ ] Gestion des PV et sorts
-    - [ ] Système d'évolution (niveau, fusion)
-    - [ ] Gestion des tags et synergies
-  - [ ] Routes pour les cartes lieu
-    - [ ] Distribution initiale (3 par joueur)
-    - [ ] Gestion de la pioche commune (6 cartes)
-    - [ ] Système de sélection active
-  - [ ] Routes pour les cartes objet
-    - [ ] Gestion des emplacements
-    - [ ] Effets passifs
-    - [ ] Système de vente en charisme
-  - [ ] Routes pour les cartes action
-    - [ ] Gestion des coûts en motivation
-    - [ ] Système de ciblage (aléatoire/manuel)
-    - [ ] Résolution des effets
-  - [ ] Routes pour les cartes événement
-    - [ ] Système de distribution secrète
-    - [ ] Classification (instantané/temporaire/permanent)
-    - [ ] Conditions d'activation
-- [ ] Implémenter le système d'authentification
-  - [ ] Système de login/register
-    - [ ] Gestion des comptes utilisateurs
-    - [ ] Système de progression (XP, niveau)
-    - [ ] Gestion du charisme
-  - [ ] Gestion des sessions
-    - [ ] Système de matchmaking
-    - [ ] Gestion des parties en cours
-    - [ ] Historique des parties
-  - [ ] Système de permissions
-    - [ ] Accès aux fonctionnalités de debug
-    - [ ] Gestion des droits administrateur
-    - [ ] Restrictions par niveau
-- [ ] Créer les endpoints pour la gestion des parties
-  - [ ] Création de partie
-    - [ ] Initialisation des decks
-    - [ ] Distribution des cartes lieu
-    - [ ] Configuration des paramètres
-  - [ ] Gestion des tours
-    - [ ] Budget de motivation (10 par tour)
-    - [ ] Système d'actions
-    - [ ] Résolution des effets
-  - [ ] Système de matchmaking
-    - [ ] Appariement par niveau
-    - [ ] Gestion des files d'attente
-    - [ ] Système de classement
-  - [ ] Historique des parties
-    - [ ] Enregistrement des actions
-    - [ ] Statistiques de jeu
-    - [ ] Replays
+- [x] 🔥 Mettre en place les routes CRUD de base pour les cartes
+- [x] 🔥 Implémenter le système d'authentification
+  - [x] 🔥 Système de login/register
+  - [x] 🔥 Gestion des sessions
+  - [x] 🚀 Vérification d'administration
 - [ ] Développer le système de validation des données
-  - [ ] Validation des cartes
-    - [ ] Vérification des PV et coûts
-    - [ ] Validation des effets
-    - [ ] Contrôle des synergies
-  - [ ] Validation des actions
-    - [ ] Vérification des coûts en motivation
-    - [ ] Validation des cibles
-    - [ ] Contrôle des conditions
-  - [ ] Validation des synergies
-    - [ ] Vérification des combinaisons de tags
-    - [ ] Validation des effets cumulatifs
-    - [ ] Contrôle des limitations
-  - [ ] Système de logging des erreurs
-    - [ ] Enregistrement des erreurs de validation
-    - [ ] Logs des interactions problématiques
-    - [ ] Système d'alertes
+  - [ ] 🔥 Validation des cartes (type, coût, etc.)
+  - [ ] 🚀 Validation des relations (sorts, tags)
+- [ ] Créer les endpoints pour la gestion des boosters et collections
+  - [x] 🚀 Création de base pour les boosters
+  - [ ] 🚀 Distribution et ouverture de boosters
+  - [ ] ⚡ Gestion de l'inventaire des cartes
 
-### 1.3 Frontend
-- [ ] Restructurer l'application en modules distincts
-  - [ ] Module de gestion des cartes
-    - [ ] Interface d'édition des cartes
-    - [ ] Visualisation des synergies
-    - [ ] Gestion des tags et effets
-  - [ ] Module de combat
-    - [ ] Interface de jeu principale
-    - [ ] Système de ciblage tactique
-    - [ ] Visualisation des effets et synergies
-  - [ ] Module de collection
-    - [ ] Gestion de l'inventaire
-    - [ ] Système de vente d'objets
-    - [ ] Progression et récompenses
-  - [ ] Module de debug
-    - [ ] Panneau de configuration en temps réel
-    - [ ] Visualisation des paramètres du jeu
-    - [ ] Outils de test des synergies
-  - [ ] Module de simulation
-    - [ ] Interface de configuration des scénarios
-    - [ ] Visualisation des résultats
-    - [ ] Analyse des métriques
-- [ ] Mettre en place le système de routage
-  - [ ] Routes principales
-    - [ ] Page d'accueil
-    - [ ] Collection
-    - [ ] Éditeur de cartes
-  - [ ] Routes de jeu
-    - [ ] Interface de combat
-    - [ ] Matchmaking
-    - [ ] Historique des parties
-  - [ ] Routes d'administration
-    - [ ] Gestion des utilisateurs
-    - [ ] Configuration du jeu
-    - [ ] Monitoring
-  - [ ] Gestion des transitions
-    - [ ] Animations de navigation
-    - [ ] États de chargement
-    - [ ] Gestion des erreurs
-- [ ] Implémenter le state management (Redux/Context)
-  - [ ] Store pour l'état du jeu
-    - [ ] État de la partie en cours
-    - [ ] Gestion des tours
-    - [ ] Système de motivation (10 par tour)
-    - [ ] Gestion des cartes lieu (3 par joueur, 6 en commun)
-  - [ ] Store pour la collection
-    - [ ] Inventaire des cartes
-    - [ ] Système de charisme
-    - [ ] Progression du joueur
-  - [ ] Store pour les paramètres
-    - [ ] Configuration du jeu
-    - [ ] Préférences utilisateur
-    - [ ] Paramètres de debug
-  - [ ] Store pour le debug
-    - [ ] Logs en temps réel
-    - [ ] Métriques de performance
-    - [ ] États de simulation
-- [ ] Créer les composants de base réutilisables
-  - [ ] Composants de carte
-    - [ ] Affichage des PV et coûts
-    - [ ] Visualisation des tags
-    - [ ] Système de drag & drop
-    - [ ] Effets visuels des synergies
-  - [ ] Composants d'interface
-    - [ ] Zones de jeu (terrain, main, pioche)
-    - [ ] Interface de ciblage tactique
-    - [ ] Système de notifications
-  - [ ] Composants de feedback
-    - [ ] Animations des effets
-    - [ ] Indicateurs d'état
-    - [ ] Messages d'erreur
-  - [ ] Composants de debug
-    - [ ] Panneau de configuration
-    - [ ] Visualisation des logs
-    - [ ] Outils de test
+## 2. Éditeur de Cartes
 
-## 2. Système de Cartes
+### 2.1 Interface d'édition
+- [x] 🔥 Développer l'interface principale d'édition de cartes
+- [x] 🔥 Implémenter le formulaire d'édition pour tous les types de cartes
+- [x] 🔥 Créer l'interface de gestion des altérations
+- [x] 🔥 Mettre en place la gestion des sorts et leurs effets
+- [x] 🔥 Développer la gestion des tags et synergies
+- [x] 🔥 Créer l'interface de prévisualisation des cartes
+- [ ] Améliorer l'interface avec des fonctionnalités avancées
+  - [ ] 🚀 Historique des modifications
+  - [ ] ⚡ Mode clone/duplication
+  - [ ] ⚡ Suggestions intelligentes
 
-### 2.1 Types de Cartes
-- [ ] Implémenter les cartes Personnage
-  - [ ] Système de PV
-    - [ ] Calcul des PV de base selon la rareté
-    - [ ] Modificateurs de PV (objets, tags, effets)
-    - [ ] Système de guérison (sorts, effets)
-  - [ ] Système de sorts
-    - [ ] Gestion des coûts en motivation
-    - [ ] Système de ciblage (aléatoire/manuel)
-    - [ ] Effets des sorts (dégâts, guérison, buffs)
-  - [ ] Gestion des tags
-    - [ ] Système d'application des tags (#NUIT, #JOUR, #FRAGILE)
-    - [ ] Effets des tags (ex: +10% charisme, +20% dégâts)
-    - [ ] Synergies entre tags (ex: -15% charisme adverse par tag)
-  - [ ] Système d'évolution
-    - [ ] Montée en niveau (XP, progression)
-    - [ ] Amélioration des sorts (puissance, coût)
-    - [ ] Fusion en combat (conditions, bonus)
-- [ ] Implémenter les cartes Lieu
-  - [ ] Système de distribution
-    - [ ] Distribution initiale (3 cartes par joueur)
-    - [ ] Pioche commune (6 cartes en commun)
-    - [ ] Modificateurs de distribution (effets, événements)
-  - [ ] Mécanique de sélection active
-    - [ ] Tirage au sort pour la sélection
-    - [ ] Modificateurs de sélection (effets, conditions)
-    - [ ] Effets sur la sélection (bonus, malus)
-- [ ] Implémenter les cartes Objet
-  - [ ] Système d'emplacements
-    - [ ] Gestion des emplacements (paramétrable)
-    - [ ] Modificateurs d'emplacements (objets, effets)
-    - [ ] Restrictions d'emplacements (conditions)
-  - [ ] Effets passifs
-    - [ ] Système de bonus (ex: +20% charisme)
-    - [ ] Modificateurs d'effets (additifs/multiplicatifs)
-    - [ ] Synergies d'objets (ex: +30% PV pour tag D)
-  - [ ] Système de vente
-    - [ ] Calcul de la valeur en charisme
-    - [ ] Modificateurs de prix (état, effets)
-    - [ ] Conditions de vente (restrictions)
-- [ ] Implémenter les cartes Action
-  - [ ] Système de coût en motivation
-    - [ ] Coût de base (budget de 10 par tour)
-    - [ ] Modificateurs de coût (objets, effets)
-    - [ ] Réductions de coût (conditions)
-  - [ ] Effets instantanés
-    - [ ] Système d'effets (dégâts, buffs, etc.)
-    - [ ] Priorité des effets (ordre de résolution)
-    - [ ] Résolution des effets (simultanée)
-- [ ] Implémenter les cartes Événement
-  - [ ] Système de classification
-    - [ ] Types d'événements (instantané/temporaire/permanent)
-    - [ ] Durée des effets (tours, conditions)
-    - [ ] Conditions d'activation
-  - [ ] Mécanique de distribution secrète
-    - [ ] Système de pioche (pool commun)
-    - [ ] Gestion du secret (caché jusqu'à utilisation)
-    - [ ] Conditions de révélation
+### 2.2 Gestion des médias
+- [x] 🔥 Implémenter le chargement et l'affichage des images de cartes
+- [ ] 🚀 Optimiser le chargement et le stockage des images
+- [ ] ⚡ Ajouter des outils d'édition d'image basiques (recadrage, redimensionnement)
 
-### 2.2 Système de Tags
-- [ ] Créer le moteur de règles pour les tags
-  - [ ] Parser de règles (format JSON/script)
-    - [ ] Syntaxe des effets
-    - [ ] Conditions d'application
-    - [ ] Priorités d'exécution
-  - [ ] Système d'évaluation
-    - [ ] Calcul des effets
-    - [ ] Gestion des modificateurs
-    - [ ] Résolution des conflits
-  - [ ] Gestion des priorités
-    - [ ] Ordre d'application
-    - [ ] Règles de superposition
-    - [ ] Résolution des conflits
+## 3. Système de Cartes
+
+### 3.1 Types de Cartes
+- [x] 🔥 Implémenter la structure de base pour les cartes Personnage
+- [x] 🔥 Implémenter la structure de base pour les cartes Lieu
+- [x] 🔥 Implémenter la structure de base pour les cartes Objet
+- [x] 🔥 Implémenter la structure de base pour les cartes Action
+- [x] 🔥 Implémenter la structure de base pour les cartes Événement
+- [ ] Développer les mécaniques spécifiques des cartes Personnage
+  - [ ] 🔥 Système de PV et niveau
+  - [ ] 🚀 Système de sorts et d'évolution
+  - [ ] 🚀 Gestion avancée des tags
+- [ ] Développer les mécaniques spécifiques des cartes Lieu
+  - [ ] 🔥 Système de distribution initiale
+  - [ ] 🚀 Mécanique de sélection active
+- [ ] Développer les mécaniques spécifiques des cartes Objet
+  - [ ] 🔥 Système d'emplacements
+  - [ ] 🚀 Effets passifs
+  - [ ] 🚀 Système de vente en charisme
+
+### 3.2 Système de Tags
+- [x] 🔥 Créer l'interface de gestion des tags
+- [ ] Développer le moteur de règles pour les tags
+  - [ ] 🔥 Parser de règles pour les effets
+  - [ ] 🚀 Système d'évaluation des effets
+  - [ ] 🚀 Gestion des priorités d'application
 - [ ] Implémenter les synergies entre tags
-  - [ ] Système de combinaisons
-    - [ ] Effets directs (ex: +10% charisme)
-    - [ ] Effets indirects (ex: +20% dégâts sur tag A)
-    - [ ] Effets adverses (ex: -15% charisme par tag)
-  - [ ] Effets cumulatifs
-    - [ ] Effets additifs
-    - [ ] Effets multiplicatifs
-    - [ ] Limitations
-  - [ ] Limitations
-    - [ ] Caps d'effets
-    - [ ] Restrictions
-    - [ ] Exceptions
-- [ ] Développer l'interface de configuration des tags
-  - [ ] Éditeur de règles
-    - [ ] Interface visuelle
-    - [ ] Validation en temps réel
-    - [ ] Prévisualisation des effets
-  - [ ] Visualisation des effets
-    - [ ] Arbre des synergies
-    - [ ] Calcul des bonus
-    - [ ] Impact sur le gameplay
-  - [ ] Système de test
-    - [ ] Simulation d'effets
-    - [ ] Validation des règles
-    - [ ] Détection des conflits
-- [ ] Mettre en place le système de validation des interactions
-  - [ ] Validation des règles
-    - [ ] Vérification syntaxique
-    - [ ] Validation logique
-    - [ ] Tests de cohérence
-  - [ ] Détection des conflits
-    - [ ] Analyse des priorités
-    - [ ] Détection des boucles
-    - [ ] Gestion des exceptions
-  - [ ] Système de logging
-    - [ ] Enregistrement des interactions
-    - [ ] Suivi des effets
-    - [ ] Analyse des performances
-
-## 3. Mécaniques de Jeu
-
-### 3.1 Système de Combat
-- [ ] Implémenter le système de tour
-  - [ ] Gestion du budget de motivation
-    - [ ] Renouvellement par tour (10 motivations)
-    - [ ] Modificateurs (objets, effets, tags)
-    - [ ] Système de réserve (effets spéciaux)
-  - [ ] Système de déploiement des actions
-    - [ ] Ordre des actions (choix du joueur)
-    - [ ] Limitations (budget de motivation)
-    - [ ] Priorités (simultanéité)
-- [ ] Développer le système de ciblage
-  - [ ] Ciblage aléatoire (par défaut)
-    - [ ] Algorithme de sélection (pondération par tags)
-    - [ ] Modificateurs (effets, conditions)
-    - [ ] Restrictions (immunités, conditions)
-  - [ ] Ciblage manuel (option tactique)
-    - [ ] Interface de sélection
-    - [ ] Options tactiques (priorisation par tags)
-    - [ ] Validation (conditions d'attaque)
-- [ ] Créer le système de résolution des actions
-  - [ ] Gestion de la simultanéité
-    - [ ] Ordre de résolution (ancienneté)
-    - [ ] Conflits (dégâts, guérison)
-    - [ ] Priorités (effets instantanés)
-  - [ ] Système de conflits
-    - [ ] Détection (effets opposés)
-    - [ ] Résolution (hiérarchie)
-    - [ ] Logging (debug)
-
-### 3.2 Gestion des Ressources
-- [ ] Implémenter le système de motivation
-  - [ ] Renouvellement par tour
-    - [ ] Valeur de base (10 par tour)
-    - [ ] Modificateurs (objets, effets)
-    - [ ] Effets spéciaux (réserve)
-  - [ ] Modificateurs
-    - [ ] Effets additifs (valeurs absolues)
-    - [ ] Effets multiplicatifs (pourcentages)
-    - [ ] Limitations (caps)
-- [ ] Développer le système de charisme
-  - [ ] Acquisition
-    - [ ] Valeurs de base (selon rareté)
-    - [ ] Modificateurs (tags, effets)
-    - [ ] Conditions (défaite des personnages)
-  - [ ] Stockage
-    - [ ] Système de réserve (cumulatif)
-    - [ ] Limites (caps configurables)
-    - [ ] Effets spéciaux (objets, événements)
-  - [ ] Utilisation
-    - [ ] Coûts (invoquer personnages)
-    - [ ] Restrictions (conditions)
-    - [ ] Effets (bonus/malus)
-
-### 3.3 Base et Attaques
-- [ ] Créer le système de base
-  - [ ] Points de vie
-    - [ ] Valeur initiale (100 PV)
-    - [ ] Modificateurs (lieux, événements)
-    - [ ] Système de guérison (effets)
-  - [ ] Système de résistance
-    - [ ] Réduction des dégâts (division par 2)
-    - [ ] Modificateurs (objets, effets)
-    - [ ] Effets spéciaux (boucliers)
-- [ ] Implémenter le système d'attaques
-  - [ ] Conditions d'attaque
-    - [ ] Règles de base (pas de personnages)
-    - [ ] Exceptions (capacités spéciales)
-    - [ ] Effets spéciaux (poison, direct)
-  - [ ] Modulation des dégâts
-    - [ ] Calcul de base (dégâts/2)
-    - [ ] Modificateurs (objets, effets)
-    - [ ] Effets spéciaux (critiques)
+  - [ ] 🚀 Système de combinaisons
+  - [ ] 🚀 Effets cumulatifs
+  - [ ] ⚡ Limitations et caps d'effets
 
 ## 4. Interface Utilisateur
 
-### 4.1 Interface de Jeu
-- [ ] Créer l'interface principale du jeu
-  - [ ] Layout de base
-    - [ ] Zones de jeu (terrain, main, pioche)
-    - [ ] Informations de partie (PV, motivation, charisme)
-    - [ ] Interface de ciblage tactique
-  - [ ] Système de drag & drop
-    - [ ] Mécanique de base (cartes, objets)
-    - [ ] Validation des mouvements (conditions)
-    - [ ] Feedback visuel (zones valides)
-  - [ ] Animations de jeu
-    - [ ] Effets des sorts et actions
-    - [ ] Transitions entre les phases
-    - [ ] Feedback des interactions
-  - [ ] Système de notifications
-    - [ ] Alertes d'état (PV, motivation)
-    - [ ] Effets des synergies
-    - [ ] Messages d'erreur
+### 4.1 Interface Administrateur
+- [x] 🚀 Concevoir le layout de base pour l'administration
+  - [x] 🚀 Navigation entre les différentes sections
+  - [x] 🚀 Composants UI réutilisables
+- [ ] Développer le module de gestion des utilisateurs
+  - [x] 🚀 Interface d'édition des utilisateurs
+  - [ ] ⚡ Gestion des droits et permissions
+- [ ] Implémenter le module de configuration du jeu
+  - [ ] 🚀 Éditeur de paramètres globaux
+  - [ ] ⚡ Gestionnaire de règles et synergies
+- [ ] Créer le module d'analyse et statistiques
+  - [ ] ⚡ Rapports d'utilisation
+  - [ ] 🌱 Visualisation des données
 
-### 4.2 Interface de Debug
-- [ ] Panneau de configuration en temps réel
-  - [ ] Paramètres de jeu
-    - [ ] max_personnages (paramétrable)
-    - [ ] emplacements_objet (paramétrable)
-    - [ ] budget_motivation_initial (10 par défaut)
-    - [ ] pv_base_initial (100 par défaut)
-  - [ ] Modificateurs
-    - [ ] Effets des tags
-    - [ ] Synergies entre cartes
-    - [ ] Conditions d'activation
-  - [ ] États spéciaux
-    - [ ] Mode "cheat" pour les personnages
-    - [ ] Forçage des conditions
-    - [ ] Simulation d'événements
-- [ ] Interface de simulation
-  - [ ] Configuration des scénarios
-    - [ ] Définition des decks
-    - [ ] Paramètres de simulation
-    - [ ] Conditions de victoire
-  - [ ] Visualisation des résultats
-    - [ ] Métriques de performance
-    - [ ] Statistiques d'équilibre
-    - [ ] Analyse des synergies
-  - [ ] Outils d'analyse
-    - [ ] Graphiques de performance
-    - [ ] Rapports d'équilibre
-    - [ ] Suggestions d'ajustements
-- [ ] Outils de test des synergies
-  - [ ] Création de scénarios
-    - [ ] Configuration des tags
-    - [ ] Définition des effets
-    - [ ] Test des interactions
-  - [ ] Simulation d'interactions
-    - [ ] Test des combinaisons
-    - [ ] Validation des règles
-    - [ ] Détection des conflits
-  - [ ] Analyse des résultats
-    - [ ] Impact des synergies
-    - [ ] Équilibre des effets
-    - [ ] Suggestions d'ajustements
-- [ ] Système de logging
-  - [ ] Logs de jeu
-    - [ ] Actions des joueurs
-    - [ ] Résolution des effets
-    - [ ] Interactions entre cartes
-  - [ ] Logs d'erreurs
-    - [ ] Erreurs de validation
-    - [ ] Conflits de règles
-    - [ ] Problèmes de performance
-  - [ ] Logs de performance
-    - [ ] Temps de résolution
-    - [ ] Utilisation mémoire
-    - [ ] Charge serveur
+### 4.2 Interface Joueur
+- [ ] Concevoir le layout mobile responsive
+  - [ ] 🚀 Navigation intuitive
+  - [ ] 🚀 Adaptabilité aux différentes tailles d'écran
+- [ ] Développer le menu principal
+  - [ ] 🚀 Interface de profil joueur
+  - [ ] ⚡ Système de monnaie et ressources
+- [ ] Créer le module de collection/inventaire
+  - [ ] 🚀 Visualisation de l'inventaire
+  - [ ] 🚀 Gestion des decks
+- [ ] Concevoir l'interface de partie
+  - [ ] 🔥 Zone de jeu tactile
+  - [ ] 🔥 Affichage des informations de jeu
+  - [ ] 🚀 Système de tour et actions
 
-## 5. Intelligence Artificielle
+## 5. Mécaniques de Jeu
 
-### 5.1 Mode Solo
+### 5.1 Système de Combat
+- [ ] Implémenter le système de tour
+  - [ ] 🔥 Gestion du budget de motivation
+  - [ ] 🚀 Système de déploiement des actions
+- [ ] Développer le système de ciblage
+  - [ ] 🔥 Ciblage aléatoire
+  - [ ] 🚀 Ciblage manuel (option tactique)
+- [ ] Créer le système de résolution des actions
+  - [ ] 🔥 Gestion de la simultanéité
+  - [ ] 🚀 Système de conflits et priorités
+
+### 5.2 Gestion des Ressources
+- [ ] Implémenter le système de motivation
+  - [ ] 🔥 Renouvellement par tour
+  - [ ] 🚀 Modificateurs et effets
+- [ ] Développer le système de charisme
+  - [ ] 🔥 Acquisition et stockage
+  - [ ] 🚀 Utilisation et limitations
+
+### 5.3 Base et Attaques
+- [ ] Créer le système de base
+  - [ ] 🔥 Points de vie et résistance
+  - [ ] 🚀 Système de guérison
+- [ ] Implémenter le système d'attaques
+  - [ ] 🔥 Conditions d'attaque
+  - [ ] 🚀 Modulation des dégâts
+
+## 6. Intelligence Artificielle
+
+### 6.1 Mode Solo
 - [ ] Développer l'agent IA de base
-  - [ ] Stratégie de base
-    - [ ] Gestion des ressources (motivation, charisme)
-    - [ ] Priorisation des actions
-    - [ ] Gestion des synergies
-  - [ ] Prise de décision
-    - [ ] Évaluation des situations
-    - [ ] Choix des cibles
-    - [ ] Timing des actions
-  - [ ] Adaptation
-    - [ ] Réaction aux événements
-    - [ ] Ajustement de la stratégie
-    - [ ] Gestion des surprises
-- [ ] Système d'entraînement
-  - [ ] Génération de données
-    - [ ] Parties simulées
-    - [ ] Scénarios d'entraînement
-    - [ ] Données de performance
-  - [ ] Apprentissage
-    - [ ] Modèle de décision
-    - [ ] Optimisation des paramètres
-    - [ ] Validation des stratégies
-  - [ ] Évaluation
-    - [ ] Métriques de performance
-    - [ ] Analyse des décisions
-    - [ ] Amélioration continue
-- [ ] Niveaux de difficulté
-  - [ ] Paramètres configurables
-    - [ ] Agressivité
-    - [ ] Précision des décisions
-    - [ ] Utilisation des synergies
-  - [ ] Adaptation du comportement
-    - [ ] Ajustement des stratégies
-    - [ ] Gestion des erreurs
-    - [ ] Niveau d'optimisation
-  - [ ] Équilibrage
-    - [ ] Ajustement des paramètres
-    - [ ] Validation de la difficulté
-    - [ ] Feedback des joueurs
-- [ ] Évaluation des performances
-  - [ ] Métriques
-    - [ ] Taux de victoire
-    - [ ] Efficacité des actions
-    - [ ] Utilisation des ressources
-  - [ ] Analyse
-    - [ ] Points forts/faibles
-    - [ ] Patterns de décision
-    - [ ] Opportunités d'amélioration
-  - [ ] Amélioration
-    - [ ] Ajustements automatiques
-    - [ ] Optimisation continue
-    - [ ] Validation des changements
+  - [ ] ⚡ Stratégie de base
+  - [ ] ⚡ Prise de décision
+  - [ ] 🌱 Adaptation aux situations
+- [ ] Mettre en place le système d'entraînement
+  - [ ] ⚡ Génération de données
+  - [ ] 🌱 Apprentissage et optimisation
+- [ ] Implémenter les niveaux de difficulté
+  - [ ] ⚡ Paramètres configurables
+  - [ ] 🌱 Adaptation du comportement
 
-### 5.2 Simulation
-- [ ] Moteur de simulation
-  - [ ] Génération de scénarios
-    - [ ] Configuration des decks
-    - [ ] Paramètres de simulation
-    - [ ] Conditions de test
-  - [ ] Simulation de parties
-    - [ ] Exécution des règles
-    - [ ] Gestion des interactions
-    - [ ] Collecte des données
-  - [ ] Analyse des résultats
-    - [ ] Statistiques de performance
-    - [ ] Équilibre du jeu
-    - [ ] Détection des problèmes
-- [ ] Métriques d'évaluation
-  - [ ] Performance
-    - [ ] Temps de résolution
-    - [ ] Utilisation mémoire
-    - [ ] Charge CPU
-  - [ ] Équilibre
-    - [ ] Distribution des victoires
-    - [ ] Utilisation des mécaniques
-    - [ ] Impact des synergies
-  - [ ] Fun
-    - [ ] Variété des stratégies
-    - [ ] Interactivité
-    - [ ] Satisfaction des joueurs
-- [ ] Équilibrage automatique
-  - [ ] Analyse des données
-    - [ ] Patterns de jeu
-    - [ ] Points d'équilibre
-    - [ ] Problèmes identifiés
-  - [ ] Ajustements
-    - [ ] Modification des paramètres
-    - [ ] Rééquilibrage des cartes
-    - [ ] Optimisation des synergies
-  - [ ] Validation
-    - [ ] Tests de simulation
-    - [ ] Vérification des changements
-    - [ ] Confirmation des améliorations
+### 6.2 Simulation
+- [ ] Créer le moteur de simulation
+  - [ ] ⚡ Génération de scénarios
+  - [ ] ⚡ Simulation de parties
+  - [ ] 🌱 Analyse des résultats
+- [ ] Développer le système d'équilibrage automatique
+  - [ ] ⚡ Analyse des données
+  - [ ] 🌱 Ajustements des paramètres
+  - [ ] 🌱 Validation des changements
 
-## 6. Tests et Documentation
+## 7. Tests et Documentation
 
-### 6.1 Tests
-- [ ] Tests unitaires
-  - [ ] Composants
-    - [ ] Cartes (personnage, lieu, objet, action, événement)
-    - [ ] Interface (drag & drop, ciblage, notifications)
-    - [ ] Systèmes (motivation, charisme, PV)
-  - [ ] Services
-    - [ ] Gestion des parties
-    - [ ] Système de combat
-    - [ ] IA et simulation
-  - [ ] Utilitaires
-    - [ ] Calculs de dégâts
-    - [ ] Gestion des synergies
-    - [ ] Validation des règles
-- [ ] Tests d'intégration
-  - [ ] Flux de jeu
-    - [ ] Déroulement d'une partie
-    - [ ] Interactions entre cartes
-    - [ ] Résolution des effets
-  - [ ] Interactions
-    - [ ] Système de combat
-    - [ ] Gestion des ressources
-    - [ ] Synergies entre cartes
-  - [ ] API
-    - [ ] Endpoints de jeu
-    - [ ] Gestion des parties
-    - [ ] Système d'authentification
-- [ ] Tests end-to-end
-  - [ ] Scénarios de jeu
-    - [ ] Parties complètes
-    - [ ] Cas limites
-    - [ ] Conditions spéciales
-  - [ ] Tests utilisateur
-    - [ ] Interface de jeu
-    - [ ] Système de collection
-    - [ ] Mode solo
-  - [ ] Performance
-    - [ ] Temps de réponse
-    - [ ] Charge serveur
-    - [ ] Utilisation mémoire
-- [ ] Tests de performance
-  - [ ] Charge
-    - [ ] Nombre de parties simultanées
-    - [ ] Gestion des ressources
-    - [ ] Temps de réponse
-  - [ ] Stress
-    - [ ] Limites du système
-    - [ ] Gestion des erreurs
-    - [ ] Récupération
-  - [ ] Scalabilité
-    - [ ] Augmentation des utilisateurs
-    - [ ] Gestion des données
-    - [ ] Distribution de charge
+### 7.1 Tests
+- [ ] Développer les tests unitaires
+  - [x] 🚀 Composants de base
+  - [ ] 🚀 Services et utilitaires
+  - [ ] ⚡ Logique métier
+- [ ] Mettre en place les tests d'intégration
+  - [ ] 🚀 Flux de jeu
+  - [ ] ⚡ Interactions entre composants
+  - [ ] ⚡ API et endpoints
+- [ ] Implémenter les tests end-to-end
+  - [ ] ⚡ Scénarios de jeu
+  - [ ] 🌱 Tests utilisateur
+  - [ ] 🌱 Performance
 
-### 6.2 Documentation
-- [ ] Documentation technique
-  - [ ] Architecture
-    - [ ] Structure du projet
-    - [ ] Flux de données
-    - [ ] Interactions entre composants
-  - [ ] API
-    - [ ] Endpoints
-    - [ ] Formats de données
-    - [ ] Codes d'erreur
-  - [ ] Base de données
-    - [ ] Schéma
-    - [ ] Relations
-    - [ ] Indexes
-- [ ] Guide utilisateur
-  - [ ] Règles du jeu
-    - [ ] Mécaniques de base
-    - [ ] Système de combat
-    - [ ] Gestion des ressources
-  - [ ] Interface
-    - [ ] Navigation
-    - [ ] Fonctionnalités
-    - [ ] Raccourcis
-  - [ ] Stratégies
-    - [ ] Conseils de base
-    - [ ] Combinaisons avancées
-    - [ ] Optimisation
-- [ ] Documentation API
-  - [ ] Endpoints
-    - [ ] Description
-    - [ ] Paramètres
-    - [ ] Réponses
-  - [ ] Paramètres
-    - [ ] Types
-    - [ ] Validation
-    - [ ] Exemples
-  - [ ] Réponses
-    - [ ] Formats
-    - [ ] Codes
-    - [ ] Erreurs
-- [ ] Guides de contribution
-  - [ ] Setup
-    - [ ] Prérequis
-    - [ ] Installation
-    - [ ] Configuration
-  - [ ] Standards
-    - [ ] Code style
-    - [ ] Tests
-    - [ ] Documentation
-  - [ ] Workflow
-    - [ ] Branches
-    - [ ] Pull requests
-    - [ ] Déploiement
+### 7.2 Documentation
+- [x] 🚀 Créer la documentation de base du projet
+- [x] 🚀 Documenter les règles et consignes de développement
+- [x] 🚀 Rédiger la documentation technique initiale
+- [ ] 🚀 Développer la documentation complète de l'API
+- [ ] ⚡ Créer des guides utilisateurs détaillés
+- [ ] ⚡ Mettre en place la documentation des mécaniques de jeu
 
-## 7. Optimisation et Performance
+## 8. Optimisation et Performance
 
-### 7.1 Performance
-- [ ] Optimisation des requêtes
-  - [ ] Indexation
-    - [ ] Indexes pour les recherches fréquentes
-    - [ ] Optimisation des jointures
-    - [ ] Cache des requêtes complexes
-  - [ ] Requêtes
-    - [ ] Optimisation des requêtes N+1
-    - [ ] Pagination des résultats
-    - [ ] Filtrage efficace
-  - [ ] Cache
-    - [ ] Cache des données statiques
-    - [ ] Cache des résultats calculés
-    - [ ] Invalidation intelligente
-- [ ] Performance frontend
-  - [ ] Optimisation du rendu
-    - [ ] Virtualisation des listes
-    - [ ] Lazy loading des composants
-    - [ ] Optimisation des re-rendus
-  - [ ] Gestion mémoire
-    - [ ] Nettoyage des ressources
-    - [ ] Gestion des leaks
-    - [ ] Optimisation des assets
-  - [ ] Chargement
-    - [ ] Code splitting
-    - [ ] Preloading des ressources
-    - [ ] Optimisation des images
-- [ ] Chargement des ressources
-  - [ ] Images
-    - [ ] Compression automatique
-    - [ ] Formats modernes (WebP)
-    - [ ] Lazy loading
-  - [ ] Assets
-    - [ ] Bundling optimisé
-    - [ ] Minification
-    - [ ] Versioning
-  - [ ] Cache
-    - [ ] Cache navigateur
-    - [ ] Service workers
-    - [ ] PWA
-- [ ] Système de cache
-  - [ ] Cache serveur
-    - [ ] Redis/Memcached
-    - [ ] Stratégies d'invalidation
-    - [ ] Distribution
-  - [ ] Cache client
-    - [ ] Local storage
-    - [ ] IndexedDB
-    - [ ] Cache API
-  - [ ] Invalidation
-    - [ ] Stratégies d'expiration
-    - [ ] Invalidation partielle
-    - [ ] Gestion des versions
+### 8.1 Performance
+- [ ] Optimiser les requêtes à la base de données
+  - [ ] ⚡ Indexation stratégique
+    - [ ] 🌱 Optimisation des jointures
+- [ ] Améliorer la performance frontend
+  - [ ] ⚡ Optimisation du rendu
+  - [ ] 🌱 Gestion de la mémoire
+- [ ] Optimiser le chargement des ressources
+  - [ ] ⚡ Compression des images
+  - [ ] 🌱 Lazy loading stratégique
+- [ ] Mettre en place un système de cache efficace
+  - [ ] ⚡ Cache serveur
+  - [ ] 🌱 Cache client
 
-### 7.2 Scalabilité
-- [ ] Architecture scalable
-  - [ ] Microservices
-    - [ ] Séparation des responsabilités
-    - [ ] Communication inter-services
-    - [ ] Gestion des dépendances
-  - [ ] Load balancing
-    - [ ] Distribution de charge
-    - [ ] Health checks
-    - [ ] Auto-scaling
-  - [ ] Réplication
-    - [ ] Réplication des données
-    - [ ] Synchronisation
-    - [ ] Cohérence
-- [ ] Monitoring
-  - [ ] Métriques
-    - [ ] Performance
-    - [ ] Ressources
-    - [ ] Erreurs
-  - [ ] Alertes
-    - [ ] Seuils critiques
-    - [ ] Notifications
-    - [ ] Escalation
-  - [ ] Dashboard
-    - [ ] Visualisation
-    - [ ] Analyse
-    - [ ] Rapports
-- [ ] Backup
-  - [ ] Sauvegarde
-    - [ ] Stratégies
-    - [ ] Fréquence
-    - [ ] Rétention
-  - [ ] Restauration
-    - [ ] Procédures
-    - [ ] Tests
-    - [ ] Validation
-  - [ ] Validation
-    - [ ] Intégrité
-    - [ ] Cohérence
-    - [ ] Performance
-- [ ] Déploiement
-  - [ ] CI/CD
-    - [ ] Pipeline automatisé
-    - [ ] Tests automatisés
-    - [ ] Déploiement continu
-  - [ ] Rollback
-    - [ ] Procédures
-    - [ ] Validation
-    - [ ] Monitoring
-    - [ ] Métriques
-    - [ ] Alertes
-    - [ ] Logs 
+### 8.2 Scalabilité
+- [ ] Développer une architecture scalable
+    - [ ] ⚡ Séparation des responsabilités
+  - [ ] 🌱 Modularité des composants
+- [ ] Mettre en place le monitoring
+  - [ ] ⚡ Métriques de performance
+  - [ ] 🌱 Alertes et notifications
+- [ ] Implémenter un système de backup robuste
+  - [ ] ⚡ Sauvegarde automatique
+  - [ ] 🌱 Procédures de restauration
+- [ ] Optimiser le processus de déploiement
+  - [ ] ⚡ Pipeline CI/CD
+    - [ ] 🌱 Tests automatisés
+    - [ ] 🌱 Déploiement continu
+
+## Tâches réalisées
+
+### Environnement de développement
+- [x] 🔥 Configurer le projet React avec TypeScript
+- [x] 🔥 Mettre en place l'environnement Node.js
+- [x] 🔥 Intégrer les dépendances nécessaires
+- [x] 🔥 Structurer les répertoires
+- [x] 🚀 Configurer le système de versionnement
+
+### Interface de base
+- [x] 🔥 Créer les composants UI fondamentaux
+- [x] 🔥 Mettre en place le routage de l'application
+- [x] 🔥 Implémenter le système d'authentification
+- [x] 🔥 Développer l'interface d'édition de cartes
+- [x] 🔥 Créer le gestionnaire d'altérations
+- [x] 🔥 Implémenter la gestion des sorts et tags
+
+### Base de données et API
+- [x] 🔥 Définir le schéma de base de données initial
+- [x] 🔥 Mettre en place la connexion Supabase
+- [x] 🔥 Implémenter les opérations CRUD de base
+- [x] 🔥 Créer la première migration

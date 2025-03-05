@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import './Login.css';
 
 interface LoginProps {
   onLogin: (user: any) => void;
@@ -8,93 +9,147 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setDebugInfo(null);
+
     try {
-      // Vérification des identifiants dans notre table users
-      const { data, error } = await supabase
+      console.log(`🔐 Tentative de connexion pour l'utilisateur: ${username}`);
+      
+      // 1. Appel à la fonction check_password
+      const { data, error: rpcError } = await supabase
         .rpc('check_password', {
           p_username: username,
           p_password: password
         });
-
-      if (error) throw error;
-
-      if (data) {
-        // Mise à jour de la dernière connexion
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', data.id);
-
-        const userData = {
-          id: data.id,
-          username: data.username,
-          isAdmin: data.properties?.isAdmin || false
-        };
-
-        // Si "Rester connecté" est coché, on sauvegarde dans le localStorage
-        if (rememberMe) {
-          localStorage.setItem('rememberedUser', JSON.stringify(userData));
-        } else {
-          localStorage.removeItem('rememberedUser');
-        }
-
-        onLogin(userData);
-      } else {
-        throw new Error('Identifiants invalides');
+      
+      // Logging détaillé pour le débogage
+      console.log('📊 Résultat de check_password:', data);
+      
+      // Gestion des erreurs RPC
+      if (rpcError) {
+        console.error('❌ Erreur RPC:', rpcError);
+        throw new Error(`Erreur serveur: ${rpcError.message}`);
       }
-    } catch (err: any) {
-      setError(err.message || 'Erreur de connexion');
+      
+      // Vérifier si les identifiants sont valides
+      if (!data) {
+        setDebugInfo("L'appel à check_password n'a pas retourné de données. Vérifiez les logs Supabase.");
+        throw new Error("Identifiants incorrects");
+      }
+      
+      // 2. Mise à jour de la date de dernière connexion
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', data.id);
+      
+      if (updateError) {
+        console.warn('⚠️ Impossible de mettre à jour la date de dernière connexion:', updateError);
+      }
+      
+      // 3. Création de l'objet utilisateur pour la session
+      const userData = {
+        id: data.id,
+        username: data.username,
+        is_admin: Boolean(data.is_admin), // Conversion explicite en booléen
+        properties: data.properties || {},
+        token: `auth_${Date.now()}` // Token simple avec timestamp
+      };
+      
+      console.log('👤 Utilisateur authentifié:', userData);
+      console.log('🔑 Statut admin:', userData.is_admin ? 'OUI' : 'NON');
+      
+      // 4. Sauvegarde dans localStorage selon les préférences
+      if (rememberMe) {
+        localStorage.setItem('rememberedUser', JSON.stringify(userData));
+        console.log('💾 Informations utilisateur sauvegardées (se souvenir de moi)');
+      } else {
+        localStorage.removeItem('rememberedUser');
+      }
+      
+      // Toujours sauvegarder dans localStorage pour la session actuelle
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // 5. Notification à l'application parente
+      onLogin(userData);
+      
+    } catch (error: any) {
+      console.error('❌ Erreur de connexion:', error);
+      setError(error.message || "Erreur lors de la connexion");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="login-container">
-      <form onSubmit={handleSubmit} className="login-form">
+      <div className="login-card">
         <h2>Connexion</h2>
-        {error && <div className="error-message">{error}</div>}
-        
-        <div className="form-group">
-          <label htmlFor="username">Nom d'utilisateur</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group checkbox-group">
-          <label className="checkbox-label">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="username">Nom d'utilisateur</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <div className="form-group checkbox">
             <input
               type="checkbox"
+              id="rememberMe"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={isLoading}
             />
-            Rester connecté
-          </label>
+            <label htmlFor="rememberMe">Se souvenir de moi</label>
+          </div>
+          {error && (
+            <div className="error-message">
+              {error}
+              {debugInfo && (
+                <details>
+                  <summary>Informations de débogage</summary>
+                  <p>{debugInfo}</p>
+                </details>
+              )}
+            </div>
+          )}
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+          </button>
+        </form>
+        <div className="login-help">
+          <p>
+            En cas de problème de connexion, contactez l'administrateur ou{' '}
+            <a href="/clear-storage.html" target="_blank">
+              utilisez l'outil de débogage
+            </a>
+          </p>
         </div>
-
-        <button type="submit" className="login-button">
-          Se connecter
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

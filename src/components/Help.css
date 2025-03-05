@@ -5,6 +5,44 @@
   line-height: 1.6;
 }
 
+/* Styles des onglets */
+.help-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s ease;
+  border-radius: 5px 5px 0 0;
+  margin-right: 5px;
+}
+
+.tab-button:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.tab-button.active {
+  color: #0066cc;
+  background-color: #f0f8ff;
+  border-bottom: 3px solid #0066cc;
+}
+
+.tab-content {
+  padding: 10px;
+  min-height: 300px;
+}
+
+/* Styles pour le contenu markdown */
 .help-container h1,
 .help-container h2,
 .help-container h3 {
@@ -43,4 +81,15 @@
 
 .help-container a:hover {
   text-decoration: underline;
+}
+
+/* Style pour les tâches du TODO */
+.help-container ul li {
+  list-style-type: none;
+  position: relative;
+  padding-left: 5px;
+}
+
+.help-container ul li input[type="checkbox"] {
+  margin-right: 8px;
 }

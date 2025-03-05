@@ -117,7 +117,7 @@ export interface AlterationEffect {
 export interface User {
   id: string;
   username: string;
-  isAdmin: boolean;
+  is_admin: boolean;
   token: string;
 }
 
