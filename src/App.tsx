@@ -240,21 +240,6 @@ const App: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.random-button-container')) {
-        const menu = document.querySelector('.random-menu');
-        if (menu && menu.classList.contains('show')) {
-          menu.classList.remove('show');
-        }
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
   const handleObjectiveComplete = (message: string) => {
     showNotification(message, 'success');
   };
@@ -389,6 +374,29 @@ const App: React.FC = () => {
         <main>
           {activeTab === 'card' && (
             <div className="card-editor">
+              <div className="card-editor-controls">
+                <div className="new-card-button-container">
+                  <button 
+                    className="new-card-button" 
+                    onClick={resetCard}
+                  >
+                    Nouvelle carte
+                  </button>
+                </div>
+                
+                <div className="random-buttons-group">
+                  <p className="random-buttons-label">Compléter au hasard:</p>
+                  <div className="random-buttons-container">
+                    <button onClick={() => handleRandomEdit('image', setActiveTab)}>Sans image</button>
+                    <button onClick={() => handleRandomEdit('description', setActiveTab)}>Sans description</button>
+                    <button onClick={() => handleRandomEdit('tags', setActiveTab)}>Sans tags</button>
+                    <button onClick={() => handleRandomEdit('spells', setActiveTab)}>Sans sorts</button>
+                    <button onClick={() => handleRandomEdit('passiveEffect', setActiveTab)}>Sans effet passif</button>
+                    <button onClick={() => handleRandomEdit(undefined, setActiveTab)}>WIP</button>
+                  </div>
+                </div>
+              </div>
+              
               <CardForm
                 card={cardData}
                 onSave={handleCardSave}
@@ -398,31 +406,38 @@ const App: React.FC = () => {
                 onSpellIdsChange={setSpellIds}
                 onTagIdsChange={setTagIds}
               />
-              <div className="random-button-container">
-                <button className="random-button" onClick={() => {
-                  const menu = document.querySelector('.random-menu');
-                  menu?.classList.toggle('show');
-                }}>
-                  Éditer au hasard
-                </button>
-                <div className="random-menu">
-                  <button onClick={() => handleRandomEdit('image', setActiveTab)}>Sans image</button>
-                  <button onClick={() => handleRandomEdit('description', setActiveTab)}>Sans description</button>
-                  <button onClick={() => handleRandomEdit('tags', setActiveTab)}>Sans tags</button>
-                  <button onClick={() => handleRandomEdit('spells', setActiveTab)}>Sans sorts</button>
-                  <button onClick={() => handleRandomEdit('passiveEffect', setActiveTab)}>Sans effet passif</button>
-                  <button onClick={() => handleRandomEdit(undefined, setActiveTab)}>WIP</button>
-                </div>
-              </div>
             </div>
           )}
           {activeTab === 'browser' && (
             <CardBrowser
               cards={allCards}
               onCardSelect={(card: Card) => {
-                setCardData(card);
-                setSpellIds(loadedSpellsMap[card.id]?.map(spell => spell.id) || []);
-                setTagIds(card.tags?.map(tag => tag.id) || []);
+                // Faire une copie profonde de la carte pour éviter les problèmes de référence
+                const cardCopy = JSON.parse(JSON.stringify(card));
+                console.log('Carte sélectionnée pour édition:', cardCopy);
+                
+                // S'assurer que l'ID est correctement défini et pas 0
+                if (!cardCopy.id || cardCopy.id === 0) {
+                  console.error('Erreur: ID de carte invalide', cardCopy);
+                  setNotification({
+                    message: 'Erreur: ID de carte invalide',
+                    type: 'error'
+                  });
+                  return;
+                }
+                
+                // Vérifier et initialiser les propriétés si nécessaire
+                if (!cardCopy.properties) {
+                  cardCopy.properties = {};
+                }
+                
+                setCardData(cardCopy);
+                
+                // Charger les sorts et tags associés
+                setSpellIds(loadedSpellsMap[cardCopy.id]?.map(spell => spell.id) || []);
+                setTagIds(cardCopy.tags?.map((tag: { id: number }) => tag.id) || []);
+                
+                // Passer à l'onglet d'édition
                 setActiveTab('card');
               }}
               loadedSpellsMap={loadedSpellsMap}

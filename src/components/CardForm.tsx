@@ -60,6 +60,13 @@ const CardForm: React.FC<CardFormProps> = ({
   const [shouldRefreshPreview, setShouldRefreshPreview] = useState(0);
   const [localCard, setLocalCard] = useState<Card>(card || defaultCard);
 
+  // Mettre à jour localCard lorsque card change (par exemple lors d'une réinitialisation)
+  useEffect(() => {
+    if (card) {
+      setLocalCard(card);
+    }
+  }, [card]);
+
   // Fonction pour forcer le rafraîchissement de la prévisualisation
   const refreshPreview = useCallback(() => {
     setShouldRefreshPreview(prev => prev + 1);
@@ -214,6 +221,18 @@ const CardForm: React.FC<CardFormProps> = ({
       return;
     }
 
+    // Gérer spécifiquement le changement des points de vie
+    if (name === 'health') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        properties: {
+          ...prev.properties,
+          health: parseInt(value) || 0
+        }
+      }));
+      return;
+    }
+
     setLocalCard((prev: Card): Card => ({
       ...prev,
       [name]: value
@@ -246,6 +265,9 @@ const CardForm: React.FC<CardFormProps> = ({
         throw new Error('Aucune carte à sauvegarder');
       }
 
+      // Vérifions que les propriétés de base sont valides
+      console.log('Carte avant validation:', JSON.stringify(localCard));
+
       // Valider la carte avant la sauvegarde
       const validationErrors = await validateCard(localCard);
       if (validationErrors.length > 0) {
@@ -254,17 +276,60 @@ const CardForm: React.FC<CardFormProps> = ({
         return;
       }
 
-      // Sauvegarder la carte
-      const savedCard = await updateCard(localCard);
-      if (!savedCard) {
-        throw new Error('Échec de la sauvegarde de la carte');
+      // Préparation de la carte pour sauvegarde - assurons-nous que les propriétés sont correctes
+      const cardToSave = {
+        ...localCard,
+        properties: {
+          ...localCard.properties
+        }
+      };
+
+      // Si c'est un personnage, vérifions que health est un nombre
+      if (cardToSave.type === 'personnage') {
+        cardToSave.properties.health = Number(cardToSave.properties.health || 0);
+        
+        // Vérifions que les points de vie sont valides
+        if (isNaN(cardToSave.properties.health)) {
+          showToast('Les points de vie doivent être un nombre valide', 'error');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Supprimer la propriété tags si elle existe pour éviter l'erreur "Could not find the 'tags' column"
+      const { tags, ...cardWithoutTags } = cardToSave;
+
+      console.log(`Carte à sauvegarder (ID: ${cardWithoutTags.id || 'Nouvelle'})`, JSON.stringify(cardWithoutTags));
+
+      // Sauvegarder la carte - updateCard se chargera de déterminer s'il faut insérer ou mettre à jour
+      let savedCard;
+      try {
+        savedCard = await updateCard(cardWithoutTags);
+        if (!savedCard) {
+          throw new Error('Échec de la sauvegarde de la carte');
+        }
+        console.log('Carte sauvegardée avec succès:', JSON.stringify(savedCard));
+      } catch (saveError) {
+        console.error('Erreur lors de la sauvegarde principale:', saveError);
+        throw saveError;
       }
 
       // Mettre à jour les relations avec les tags et les sorts en parallèle
-      await Promise.all([
-        updateCardTags(savedCard.id, tagIds),
-        updateCardSpells(savedCard.id, spellIds)
-      ]);
+      // Ne le faire que si la carte a un ID valide
+      if (savedCard.id) {
+        try {
+          await Promise.all([
+            updateCardTags(savedCard.id, tagIds),
+            updateCardSpells(savedCard.id, spellIds)
+          ]);
+          console.log('Relations mises à jour avec succès');
+        } catch (relationError) {
+          console.error('Erreur lors de la mise à jour des relations:', relationError);
+          showToast('Carte sauvegardée, mais erreur lors de la mise à jour des sorts/tags', 'error');
+        }
+      } else {
+        console.error('Impossible de mettre à jour les relations: la carte n\'a pas d\'ID');
+      }
 
       // Forcer le rafraîchissement de la prévisualisation
       refreshPreview();
@@ -273,7 +338,10 @@ const CardForm: React.FC<CardFormProps> = ({
       onSave(savedCard);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
-      showToast('Erreur lors de la sauvegarde : ' + (error as Error).message, 'error');
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erreur inconnue lors de la sauvegarde';
+      showToast(`Erreur lors de la sauvegarde : ${errorMessage}`, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -319,6 +387,19 @@ const CardForm: React.FC<CardFormProps> = ({
             🏷️ Tags ({tagIds.length})
           </button>
         </div>
+
+        {/* Bouton de suppression - visible uniquement si la carte a un ID */}
+        {localCard.id > 0 && (
+          <div className="delete-card-container">
+            <button 
+              className="delete-card-button"
+              onClick={() => onDelete(localCard)}
+              title="Supprimer cette carte"
+            >
+              🗑️ Supprimer la carte
+            </button>
+          </div>
+        )}
 
         <div className="card-editor-content">
           {activeTab === 'info' && (

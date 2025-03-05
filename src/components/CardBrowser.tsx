@@ -6,6 +6,7 @@ import './CardBrowser.css';
 import { useNavigate } from 'react-router-dom';
 import { tagService, spellService } from '../utils/dataService';
 import { getCardTags, getCardSpells } from '../utils/validation';
+import { supabase } from '../utils/supabaseClient';
 
 interface Filters {
   searchTerm: string;
@@ -64,12 +65,38 @@ const CardBrowser: React.FC<CardBrowserProps> = ({
     
     const loadTagsForCards = async () => {
       const allTagsSet = new Set<string>();
-
-      allCards.forEach(card => {
-        card.tags?.forEach(tag => {
-          if (tag.name) allTagsSet.add(tag.name);
-        });
-      });
+      
+      // Assurons-nous que tous les tags ont été correctement chargés
+      await Promise.all(allCards.map(async (card) => {
+        if (!card.tags || card.tags.length === 0) {
+          try {
+            // Récupérer les IDs des tags associés à cette carte
+            const cardTags = await getCardTags(card.id);
+            if (cardTags.length > 0) {
+              // Charger les détails complets des tags
+              const { data: tags } = await supabase
+                .from('tags')
+                .select('*')
+                .in('id', cardTags.map(tag => tag.tag_id));
+              
+              // Mettre à jour la carte avec ses tags
+              card.tags = tags || [];
+              
+              // Ajouter les noms des tags à l'ensemble des tags
+              tags?.forEach(tag => {
+                if (tag.name) allTagsSet.add(tag.name);
+              });
+            }
+          } catch (error) {
+            console.error(`Erreur lors du chargement des tags pour la carte ${card.id}:`, error);
+          }
+        } else {
+          // Ajouter les noms des tags existants à l'ensemble des tags
+          card.tags.forEach(tag => {
+            if (tag.name) allTagsSet.add(tag.name);
+          });
+        }
+      }));
 
       setAllTags(Array.from(allTagsSet).sort());
     };
@@ -119,8 +146,31 @@ const CardBrowser: React.FC<CardBrowserProps> = ({
     setLoading(true);
     try {
       const data = await getAllCards();
-      setAllCards(data);
-      setCards(filterCards(data));
+      
+      // Charger les tags pour chaque carte
+      const cardsWithTags = await Promise.all(data.map(async card => {
+        try {
+          const cardTags = await getCardTags(card.id);
+          if (cardTags.length > 0) {
+            const { data: tags } = await supabase
+              .from('tags')
+              .select('*')
+              .in('id', cardTags.map(tag => tag.tag_id));
+            
+            return {
+              ...card,
+              tags: tags || []
+            };
+          }
+          return { ...card, tags: [] };
+        } catch (error) {
+          console.error(`Erreur lors du chargement des tags pour la carte ${card.id}:`, error);
+          return { ...card, tags: [] };
+        }
+      }));
+      
+      setAllCards(cardsWithTags);
+      setCards(filterCards(cardsWithTags));
     } catch (error) {
       console.error('Error loading cards:', error);
     } finally {
@@ -302,6 +352,30 @@ const CardBrowser: React.FC<CardBrowserProps> = ({
                 </div>
               </div>
 
+              <div className="filter-group">
+                <div className="filter-group-label">Fonctionnalités</div>
+                <div className="filter-buttons">
+                  <button
+                    className={`filter-button ${filters.hasTags === true ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('hasTags', filters.hasTags === true ? null : true)}
+                  >
+                    Avec tags
+                  </button>
+                  <button
+                    className={`filter-button ${filters.hasSpells === true ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('hasSpells', filters.hasSpells === true ? null : true)}
+                  >
+                    Avec sorts
+                  </button>
+                  <button
+                    className={`filter-button ${filters.hasPassiveEffect === true ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('hasPassiveEffect', filters.hasPassiveEffect === true ? null : true)}
+                  >
+                    Avec effet passif
+                  </button>
+                </div>
+              </div>
+
               <div className="filter-group warning-section">
                 <div className="filter-group-label">🚨 Éléments manquants</div>
                 <div className="filter-buttons">
@@ -328,6 +402,12 @@ const CardBrowser: React.FC<CardBrowserProps> = ({
                     onClick={() => handleFilterChange('hasSpells', filters.hasSpells === false ? null : false)}
                   >
                     Sans sorts
+                  </button>
+                  <button
+                    className={`filter-button warning ${filters.hasPassiveEffect === false ? 'active' : ''}`}
+                    onClick={() => handleFilterChange('hasPassiveEffect', filters.hasPassiveEffect === false ? null : false)}
+                  >
+                    Sans effet passif
                   </button>
                 </div>
               </div>
@@ -405,7 +485,26 @@ const CardBrowser: React.FC<CardBrowserProps> = ({
           <div className="preview-actions">
             <button 
               className="edit-card-button"
-              onClick={() => navigate('/card', { state: { card: selectedCard } })}
+              onClick={() => {
+                console.log('Édition de la carte:', selectedCard);
+                
+                // Vérifier que la carte a un ID valide
+                if (!selectedCard.id || selectedCard.id === 0) {
+                  console.error('ID de carte invalide pour l\'édition:', selectedCard);
+                  return;
+                }
+                
+                // Faire une copie profonde de la carte pour éviter tout problème de référence
+                const cardToEdit = JSON.parse(JSON.stringify(selectedCard));
+                
+                // S'assurer que les propriétés sont initialisées
+                if (!cardToEdit.properties) {
+                  cardToEdit.properties = {};
+                }
+                
+                // Appeler la fonction de sélection de carte avec la copie
+                onCardSelect(cardToEdit);
+              }}
             >
               Éditer la carte
             </button>

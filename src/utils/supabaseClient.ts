@@ -111,28 +111,65 @@ export async function getAutocompleteValues() {
 }
 
 export const updateCard = async (card: Card) => {
-  const { data, error } = await supabase
-    .from('cards')
-    .update(card)
-    .eq('id', card.id)
-    .select() // Make sure to add .select() to return the updated data
-    .single();
+  try {
+    // Vérifier et nettoyer les données avant l'envoi
+    const cleanedCard = { ...card };
     
-  if (error) {
+    // S'assurer que properties est un objet valide
+    if (!cleanedCard.properties) {
+      cleanedCard.properties = {};
+    }
+    
+    // S'assurer que les valeurs numériques sont bien des nombres
+    if (cleanedCard.summon_cost !== null) {
+      cleanedCard.summon_cost = Number(cleanedCard.summon_cost);
+    }
+    
+    // S'assurer que properties.health est un nombre si défini
+    if (cleanedCard.properties.health !== undefined) {
+      cleanedCard.properties.health = Number(cleanedCard.properties.health);
+    }
+    
+    // Supprimer la propriété tags qui n'existe pas dans la table cards
+    const { tags, ...cardWithoutTags } = cleanedCard;
+    
+    // Vérifier si c'est une nouvelle carte (id = 0 ou manquant)
+    if (!cardWithoutTags.id || cardWithoutTags.id === 0) {
+      console.log('Carte avec ID 0 ou manquant détectée - utilisation de insertCard au lieu de updateCard');
+      // Utiliser insertCard pour les nouvelles cartes
+      return insertCard(cardWithoutTags);
+    }
+    
+    console.log('Envoi de la carte pour mise à jour:', JSON.stringify(cardWithoutTags));
+    
+    const { data, error } = await supabase
+      .from('cards')
+      .update(cardWithoutTags)
+      .eq('id', cardWithoutTags.id)
+      .select() // Make sure to add .select() to return the updated data
+      .single();
+      
+    if (error) {
+      console.error('Error updating card:', error);
+      console.error('Error details:', JSON.stringify(error));
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
     console.error('Error updating card:', error);
+    console.error('Error stacktrace:', (error as Error).stack);
     throw error;
   }
-  
-  return data;
 };
 
 export const insertCard = async (card: Card) => {
-  // Remove id field for new cards
-  const { id, ...cardWithoutId } = card;
+  // Supprimer la propriété tags qui n'existe pas dans la table cards
+  const { id, tags, ...cardWithoutIdAndTags } = card;
   
   const { data, error } = await supabase
     .from('cards')
-    .insert(cardWithoutId)
+    .insert(cardWithoutIdAndTags)
     .select() // Make sure to add .select() to return the inserted data
     .single();
     

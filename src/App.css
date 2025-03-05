@@ -229,67 +229,65 @@ h2, h3 {
 }
 
 /* Navigation styles */
-.random-button-container {
-  position: relative;
-  display: flex;
-  gap: 1px;
-  margin-left: auto;
-}
-
-.random-button {
-  border-radius: 4px 0 0 4px !important;
-}
-
-.random-dropdown-button {
-  padding: 8px 10px !important;
-  border-radius: 0 4px 4px 0 !important;
-  border-left: 1px solid rgba(255,255,255,0.2);
-}
-
-.random-menu {
+.random-button-container,
+.random-button,
+.random-dropdown-button,
+.random-menu,
+.random-menu.show,
+.random-menu button,
+.random-menu button:hover {
+  /* Ces styles ne sont plus utilisés */
   display: none;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 4px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  z-index: 1000;
-  min-width: 200px;
-  padding: 4px;
 }
 
-.random-menu.show {
-  display: block;
+/* Nouveaux styles pour les boutons Compléter au hasard */
+.random-buttons-group {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  gap: 8px;
+  flex: 1;
 }
 
-.random-menu button {
-  width: 100%;
-  text-align: left;
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85em;
+.random-buttons-label {
+  font-size: 0.9em;
+  margin: 0;
   color: #666;
+  text-align: center;
+}
+
+.random-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.random-buttons-container button {
+  padding: 6px 10px;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8em;
+  color: #555;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-.random-menu button:hover {
-  background: #f5f5f5;
+.random-buttons-container button:hover {
+  background-color: #e0e0e0;
   color: #333;
 }
 
-.reset-button {
-  background-color: #f44336 !important;
-  color: white !important;
-  margin-left: 8px;
-}
-
-.reset-button:hover {
-  background-color: #d32f2f !important;
+/* Media query pour les écrans plus petits */
+@media (max-width: 768px) {
+  .random-buttons-container {
+    flex-direction: column;
+  }
+  
+  .random-buttons-container button {
+    width: 100%;
+  }
 }
 
 /* Form styles */
@@ -802,11 +800,24 @@ main {
 /* Styles pour l'éditeur de carte */
 .card-editor {
   display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.card-editor-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.new-card-button-container {
+  flex: 2;
 }
 
 .random-button-container {
+  flex: 1;
   position: relative;
 }
 
@@ -819,10 +830,7 @@ main {
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.2s;
-}
-
-.random-button:hover {
-  background-color: var(--primary-color-hover);
+  width: 100%;
 }
 
 .random-menu {
@@ -855,4 +863,111 @@ main {
 
 .random-menu button:hover {
   background-color: var(--hover-color);
+}
+
+/* Style pour le bouton Nouvelle carte */
+.new-card-button {
+  background-color: var(--success-color, #28a745);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.new-card-button:hover {
+  background-color: #0056b3;
+}
+
+.random-buttons-group {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.random-buttons-label {
+  font-size: 0.9em;
+  margin: 0;
+  color: #666;
+  text-align: center;
+}
+
+.random-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.random-buttons-container button {
+  padding: 6px 10px;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8em;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.random-buttons-container button:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Media query pour les écrans plus petits */
+@media (max-width: 768px) {
+  .random-buttons-container {
+    flex-direction: column;
+  }
+  
+  .random-buttons-container button {
+    width: 100%;
+  }
+}
+
+.reset-button {
+  background-color: #f44336 !important;
+  color: white !important;
+  margin-left: 8px;
+}
+
+.reset-button:hover {
+  background-color: #d32f2f !important;
+}
+
+/* Remplacer les styles de l'ancien menu déroulant autour de la ligne 820 */
+.new-card-button-container {
+  flex: 2;
+}
+
+/* Ces styles ne sont plus utilisés et sont remplacés par .random-buttons-group et .random-buttons-container */
+.random-button-container {
+  display: none;
+}
+
+.random-button {
+  display: none;
+}
+
+.random-menu {
+  display: none;
+}
+
+.random-menu.show {
+  display: none;
+}
+
+.random-menu button {
+  display: none;
+}
+
+.random-menu button:hover {
+  display: none;
 }
