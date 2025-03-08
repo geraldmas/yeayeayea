@@ -8,11 +8,13 @@ import {
   TargetType, 
   CombatManager,
   LieuDistributionConfig,
-  LieuDistributionResult
+  LieuDistributionResult,
+  ObjectSlot
 } from '../types/combat';
 import { CardConversionService } from './cardConversionService';
 import { LieuCardService } from './lieuCardService';
 import { ActionResolutionService, ActionType } from './actionResolutionService';
+import { gameConfigService } from '../utils/dataService';
 
 /**
  * Implémentation de l'interface CardInstance
@@ -26,6 +28,7 @@ export class CardInstanceImpl implements CardInstance {
   public activeAlterations: ActiveAlteration[];
   public activeTags: TagInstance[];
   public availableSpells: SpellInstance[];
+  public objectSlots?: ObjectSlot[];
   public isExhausted: boolean;
   public isTapped: boolean;
   public counters: { [key: string]: number };
@@ -68,6 +71,11 @@ export class CardInstanceImpl implements CardInstance {
     
     // Initialiser les effets actifs
     this.activeEffects = {};
+    
+    // Initialiser les emplacements d'objets pour les personnages
+    if (card.type === 'personnage') {
+      this.initializeObjectSlots();
+    }
   }
 
   // Méthodes pour manipuler l'état
@@ -392,6 +400,202 @@ export class CardInstanceImpl implements CardInstance {
       // Pour les effets additifs, on les applique directement
       this.temporaryStats[statName] = (this.temporaryStats[statName] || 0) + (value * stackCount);
     }
+  }
+
+  /**
+   * Initialise les emplacements d'objets pour un personnage
+   * en fonction de la configuration du jeu
+   */
+  public async initializeObjectSlots(): Promise<void> {
+    try {
+      // Récupérer le nombre d'emplacements d'objets depuis la configuration
+      const slotsCount = await gameConfigService.getValue<number>('emplacements_objet') || 3;
+      
+      this.objectSlots = Array(slotsCount).fill(0).map((_, index) => ({
+        slotId: index + 1, // Les IDs commencent à 1
+        equippedObject: null,
+        isLocked: false
+      }));
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation des emplacements d\'objets:', error);
+      // Par défaut, créer 3 emplacements si la configuration n'est pas disponible
+      this.objectSlots = Array(3).fill(0).map((_, index) => ({
+        slotId: index + 1,
+        equippedObject: null,
+        isLocked: false
+      }));
+    }
+  }
+
+  /**
+   * Équipe un objet dans un emplacement spécifique ou dans le premier emplacement disponible
+   * @param objectCard La carte objet à équiper
+   * @param slotId (optionnel) L'ID de l'emplacement spécifique où équiper l'objet
+   * @returns true si l'objet a été équipé avec succès, false sinon
+   */
+  public equipObject(objectCard: CardInstance, slotId?: number): boolean {
+    // Vérifier que la carte est de type objet
+    if (objectCard.cardDefinition.type !== 'objet') {
+      console.error('Impossible d\'équiper: la carte n\'est pas un objet');
+      return false;
+    }
+    
+    // Vérifier que les emplacements d'objets sont initialisés
+    if (!this.objectSlots) {
+      console.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
+      return false;
+    }
+    
+    // Si un slotId spécifique est fourni
+    if (slotId !== undefined) {
+      const slot = this.objectSlots.find(s => s.slotId === slotId);
+      if (!slot) {
+        console.error(`L'emplacement d'ID ${slotId} n'existe pas`);
+        return false;
+      }
+      
+      if (slot.isLocked) {
+        console.error(`L'emplacement d'ID ${slotId} est verrouillé`);
+        return false;
+      }
+      
+      if (slot.equippedObject) {
+        console.error(`L'emplacement d'ID ${slotId} est déjà occupé`);
+        return false;
+      }
+      
+      slot.equippedObject = objectCard;
+      return true;
+    }
+    
+    // Si aucun slotId n'est spécifié, utiliser le premier emplacement disponible
+    const availableSlot = this.objectSlots.find(s => !s.isLocked && !s.equippedObject);
+    if (!availableSlot) {
+      console.error('Aucun emplacement disponible pour équiper l\'objet');
+      return false;
+    }
+    
+    availableSlot.equippedObject = objectCard;
+    return true;
+  }
+
+  /**
+   * Déséquipe un objet d'un emplacement spécifique
+   * @param slotId L'ID de l'emplacement d'où déséquiper l'objet
+   * @returns La carte objet déséquipée, ou null si aucun objet n'était équipé
+   */
+  public unequipObject(slotId: number): CardInstance | null {
+    if (!this.objectSlots) {
+      console.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
+      return null;
+    }
+    
+    const slot = this.objectSlots.find(s => s.slotId === slotId);
+    if (!slot) {
+      console.error(`L'emplacement d'ID ${slotId} n'existe pas`);
+      return null;
+    }
+    
+    if (slot.isLocked) {
+      console.error(`L'emplacement d'ID ${slotId} est verrouillé et ne peut pas être déséquipé`);
+      return null;
+    }
+    
+    const equippedObject = slot.equippedObject;
+    slot.equippedObject = null;
+    return equippedObject;
+  }
+
+  /**
+   * Récupère tous les objets équipés
+   * @returns Un tableau des cartes objets équipées
+   */
+  public getEquippedObjects(): CardInstance[] {
+    if (!this.objectSlots) {
+      return [];
+    }
+    
+    return this.objectSlots
+      .filter(slot => slot.equippedObject !== null)
+      .map(slot => slot.equippedObject!) as CardInstance[];
+  }
+
+  /**
+   * Vérifie si le personnage a au moins un emplacement d'objet disponible
+   * @returns true s'il y a au moins un emplacement disponible, false sinon
+   */
+  public hasAvailableObjectSlot(): boolean {
+    if (!this.objectSlots) {
+      return false;
+    }
+    
+    return this.objectSlots.some(slot => !slot.isLocked && !slot.equippedObject);
+  }
+
+  /**
+   * Récupère l'ID du premier emplacement d'objet disponible
+   * @returns L'ID du premier emplacement disponible, ou null si aucun n'est disponible
+   */
+  public getAvailableObjectSlot(): number | null {
+    if (!this.objectSlots) {
+      return null;
+    }
+    
+    const availableSlot = this.objectSlots.find(slot => !slot.isLocked && !slot.equippedObject);
+    return availableSlot ? availableSlot.slotId : null;
+  }
+
+  /**
+   * Applique les effets passifs de tous les objets équipés
+   */
+  public applyEquippedObjectsEffects(): void {
+    if (!this.objectSlots) {
+      return;
+    }
+    
+    this.getEquippedObjects().forEach(objectCard => {
+      // Appliquer les effets passifs des objets
+      const passiveEffect = objectCard.cardDefinition.passive_effect;
+      if (passiveEffect) {
+        // Ici, nous devrions implémenter la logique pour appliquer les effets passifs
+        // Cette implémentation dépendra du format spécifique des effets passifs
+        console.log(`Appliquer l'effet passif: ${passiveEffect} de l'objet ${objectCard.cardDefinition.name}`);
+        
+        // Exemple simple d'effet passif (à adapter selon le format réel des effets)
+        // Note: Ceci est un exemple et devrait être adapté au format réel des effets passifs
+        try {
+          const effect = JSON.parse(passiveEffect);
+          if (effect.type && effect.value) {
+            switch (effect.type) {
+              case 'motivation_boost':
+                // Appliquer un boost de motivation (à implémenter plus tard)
+                break;
+              case 'charisma_boost':
+                // Appliquer un boost de charisme (à implémenter plus tard)
+                break;
+              case 'health_boost':
+                // Augmenter les PV max et actuels
+                const boostAmount = this.maxHealth * (effect.value / 100);
+                this.maxHealth += boostAmount;
+                this.currentHealth += boostAmount;
+                break;
+              case 'attack_boost':
+                // Augmenter l'attaque
+                this.temporaryStats.attack += (this.temporaryStats.attack * (effect.value / 100));
+                break;
+              case 'defense_boost':
+                // Augmenter la défense
+                this.temporaryStats.defense += (this.temporaryStats.defense * (effect.value / 100));
+                break;
+              default:
+                console.warn(`Type d'effet passif non géré: ${effect.type}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Erreur lors de l'application de l'effet passif de l'objet ${objectCard.cardDefinition.name}:`, error);
+        }
+      }
+    });
   }
 }
 

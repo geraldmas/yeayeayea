@@ -73,7 +73,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Système de distribution initiale
   - [ ] 🚀 Mécanique de sélection active
 - [ ] Développer les mécaniques spécifiques des cartes Objet
-  - [ ] 🔥 Système d'emplacements (sur le terrain, pas de système d'équipement !)
+  - [x] 🔥 Système d'emplacements (sur le terrain, pas de système d'équipement !)
   - [ ] 🚀 Effets passifs
   - [ ] 🚀 Système de vente en charisme
 

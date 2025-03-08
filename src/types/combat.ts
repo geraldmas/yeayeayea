@@ -1,6 +1,15 @@
 import { Card, Alteration, Tag, Spell } from './index';
 
 /**
+ * Représente un emplacement d'objet et l'objet équipé
+ */
+export interface ObjectSlot {
+  slotId: number;
+  equippedObject: CardInstance | null;
+  isLocked: boolean;
+}
+
+/**
  * Structure représentant une instance de carte en jeu.
  * Contrairement à Card (définition) qui contient la définition statique de la carte,
  * CardInstance contient l'état actuel de la carte pendant une partie.
@@ -55,6 +64,9 @@ export interface CardInstance {
   // Sorts disponibles pour cette carte
   availableSpells: SpellInstance[];
   
+  // Emplacements d'objets (uniquement pour les personnages)
+  objectSlots?: ObjectSlot[];
+  
   // État de la carte
   isExhausted: boolean; // Si la carte a déjà été utilisée ce tour
   isTapped: boolean;    // Si la carte est inclinée (pour les actions spéciales)
@@ -80,6 +92,13 @@ export interface CardInstance {
   addExperience?: (amount: number) => boolean; // Retourne true si le personnage monte de niveau
   levelUp?: () => void;
   
+  // Méthodes pour les emplacements d'objets
+  equipObject?: (objectCard: CardInstance, slotId?: number) => boolean;
+  unequipObject?: (slotId: number) => CardInstance | null;
+  getEquippedObjects?: () => CardInstance[];
+  hasAvailableObjectSlot?: () => boolean;
+  getAvailableObjectSlot?: () => number | null;
+  
   // Méthodes pour vérifier l'état
   hasTag: (tagId: number) => boolean;
   hasAlteration: (alterationId: number) => boolean;
@@ -88,6 +107,9 @@ export interface CardInstance {
   
   // Nouvelle méthode pour appliquer les effets des altérations actives
   applyAlterationEffects: () => void;
+  
+  // Méthode pour appliquer les effets passifs des objets équipés
+  applyEquippedObjectsEffects?: () => void;
   
   // Restaure la carte à la fin du tour
   resetForNextTurn: () => void;
