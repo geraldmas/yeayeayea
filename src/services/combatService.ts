@@ -523,8 +523,17 @@ export class CombatManagerImpl implements CombatManager {
     }
   }
 
-  public getRandomTarget(source: CardInstance, targetType: TargetType): CardInstance | null {
-    const validTargets = this.getValidTargets(source, targetType);
+  public getRandomTarget(source: CardInstance, targetType: TargetType, tagId?: number): CardInstance | null {
+    // Obtenir les cibles valides basées sur le type
+    let validTargets: CardInstance[] = [];
+    
+    if (targetType === 'random') {
+      // Pour le ciblage purement aléatoire, on prend toutes les cartes sauf la source
+      validTargets = this.cardInstances.filter(card => card.instanceId !== source.instanceId);
+    } else {
+      // Utiliser getValidTargets pour les autres types de ciblage
+      validTargets = this.getValidTargets(source, targetType, tagId);
+    }
     
     if (validTargets.length === 0) {
       return null;
@@ -533,5 +542,113 @@ export class CombatManagerImpl implements CombatManager {
     // Sélectionner une cible aléatoire
     const randomIndex = Math.floor(Math.random() * validTargets.length);
     return validTargets[randomIndex];
+  }
+  
+  /**
+   * Sélectionne plusieurs cibles aléatoires
+   * @param source La carte source de l'action
+   * @param targetType Le type de ciblage
+   * @param count Le nombre de cibles à sélectionner
+   * @param tagId Optionnel: ID du tag pour le ciblage basé sur les tags
+   * @param uniqueTargets Si vrai, les cibles seront toutes différentes
+   * @returns Un tableau de cibles aléatoires, pouvant être vide si aucune cible valide
+   */
+  public getRandomTargets(
+    source: CardInstance, 
+    targetType: TargetType, 
+    count: number, 
+    tagId?: number,
+    uniqueTargets: boolean = true
+  ): CardInstance[] {
+    // Obtenir les cibles valides
+    let validTargets: CardInstance[] = [];
+    
+    if (targetType === 'random') {
+      validTargets = this.cardInstances.filter(card => card.instanceId !== source.instanceId);
+    } else {
+      validTargets = this.getValidTargets(source, targetType, tagId);
+    }
+    
+    // Si pas de cibles valides ou count <= 0, retourner un tableau vide
+    if (validTargets.length === 0 || count <= 0) {
+      return [];
+    }
+    
+    // Si on demande plus de cibles que disponibles et qu'on veut des cibles uniques
+    if (uniqueTargets && count > validTargets.length) {
+      count = validTargets.length;
+    }
+    
+    const result: CardInstance[] = [];
+    
+    if (uniqueTargets) {
+      // Sélection sans remise (chaque cible ne peut être sélectionnée qu'une fois)
+      const availableTargets = [...validTargets];
+      
+      for (let i = 0; i < count; i++) {
+        const randomIndex = Math.floor(Math.random() * availableTargets.length);
+        result.push(availableTargets[randomIndex]);
+        availableTargets.splice(randomIndex, 1);
+      }
+    } else {
+      // Sélection avec remise (la même cible peut être sélectionnée plusieurs fois)
+      for (let i = 0; i < count; i++) {
+        const randomIndex = Math.floor(Math.random() * validTargets.length);
+        result.push(validTargets[randomIndex]);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Sélectionne une cible aléatoire pondérée par un critère (par ex: les cartes avec moins de PV ont plus de chances d'être ciblées)
+   * @param source La carte source de l'action
+   * @param targetType Le type de ciblage
+   * @param weightFunction Fonction qui attribue un poids à chaque carte (plus le poids est élevé, plus la chance d'être choisi est grande)
+   * @param tagId Optionnel: ID du tag pour le ciblage basé sur les tags
+   * @returns Une cible aléatoire pondérée, ou null si aucune cible valide
+   */
+  public getWeightedRandomTarget(
+    source: CardInstance,
+    targetType: TargetType,
+    weightFunction: (card: CardInstance) => number,
+    tagId?: number
+  ): CardInstance | null {
+    // Obtenir les cibles valides
+    let validTargets: CardInstance[] = [];
+    
+    if (targetType === 'random') {
+      validTargets = this.cardInstances.filter(card => card.instanceId !== source.instanceId);
+    } else {
+      validTargets = this.getValidTargets(source, targetType, tagId);
+    }
+    
+    if (validTargets.length === 0) {
+      return null;
+    }
+    
+    // Calculer les poids pour chaque cible
+    const weights = validTargets.map(weightFunction);
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+    
+    // Si tous les poids sont nuls, revenir à une sélection uniforme
+    if (totalWeight <= 0) {
+      const randomIndex = Math.floor(Math.random() * validTargets.length);
+      return validTargets[randomIndex];
+    }
+    
+    // Sélection pondérée
+    let random = Math.random() * totalWeight;
+    
+    for (let i = 0; i < validTargets.length; i++) {
+      random -= weights[i];
+      if (random <= 0) {
+        return validTargets[i];
+      }
+    }
+    
+    // En cas d'erreur de calcul, retourner la dernière cible
+    return validTargets[validTargets.length - 1];
   }
 } 

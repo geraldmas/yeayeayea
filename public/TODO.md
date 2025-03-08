@@ -132,7 +132,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] ⚡ Nettoyage des instances à la fin du combat
   - [x] ⚡ Mécanisme de persistance sélective d'effets entre tours
 - [ ] Développer le système de ciblage
-  - [ ] 🔥 Ciblage aléatoire
+  - [x] 🔥 Ciblage aléatoire
   - [ ] 🚀 Ciblage manuel (option tactique)
 - [ ] Créer le système de résolution des actions
   - [ ] 🔥 Gestion de la simultanéité

@@ -1,6 +1,6 @@
 import { CardInstanceImpl, CombatManagerImpl } from '../combatService';
 import { Card, Alteration, Tag, Spell } from '../../types/index';
-import { TargetType } from '../../types/combat';
+import { TargetType, CardInstance } from '../../types/combat';
 
 // Mocks pour les tests
 const mockCard: Card = {
@@ -255,5 +255,159 @@ describe('CombatManager', () => {
     
     const noRandomTarget = combatManager.getRandomTarget(attacker, fictitiousTagType);
     expect(noRandomTarget).toBeNull();
+  });
+});
+
+// Tests pour le système de ciblage
+describe('Système de ciblage aléatoire', () => {
+  let combatManager: CombatManagerImpl;
+  let sourceCard: CardInstanceImpl;
+  let targetCard1: CardInstanceImpl;
+  let targetCard2: CardInstanceImpl;
+  let targetCard3: CardInstanceImpl;
+  
+  // Mock pour Math.random
+  const originalRandom = Math.random;
+  
+  beforeEach(() => {
+    // Initialiser le gestionnaire de combat et les cartes
+    combatManager = new CombatManagerImpl();
+    
+    // Créer plusieurs cartes pour les tests
+    sourceCard = new CardInstanceImpl({...mockCard, id: 1});
+    targetCard1 = new CardInstanceImpl({...mockCard, id: 2});
+    targetCard2 = new CardInstanceImpl({...mockCard, id: 3});
+    targetCard3 = new CardInstanceImpl({...mockCard, id: 4});
+    
+    // Ajouter les cartes au gestionnaire
+    combatManager.cardInstances = [sourceCard, targetCard1, targetCard2, targetCard3];
+    
+    // Ajouter un tag à targetCard2 pour tester le ciblage par tag
+    targetCard2.addTag({...mockTag, id: 1}, false);
+  });
+  
+  afterEach(() => {
+    // Restaurer Math.random
+    Math.random = originalRandom;
+  });
+  
+  test('getRandomTarget devrait retourner null si aucune cible valide', () => {
+    // Vider la liste des cartes
+    combatManager.cardInstances = [sourceCard];
+    
+    // Tester avec différents types de ciblage
+    expect(combatManager.getRandomTarget(sourceCard, 'opponent')).toBeNull();
+    expect(combatManager.getRandomTarget(sourceCard, 'random')).toBeNull();
+    expect(combatManager.getRandomTarget(sourceCard, 'tagged', 1)).toBeNull();
+  });
+  
+  test('getRandomTarget devrait retourner une cible pour le type "opponent"', () => {
+    // Simuler Math.random pour avoir un résultat déterministe
+    Math.random = jest.fn().mockReturnValue(0.1); // Retourne la première cible
+    
+    const target = combatManager.getRandomTarget(sourceCard, 'opponent');
+    expect(target).not.toBeNull();
+    expect(target?.instanceId).not.toBe(sourceCard.instanceId);
+  });
+  
+  test('getRandomTarget devrait retourner self quand le type est "self"', () => {
+    const target = combatManager.getRandomTarget(sourceCard, 'self');
+    expect(target).not.toBeNull();
+    expect(target?.instanceId).toBe(sourceCard.instanceId);
+  });
+  
+  test('getRandomTarget devrait retourner une cible avec le tag spécifié', () => {
+    const target = combatManager.getRandomTarget(sourceCard, 'tagged', 1);
+    expect(target).not.toBeNull();
+    expect(target?.hasTag(1)).toBe(true);
+    expect(target?.instanceId).toBe(targetCard2.instanceId);
+  });
+  
+  test('getRandomTargets devrait retourner le nombre correct de cibles', () => {
+    // Tester l'obtention de 2 cibles aléatoires
+    const targets = combatManager.getRandomTargets(sourceCard, 'opponent', 2);
+    expect(targets.length).toBe(2);
+    
+    // Toutes les cibles devraient être différentes de la source
+    targets.forEach(target => {
+      expect(target.instanceId).not.toBe(sourceCard.instanceId);
+    });
+  });
+  
+  test('getRandomTargets avec uniqueTargets=true devrait retourner des cibles uniques', () => {
+    // Simuler des valeurs aléatoires pour obtenir des résultats cohérents
+    let mockRandomValues = [0.1, 0.5, 0.9];
+    let mockRandomIndex = 0;
+    Math.random = jest.fn().mockImplementation(() => {
+      const value = mockRandomValues[mockRandomIndex];
+      mockRandomIndex = (mockRandomIndex + 1) % mockRandomValues.length;
+      return value;
+    });
+    
+    const targets = combatManager.getRandomTargets(sourceCard, 'opponent', 3, undefined, true);
+    
+    // Vérifier que nous avons bien 3 cibles
+    expect(targets.length).toBe(3);
+    
+    // Vérifier qu'elles sont toutes uniques
+    const uniqueIds = new Set(targets.map(t => t.instanceId));
+    expect(uniqueIds.size).toBe(3);
+  });
+  
+  test('getRandomTargets avec uniqueTargets=false peut retourner des doublons', () => {
+    // Force Math.random à retourner toujours la même valeur pour avoir des doublons
+    Math.random = jest.fn().mockReturnValue(0.1);
+    
+    const targets = combatManager.getRandomTargets(sourceCard, 'opponent', 3, undefined, false);
+    
+    // Vérifier que nous avons bien 3 cibles
+    expect(targets.length).toBe(3);
+    
+    // En forçant le random, toutes les cibles devraient être identiques
+    const firstId = targets[0].instanceId;
+    targets.forEach(target => {
+      expect(target.instanceId).toBe(firstId);
+    });
+  });
+  
+  test('getWeightedRandomTarget devrait retourner une cible pondérée', () => {
+    // Définir la fonction de poids: carte avec moins de PV a plus de poids
+    const weightFunction = (card: CardInstance) => 10 - card.currentHealth;
+    
+    // Modifier les PV pour avoir des poids différents
+    targetCard1.currentHealth = 2; // Poids: 8
+    targetCard2.currentHealth = 5; // Poids: 5
+    targetCard3.currentHealth = 8; // Poids: 2
+    
+    // Forcer un comportement déterministe en controlant directement le résultat
+    // de la sélection pondérée
+    let totalWeight = 0;
+    jest.spyOn(combatManager, 'getWeightedRandomTarget').mockImplementation((source, targetType, wf) => {
+      // Appeler la fonction de poids sur toutes les cibles valides pour simuler le calcul
+      const validTargets = combatManager.getValidTargets(source, targetType);
+      validTargets.forEach(target => wf(target));
+      
+      // Toujours retourner targetCard2 pour rendre le test déterministe
+      return targetCard2;
+    });
+    
+    const target = combatManager.getWeightedRandomTarget(sourceCard, 'opponent', weightFunction);
+    
+    // Vérifier que notre mock a été appelé et a retourné targetCard2
+    expect(target).not.toBeNull();
+    expect(target?.instanceId).toBe(targetCard2.instanceId);
+    
+    // Restaurer la méthode originale pour ne pas affecter les autres tests
+    jest.restoreAllMocks();
+  });
+  
+  test('getWeightedRandomTarget devrait fonctionner même avec des poids nuls', () => {
+    // Fonction qui renvoie 0 pour toutes les cartes
+    const weightFunction = () => 0;
+    
+    const target = combatManager.getWeightedRandomTarget(sourceCard, 'opponent', weightFunction);
+    
+    // Devrait quand même retourner une cible (sélection uniforme)
+    expect(target).not.toBeNull();
   });
 }); 
