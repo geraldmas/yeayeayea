@@ -128,8 +128,8 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Créer la structure CardInstance distincte de CardDefinition
   - [x] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
   - [x] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
-  - [ ] 🚀 Système de conversion Card→CardInstance au début du combat
-  - [ ] ⚡ Nettoyage des instances à la fin du combat
+  - [x] 🚀 Système de conversion Card→CardInstance au début du combat
+  - [x] ⚡ Nettoyage des instances à la fin du combat
   - [x] ⚡ Mécanisme de persistance sélective d'effets entre tours
 - [ ] Développer le système de ciblage
   - [x] 🔥 Ciblage aléatoire
