@@ -6,3 +6,5 @@ export { default as Notification } from './Notification';
 export { default as Help } from './Help';
 export { default as UserManager } from './UserManager';
 export { default as TodoProgress } from './TodoProgress';
+export { default as GameBoard } from './GameBoard';
+export { default as GameBoardTest } from './GameBoardTest';

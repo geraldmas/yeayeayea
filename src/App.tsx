@@ -7,6 +7,7 @@ import Notification from './components/Notification';
 import Login from './components/Login';
 import Help from './components/Help';
 import UserManager from './components/UserManager';
+import GameBoardTest from './components/GameBoardTest';
 import { Card, Booster, User } from './types';
 import { saveCard, getAllCards, deleteCard } from './utils/supabaseClient';
 import './App.css';
@@ -39,7 +40,7 @@ interface CardSpell {
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users'>('card');
+  const [activeTab, setActiveTab] = useState<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users' | 'gameboard'>('card');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [cardData, setCardData] = useState<Card | null>({
     id: 0,
@@ -191,7 +192,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleRandomEdit = (type: string | undefined, setActiveTab: React.Dispatch<React.SetStateAction<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users'>>) => {
+  const handleRandomEdit = (type: string | undefined, setActiveTab: React.Dispatch<React.SetStateAction<'card' | 'booster' | 'browser' | 'help' | 'alterations' | 'users' | 'gameboard'>>) => {
     let cardToEdit: Card | null = null;
     const getRandomCard = (filterFn?: (card: Card) => boolean) => {
       const eligibleCards = filterFn ? allCards.filter(filterFn) : allCards;
@@ -360,6 +361,14 @@ const App: React.FC = () => {
                 </button>
               </li>
               <li>
+                <button
+                  className={activeTab === 'gameboard' ? 'active' : ''}
+                  onClick={() => setActiveTab('gameboard')}
+                >
+                  Terrain de Jeu
+                </button>
+              </li>
+              <li>
                 <button onClick={handleLogout} className="logout-button">
                   Déconnexion
                 </button>
@@ -456,6 +465,9 @@ const App: React.FC = () => {
           )}
           {activeTab === 'users' && (
             <UserManager />
+          )}
+          {activeTab === 'gameboard' && (
+            <GameBoardTest />
           )}
         </main>
 
