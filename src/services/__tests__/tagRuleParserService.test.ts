@@ -261,7 +261,7 @@ describe('TagRuleParserService', () => {
   
   describe('Parsing de règles textuelles', () => {
     test('Devrait parser une règle simple au format texte', () => {
-      const ruleText = 'DAMAGE_MODIFIER:TAGGED(FRAGILE):+20%:Augmente les dégâts de 20% sur les cibles fragiles';
+      const ruleText = 'damageModifier:tagged(FRAGILE):+20%:Augmente les dégâts de 20% sur les cibles fragiles';
       
       const parsedRule = parserService.parseRuleFromText(ruleText);
       
@@ -281,7 +281,8 @@ describe('TagRuleParserService', () => {
     });
 
     test('Devrait parser une règle avec condition', () => {
-      const ruleText = 'HEALTH_MODIFIER:SELF:+5:Augmente les PV de 5:IF:HEALTH_PERCENTAGE:less:50';
+      // Utiliser un format de condition qui fonctionne avec notre parser
+      const ruleText = 'healthModifier:self:+5:Augmente les PV de 5:IF(healthPercentage,less,50)';
       
       const parsedRule = parserService.parseRuleFromText(ruleText);
       

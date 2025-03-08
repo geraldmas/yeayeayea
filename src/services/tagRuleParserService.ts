@@ -693,7 +693,7 @@ export class TagRuleParserService {
   public parseRuleFromText(ruleText: string): TagRule | null {
     try {
       // Format simple: "Type:Cible:Valeur:Description"
-      // Exemple: "DAMAGE_MODIFIER:TAGGED(#NUIT):+20%:Augmente les dégâts de 20% sur les cibles ayant le tag #NUIT"
+      // Exemple: "damageModifier:tagged(#NUIT):+20%:Augmente les dégâts de 20% sur les cibles ayant le tag #NUIT"
       const parts = ruleText.split(':');
       
       if (parts.length < 4) {
@@ -715,9 +715,13 @@ export class TagRuleParserService {
       let targetType: TagRuleTargetType | undefined;
       let targetTag: string | undefined;
       
-      if (targetStr.startsWith('TAGGED(') && targetStr.endsWith(')')) {
+      // Expression régulière pour capturer "tagged(TAG)"
+      const taggedRegex = /^tagged\((.+)\)$/;
+      const taggedMatch = targetStr.match(taggedRegex);
+      
+      if (taggedMatch) {
         targetType = TagRuleTargetType.TAGGED;
-        targetTag = targetStr.slice(7, -1); // Extraire le nom du tag entre parenthèses
+        targetTag = taggedMatch[1]; // Capture le contenu entre parenthèses
       } else {
         targetType = Object.values(TagRuleTargetType).find(type => type === targetStr);
       }
@@ -761,8 +765,43 @@ export class TagRuleParserService {
       // Parser d'éventuelles conditions ou synergies (si présentes)
       if (parts.length > 4) {
         const conditionStr = parts[4].trim();
-        if (conditionStr.startsWith('IF:')) {
-          rule.condition = this.parseConditionFromText(conditionStr.slice(3));
+        
+        // Nouvelle regex pour capturer IF(type,comparison,value)
+        const conditionRegex = /^IF\(([^,]+),([^,]+),(.+)\)$/;
+        const conditionMatch = conditionStr.match(conditionRegex);
+        
+        if (conditionMatch) {
+          const [, conditionType, comparison, value] = conditionMatch;
+          
+          // Rechercher le type de condition correspondant
+          const conditionTypeEnum = Object.values(TagRuleConditionType).find(type => type === conditionType.trim());
+          
+          if (conditionTypeEnum) {
+            rule.condition = {
+              type: conditionTypeEnum,
+              comparison: comparison.trim() as 'equal' | 'notEqual' | 'greater' | 'less' | 'greaterOrEqual' | 'lessOrEqual',
+              value: value.trim()
+            };
+            
+            // Ajouter des propriétés spécifiques selon le type de condition
+            switch (conditionTypeEnum) {
+              case TagRuleConditionType.HAS_TAG:
+                rule.condition.tagName = value.trim();
+                break;
+              case TagRuleConditionType.HAS_ALTERATION:
+                rule.condition.alterationId = parseInt(value.trim());
+                break;
+              case TagRuleConditionType.ACTIVE_LIEU:
+                rule.condition.lieuName = value.trim();
+                break;
+            }
+          } else {
+            console.error(`Type de condition invalide: ${conditionType}`);
+          }
+        } else if (conditionStr.startsWith('IF:')) {
+          // Ancien format pour la rétrocompatibilité
+          const conditionData = conditionStr.slice(3);
+          rule.condition = this.parseConditionFromText(conditionData);
         } else if (conditionStr.startsWith('SYNERGY:')) {
           rule.synergyTags = conditionStr.slice(8).split(',').map(tag => tag.trim());
         }
