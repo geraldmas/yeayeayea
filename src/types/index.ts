@@ -163,3 +163,38 @@ export interface GameEvent {
   data: any;
   timestamp: number;
 }
+
+/**
+ * Interface spécifique pour les cartes de type personnage
+ * avec support pour les niveaux et les PV
+ */
+export interface CharacterCard extends Card {
+  properties: {
+    health: number;
+    baseHealth: number;
+    attack: number;
+    defense: number;
+    level: number;
+    maxLevel: number;
+    xp: number;
+    xpToNextLevel: number;
+    [key: string]: any;
+  };
+}
+
+/**
+ * Version frontend de la carte personnage avec les propriétés en camelCase
+ */
+export interface CharacterCardFrontend extends CardFrontend {
+  properties: {
+    health: number;
+    baseHealth: number;
+    attack: number;
+    defense: number;
+    level: number;
+    maxLevel: number;
+    xp: number;
+    xpToNextLevel: number;
+    [key: string]: any;
+  };
+}

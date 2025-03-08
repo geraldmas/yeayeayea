@@ -66,7 +66,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 - [x] 🔥 Implémenter la structure de base pour les cartes Action
 - [x] 🔥 Implémenter la structure de base pour les cartes Événement
 - [ ] Développer les mécaniques spécifiques des cartes Personnage
-  - [ ] 🔥 Système de PV et niveau
+  - [x] 🔥 Système de PV et niveau
   - [ ] 🚀 Système de sorts et d'évolution
   - [ ] 🚀 Gestion avancée des tags
 - [ ] Développer les mécaniques spécifiques des cartes Lieu

@@ -64,6 +64,12 @@ export interface CardInstance {
     [key: string]: number;
   };
 
+  // Propriétés de niveau (spécifiques aux personnages)
+  level?: number;
+  maxLevel?: number;
+  xp?: number;
+  xpToNextLevel?: number;
+  
   // Méthodes pour manipuler l'état
   applyDamage: (amount: number, source?: string) => void;
   heal: (amount: number, source?: string) => void;
@@ -71,6 +77,8 @@ export interface CardInstance {
   removeAlteration: (alterationId: number) => void;
   addTag: (tag: Tag, isTemporary?: boolean, duration?: number) => void;
   removeTag: (tagId: number) => void;
+  addExperience?: (amount: number) => boolean; // Retourne true si le personnage monte de niveau
+  levelUp?: () => void;
   
   // Méthodes pour vérifier l'état
   hasTag: (tagId: number) => boolean;
