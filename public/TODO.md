@@ -115,7 +115,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] 🚀 Visualisation de l'inventaire
     - [ ] 🚀 Gestion des références aux cartes et leur quantité par niveau
     - [ ] ⚡ Filtres et recherche de cartes
-  - [ ] �� Gestion des decks
+  - [ ] 🚀 Gestion des decks
 - [ ] Concevoir l'interface de partie
   - [ ] 🔥 Zone de jeu tactile
   - [ ] 🔥 Affichage des informations de jeu
@@ -126,11 +126,11 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 ### 5.1 Système de Combat
 - [ ] Implémenter la gestion des instances de carte en combat
   - [x] 🔥 Créer la structure CardInstance distincte de CardDefinition
-  - [ ] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
-  - [ ] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
+  - [x] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
+  - [x] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
   - [ ] 🚀 Système de conversion Card→CardInstance au début du combat
   - [ ] ⚡ Nettoyage des instances à la fin du combat
-  - [ ] ⚡ Mécanisme de persistance sélective d'effets entre tours
+  - [x] ⚡ Mécanisme de persistance sélective d'effets entre tours
 - [ ] Développer le système de ciblage
   - [ ] 🔥 Ciblage aléatoire
   - [ ] 🚀 Ciblage manuel (option tactique)
