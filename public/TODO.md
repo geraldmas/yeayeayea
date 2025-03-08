@@ -140,7 +140,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 
 ### 5.2 Gestion des Ressources
 - [ ] Implémenter le système de motivation
-  - [ ] 🔥 Renouvellement par tour
+  - [x] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
 - [ ] Développer le système de charisme
   - [ ] 🔥 Acquisition et stockage

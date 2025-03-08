@@ -135,3 +135,14 @@ Author: geraldmas <geraldmasjesse@gmail.com>
 Date:   Thu Feb 27 21:39:42 2025 +0100
 
     Initialize project using Create React App
+[33mcommit 118d46b8a5d3a1550d42fc47c53f20dc83f89bde[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/game-board-tactile[m[33m)[m
+Author: geraldmas <geraldmasjesse@gmail.com>
+Date:   Sun Mar 9 00:28:25 2025 +0100
+
+    Mise à jour de la TODO liste pour marquer la tâche Zone de jeu tactile comme terminée
+
+[33mcommit 51b53a5162390bc64780a9d960c8d17cecacbf08[m
+Author: geraldmas <geraldmasjesse@gmail.com>
+Date:   Sun Mar 9 00:28:11 2025 +0100
+
+    Implémentation de la zone de jeu tactile

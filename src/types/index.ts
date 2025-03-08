@@ -145,10 +145,23 @@ export interface Player {
   benchCards: Card[];
   inventory: Card[];
   hand: Card[];
-  actionPoints: number;
+  motivation: number;
+  baseMotivation: number;
+  motivationModifiers: MotivationModifier[];
   movementPoints: number;
   points: number;
   effects: StatusEffect[];
+}
+
+/**
+ * Interface pour les modificateurs de motivation
+ */
+export interface MotivationModifier {
+  id: string;
+  value: number;
+  isPercentage: boolean;
+  source: string;
+  duration?: number;
 }
 
 export interface StatusEffect {
@@ -159,6 +172,9 @@ export interface StatusEffect {
   source: Card;
 }
 
+/**
+ * Interface représentant l'état du jeu
+ */
 export interface GameState {
   players: Player[];
   currentTurn: number;

@@ -1,0 +1,90 @@
+.motivation-display {
+  background-color: #2c3e50;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  transition: all 0.3s ease;
+}
+
+.motivation-display.active {
+  background-color: #34495e;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.motivation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.motivation-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #ecf0f1;
+}
+
+.motivation-value {
+  font-weight: bold;
+  color: #ecf0f1;
+  font-size: 1.1rem;
+}
+
+.motivation-bar-container {
+  height: 15px;
+  background-color: #7f8c8d;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.motivation-bar {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.motivation-modifiers {
+  margin-top: 10px;
+  border-top: 1px solid #7f8c8d;
+  padding-top: 10px;
+}
+
+.motivation-modifier {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: #bdc3c7;
+}
+
+.modifier-source {
+  flex-grow: 1;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modifier-value {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
+.modifier-value.positive {
+  color: #2ecc71;
+}
+
+.modifier-value.negative {
+  color: #e74c3c;
+}
+
+.modifier-duration {
+  font-size: 0.8rem;
+  color: #95a5a6;
+  font-style: italic;
+} 
