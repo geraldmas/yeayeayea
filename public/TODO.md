@@ -31,7 +31,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Gestion des sessions
   - [x] 🚀 Vérification d'administration
 - [ ] Développer le système de validation des données
-  - [ ] 🔥 Validation des cartes (type, coût, etc.)
+  - [x] 🔥 Validation des cartes (type, coût, etc.)
   - [ ] 🚀 Validation des relations (sorts, tags)
 - [ ] Créer les endpoints pour la gestion des boosters et collections
   - [x] 🚀 Création de base pour les boosters
@@ -66,14 +66,14 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 - [x] 🔥 Implémenter la structure de base pour les cartes Action
 - [x] 🔥 Implémenter la structure de base pour les cartes Événement
 - [ ] Développer les mécaniques spécifiques des cartes Personnage
-  - [ ] 🔥 Système de PV et niveau
+  - [x] 🔥 Système de PV et niveau
   - [ ] 🚀 Système de sorts et d'évolution
   - [ ] 🚀 Gestion avancée des tags
 - [ ] Développer les mécaniques spécifiques des cartes Lieu
-  - [ ] 🔥 Système de distribution initiale
+  - [x] 🔥 Système de distribution initiale
   - [ ] 🚀 Mécanique de sélection active
 - [ ] Développer les mécaniques spécifiques des cartes Objet
-  - [ ] 🔥 Système d'emplacements
+  - [x] 🔥 Système d'emplacements
   - [ ] 🚀 Effets passifs
   - [ ] 🚀 Système de vente en charisme
 
