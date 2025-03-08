@@ -59,11 +59,11 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 
 ## 3. Système de Cartes
 
-### 3.1 Types de Cartes
+### 3🔥.1 Types de Cartes
 - [x] 🔥 Implémenter la structure de base pour les cartes Personnage
 - [x] 🔥 Implémenter la structure de base pour les cartes Lieu
 - [x] 🔥 Implémenter la structure de base pour les cartes Objet
-- [x] 🔥 Implémenter la structure de base pour les cartes Action
+- [x]  Implémenter la structure de base pour les cartes Action
 - [x] 🔥 Implémenter la structure de base pour les cartes Événement
 - [ ] Développer les mécaniques spécifiques des cartes Personnage
   - [x] 🔥 Système de PV et niveau
@@ -117,7 +117,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
     - [ ] ⚡ Filtres et recherche de cartes
   - [ ] 🚀 Gestion des decks
 - [ ] Concevoir l'interface de partie
-  - [ ] 🔥 Zone de jeu tactile
+  - [x] 🔥 Zone de jeu tactile
   - [ ] 🔥 Affichage des informations de jeu
   - [ ] 🚀 Système de tour et actions
 
