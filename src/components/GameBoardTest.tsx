@@ -125,14 +125,14 @@ const GameBoardTest: React.FC = () => {
     createCardInstance(playerCards[8])
   );
   
-  // Cartes en main - Ajouter quelques cartes par défaut pour montrer la main
+  // Cartes en main - Ajouter quelques cartes par défaut pour montrer la main avec tous les types
   const [playerHand, setPlayerHand] = useState<Card[]>([
     playerCards[2], // Un personnage
     playerCards[5], // Un objet 
     playerCards[6], // Une action
-    playerCards[7], // Une action
-    createTestCard(15, 'Carte Test 1', 'personnage'),
-    createTestCard(16, 'Carte Test 2', 'objet')
+    createTestCard(15, 'Événement Secret', 'evenement'), // Carte événement face cachée
+    createTestCard(16, 'Action Spéciale', 'action'),
+    createTestCard(17, 'Autre Événement', 'evenement')
   ]);
   
   // Nombre de cartes dans la main adverse (faces cachées)
@@ -156,7 +156,26 @@ const GameBoardTest: React.FC = () => {
     
     const card = playerHand[cardIndex];
     
-    // Traiter en fonction de la zone cible
+    // Traitement spécial pour les cartes action et événement
+    if (card.type === 'action' || card.type === 'evenement') {
+      if (zone === 'activate') {
+        console.log(`Activation de la carte ${card.name} (${card.type}) !`);
+        
+        // Effet visuel temporaire pourrait être ajouté ici
+        
+        // Retirer la carte de la main après activation
+        const newHand = [...playerHand];
+        newHand.splice(cardIndex, 1);
+        setPlayerHand(newHand);
+        
+        // Ajouter à la défausse
+        setPlayerDiscardCount(prev => prev + 1);
+        
+        return;
+      }
+    }
+    
+    // Pour les cartes personnage et objet, continuer avec la logique existante
     if (zone === 'player-character' && card.type === 'personnage' && slot !== undefined) {
       // Ajouter un personnage sur le terrain
       const newCharacter = createCardInstance(card);

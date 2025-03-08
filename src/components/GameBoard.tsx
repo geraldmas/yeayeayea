@@ -67,7 +67,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
   const handleDrop = (e: React.DragEvent, zone: string, slot?: number) => {
     e.preventDefault();
     if (draggedCard && onCardDrop) {
-      onCardDrop(draggedCard.id, zone, slot);
+      // Gérer spécifiquement les cartes action qui peuvent être déposées n'importe où
+      if (draggedCard.type === 'action' || draggedCard.type === 'evenement') {
+        // Les cartes action et événement peuvent être activées où qu'elles soient déposées
+        onCardDrop(draggedCard.id, 'activate', slot);
+      } else {
+        // Pour les autres types de cartes, utiliser la logique standard
+        onCardDrop(draggedCard.id, zone, slot);
+      }
     }
     setDraggedCard(null);
   };
@@ -149,7 +156,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return slots;
   };
 
-  // Rendu de la main du joueur
+  // Rendu de la main du joueur avec gestion spéciale des cartes événement
   const renderPlayerHand = () => {
     return (
       <div className="player-hand-container">
@@ -159,25 +166,34 @@ const GameBoard: React.FC<GameBoardProps> = ({
             playerHand.map((card) => (
               <div 
                 key={`hand-card-${card.id}`}
-                className={`hand-card hand-card-${card.type}`}
+                className={`hand-card hand-card-${card.type} ${card.type === 'evenement' ? 'face-down' : ''}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, card)}
                 onClick={() => handleCardClick(card, 'player-hand')}
               >
-                <div className="card-name">{card.name}</div>
-                <div className="card-type">{card.type}</div>
-                {card.type === 'personnage' && card.properties && card.properties.health && (
-                  <div className="card-health">❤️ {card.properties.health}</div>
-                )}
-                {card.rarity && (
-                  <div className="card-rarity">{card.rarity}</div>
+                {card.type !== 'evenement' ? (
+                  <>
+                    <div className="card-name">{card.name}</div>
+                    <div className="card-type">{card.type}</div>
+                    {card.type === 'personnage' && card.properties && card.properties.health && (
+                      <div className="card-health">❤️ {card.properties.health}</div>
+                    )}
+                    {card.rarity && (
+                      <div className="card-rarity">{card.rarity}</div>
+                    )}
+                    {card.type === 'action' && (
+                      <div className="action-indicator">Activable partout</div>
+                    )}
+                  </>
+                ) : (
+                  <div className="event-card-back">Événement</div>
                 )}
               </div>
             ))
           ) : (
             <div className="empty-hand-message">
               <span>Aucune carte en main</span>
-              <div className="hand-hint">Utilisez le bouton "Ajouter une carte à votre main" ci-dessous</div>
+              <div className="hand-hint">Utilisez le bouton "Piocher une carte" ci-dessous</div>
             </div>
           )}
         </div>
