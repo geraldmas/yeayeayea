@@ -16,6 +16,30 @@ export interface CardInstance {
   currentHealth: number;
   maxHealth: number;
   
+  // Statistiques temporaires (peuvent être modifiées par des altérations)
+  temporaryStats: {
+    attack: number;
+    defense: number;
+    [key: string]: number;
+  };
+  
+  // Historique des changements de PV pour faciliter le débogage et l'affichage
+  damageHistory: Array<{
+    type: 'damage' | 'heal';
+    amount: number;
+    source?: string;
+    timestamp: number;
+  }>;
+  
+  // Effets actifs par catégorie (pour faciliter les calculs)
+  activeEffects: {
+    [key: string]: Array<{
+      value: number;
+      source: string;
+      isPercentage: boolean;
+    }>;
+  };
+  
   // Position sur le terrain
   position?: {
     x: number;
@@ -41,8 +65,8 @@ export interface CardInstance {
   };
 
   // Méthodes pour manipuler l'état
-  applyDamage: (amount: number) => void;
-  heal: (amount: number) => void;
+  applyDamage: (amount: number, source?: string) => void;
+  heal: (amount: number, source?: string) => void;
   addAlteration: (alteration: Alteration, source: CardInstance) => void;
   removeAlteration: (alterationId: number) => void;
   addTag: (tag: Tag, isTemporary?: boolean, duration?: number) => void;
@@ -54,8 +78,14 @@ export interface CardInstance {
   canUseSpell: (spellId: number) => boolean;
   canAttack: () => boolean;
   
+  // Nouvelle méthode pour appliquer les effets des altérations actives
+  applyAlterationEffects: () => void;
+  
   // Restaure la carte à la fin du tour
   resetForNextTurn: () => void;
+  
+  // Recalcule les statistiques temporaires basées sur les altérations actives
+  recalculateTemporaryStats: () => void;
 }
 
 /**
@@ -63,7 +93,7 @@ export interface CardInstance {
  */
 export interface ActiveAlteration {
   alteration: Alteration;
-  remainingDuration: number;
+  remainingDuration: number | null; // null pour les altérations permanentes
   stackCount: number;
   source: CardInstance;
 }

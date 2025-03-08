@@ -24,6 +24,13 @@ export class CardInstanceImpl implements CardInstance {
   public isExhausted: boolean;
   public isTapped: boolean;
   public counters: { [key: string]: number };
+  public temporaryStats: { 
+    attack: number;
+    defense: number;
+    [key: string]: number;
+  };
+  public damageHistory: Array<{ type: 'damage' | 'heal', amount: number, source?: string, timestamp: number }>;
+  public activeEffects: { [key: string]: Array<{ value: number, source: string, isPercentage: boolean }> };
 
   constructor(card: Card) {
     this.instanceId = uuidv4();
@@ -44,24 +51,52 @@ export class CardInstanceImpl implements CardInstance {
     
     // Initialiser les compteurs
     this.counters = {};
+    
+    // Initialiser les statistiques temporaires
+    this.temporaryStats = {
+      attack: card.properties.attack || 0,
+      defense: card.properties.defense || 0
+    };
+    
+    // Initialiser l'historique des dégâts
+    this.damageHistory = [];
+    
+    // Initialiser les effets actifs
+    this.activeEffects = {};
   }
 
   // Méthodes pour manipuler l'état
-  public applyDamage(amount: number): void {
+  public applyDamage(amount: number, source?: string): void {
     // Appliquer les modificateurs de dégâts des altérations
     const modifiedAmount = this.applyDamageModifiers(amount);
     
     this.currentHealth = Math.max(0, this.currentHealth - modifiedAmount);
     
+    // Enregistrer dans l'historique
+    this.damageHistory.push({
+      type: 'damage',
+      amount: modifiedAmount,
+      source,
+      timestamp: Date.now()
+    });
+    
     // Déclencher des effets éventuels liés aux dégâts
     this.triggerOnDamageEffects(modifiedAmount);
   }
 
-  public heal(amount: number): void {
+  public heal(amount: number, source?: string): void {
     // Appliquer les modificateurs de soin des altérations
     const modifiedAmount = this.applyHealModifiers(amount);
     
     this.currentHealth = Math.min(this.maxHealth, this.currentHealth + modifiedAmount);
+    
+    // Enregistrer dans l'historique
+    this.damageHistory.push({
+      type: 'heal',
+      amount: modifiedAmount,
+      source,
+      timestamp: Date.now()
+    });
     
     // Déclencher des effets éventuels liés aux soins
     this.triggerOnHealEffects(modifiedAmount);
@@ -77,22 +112,28 @@ export class CardInstanceImpl implements CardInstance {
       // Incrémenter le compteur si l'altération est empilable
       existingAlteration.stackCount += 1;
       // Réinitialiser la durée
-      existingAlteration.remainingDuration = alteration.duration || 0;
+      existingAlteration.remainingDuration = alteration.duration || null;
     } else if (!existingAlteration) {
       // Ajouter une nouvelle altération
       this.activeAlterations.push({
         alteration,
-        remainingDuration: alteration.duration || 0,
+        remainingDuration: alteration.duration || null,
         stackCount: 1,
         source
       });
     }
+    
+    // Recalculer les statistiques temporaires
+    this.recalculateTemporaryStats();
   }
 
   public removeAlteration(alterationId: number): void {
     this.activeAlterations = this.activeAlterations.filter(
       a => a.alteration.id !== alterationId
     );
+    
+    // Recalculer les statistiques temporaires
+    this.recalculateTemporaryStats();
   }
 
   public addTag(tag: Tag, isTemporary: boolean = false, duration?: number): void {
@@ -105,11 +146,22 @@ export class CardInstanceImpl implements CardInstance {
         isTemporary,
         remainingDuration: duration
       });
+      
+      // Recalculer les statistiques temporaires si nécessaire
+      if (tag.passive_effect) {
+        this.recalculateTemporaryStats();
+      }
     }
   }
 
   public removeTag(tagId: number): void {
+    const removedTag = this.activeTags.find(t => t.tag.id === tagId);
     this.activeTags = this.activeTags.filter(t => t.tag.id !== tagId);
+    
+    // Recalculer les statistiques temporaires si nécessaire
+    if (removedTag && removedTag.tag.passive_effect) {
+      this.recalculateTemporaryStats();
+    }
   }
 
   // Méthodes pour vérifier l'état
@@ -130,24 +182,46 @@ export class CardInstanceImpl implements CardInstance {
     return !this.isExhausted && !this.isTapped && this.currentHealth > 0;
   }
 
+  /**
+   * Applique les effets des altérations actives (comme les dégâts sur la durée)
+   */
+  public applyAlterationEffects(): void {
+    this.activeAlterations.forEach(alteration => {
+      const effect = alteration.alteration.effect;
+      
+      if (effect.action === 'damage_over_time' && effect.value) {
+        const damage = effect.value * alteration.stackCount;
+        this.applyDamage(damage, `Altération: ${alteration.alteration.name}`);
+      } else if (effect.action === 'heal_over_time' && effect.value) {
+        const heal = effect.value * alteration.stackCount;
+        this.heal(heal, `Altération: ${alteration.alteration.name}`);
+      }
+      // Appliquer d'autres types d'effets périodiques ici
+    });
+  }
+
   public resetForNextTurn(): void {
     // Réinitialiser l'état d'épuisement
     this.isExhausted = false;
     this.isTapped = false;
     
     // Réduire la durée des altérations et supprimer celles expirées
+    const alterationsBeforeUpdate = [...this.activeAlterations];
+    
     this.activeAlterations = this.activeAlterations
       .map(alteration => {
-        if (alteration.remainingDuration > 0) {
+        if (alteration.remainingDuration !== null && alteration.remainingDuration > 0) {
           alteration.remainingDuration -= 1;
         }
         return alteration;
       })
       .filter(alteration => 
-        alteration.remainingDuration > 0 || alteration.remainingDuration === null
+        alteration.remainingDuration === null || alteration.remainingDuration > 0
       );
     
     // Réduire la durée des tags temporaires et supprimer ceux expirés
+    const tagsBeforeUpdate = [...this.activeTags];
+    
     this.activeTags = this.activeTags
       .filter(tag => {
         if (!tag.isTemporary) return true;
@@ -165,6 +239,50 @@ export class CardInstanceImpl implements CardInstance {
       spell.isAvailable = spell.cooldown === 0;
       return spell;
     });
+    
+    // Recalculer les statistiques si des altérations ou tags ont été modifiés
+    if (
+      alterationsBeforeUpdate.length !== this.activeAlterations.length ||
+      tagsBeforeUpdate.length !== this.activeTags.length
+    ) {
+      this.recalculateTemporaryStats();
+    }
+  }
+  
+  /**
+   * Recalcule toutes les statistiques temporaires en fonction des altérations actives
+   */
+  public recalculateTemporaryStats(): void {
+    // Réinitialiser les statistiques aux valeurs de base
+    this.temporaryStats = {
+      attack: this.cardDefinition.properties.attack || 0,
+      defense: this.cardDefinition.properties.defense || 0
+    };
+    
+    // Réinitialiser les effets actifs
+    this.activeEffects = {};
+    
+    // Appliquer les effets des altérations
+    this.activeAlterations.forEach(alteration => {
+      const effect = alteration.alteration.effect;
+      
+      if (effect.action === 'modify_attack' && effect.value !== undefined) {
+        this.applyStatModifier('attack', effect.value, alteration.stackCount, alteration.alteration.name);
+      } else if (effect.action === 'modify_defense' && effect.value !== undefined) {
+        this.applyStatModifier('defense', effect.value, alteration.stackCount, alteration.alteration.name);
+      }
+      
+      // Gérer d'autres types de modifications de statistiques
+    });
+    
+    // Appliquer les effets passifs des tags
+    this.activeTags.forEach(tagInstance => {
+      // Ici, on pourrait parser l'effet passif du tag et l'appliquer
+      // Pour l'instant, c'est une implémentation simplifiée
+      if (tagInstance.tag.passive_effect && tagInstance.tag.passive_effect.includes('defense+1')) {
+        this.applyStatModifier('defense', 1, 1, `Tag: ${tagInstance.tag.name}`);
+      }
+    });
   }
 
   // Méthodes privées d'aide
@@ -175,11 +293,11 @@ export class CardInstanceImpl implements CardInstance {
     this.activeAlterations.forEach(alteration => {
       const effect = alteration.alteration.effect;
       
-      if (effect.action === 'modify_damage_taken') {
+      if (effect.action === 'modify_damage_taken' || effect.action === 'modify_damage_taken_multiply') {
         // Multiplie ou ajoute selon le type d'effet
         if (effect.value !== undefined) {
           if (typeof effect.value === 'number') {
-            if (effect.action.startsWith('multiply')) {
+            if (effect.action.includes('multiply')) {
               modifiedAmount *= effect.value;
             } else {
               modifiedAmount += effect.value;
@@ -238,6 +356,37 @@ export class CardInstanceImpl implements CardInstance {
         console.log(`Effet déclenché sur soin: ${alteration.alteration.name}`);
       }
     });
+  }
+  
+  /**
+   * Applique un modificateur à une statistique
+   */
+  private applyStatModifier(
+    statName: string, 
+    value: number, 
+    stackCount: number = 1,
+    sourceName: string = 'unknown',
+    isPercentage: boolean = false
+  ): void {
+    // Enregistrer l'effet
+    if (!this.activeEffects[statName]) {
+      this.activeEffects[statName] = [];
+    }
+    
+    this.activeEffects[statName].push({
+      value: value * stackCount,
+      source: sourceName,
+      isPercentage
+    });
+    
+    // Appliquer à la statistique
+    if (isPercentage) {
+      // Pour les effets en pourcentage, on les appliquera à la fin
+      // après avoir cumulé tous les effets additifs
+    } else {
+      // Pour les effets additifs, on les applique directement
+      this.temporaryStats[statName] = (this.temporaryStats[statName] || 0) + (value * stackCount);
+    }
   }
 }
 

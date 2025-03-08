@@ -72,6 +72,7 @@ export interface Alteration {
   type: 'buff' | 'debuff' | 'status' | 'other';
   created_at?: string;
   updated_at?: string;
+  color?: string;
 }
 
 export interface Tag {
