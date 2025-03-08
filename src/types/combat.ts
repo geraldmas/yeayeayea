@@ -149,7 +149,7 @@ export interface SpellInstance {
 /**
  * Type de cible pour les actions et sorts
  */
-export type TargetType = 'self' | 'opponent' | 'all' | 'tagged' | 'random';
+export type TargetType = 'self' | 'opponent' | 'all' | 'tagged' | 'random' | 'manual';
 
 /**
  * Configuration pour la distribution des cartes Lieu
@@ -179,20 +179,48 @@ export interface LieuDistributionResult {
 export interface CombatManager {
   cardInstances: CardInstance[];
   
-  // Méthodes de gestion du combat
-  initializeCardInstance: (card: Card) => CardInstance;
-  executeAttack: (attacker: CardInstance, target: CardInstance) => void;
-  castSpell: (caster: CardInstance, spell: Spell, targets: CardInstance[]) => void;
-  applyAlterations: () => void;
-  checkForDefeated: () => CardInstance[];
+  // Méthodes pour la gestion des instances de carte
+  convertCardToInstance(card: Card, tags?: Tag[], spells?: Spell[]): CardInstance;
   
-  // Méthodes de ciblage
-  getValidTargets: (source: CardInstance, targetType: TargetType, tagId?: number) => CardInstance[];
-  getRandomTarget: (source: CardInstance, targetType: TargetType) => CardInstance | null;
+  // Ciblage
+  getValidTargets(source: CardInstance, targetType: TargetType, tagId?: number): CardInstance[];
+  getRandomTarget(source: CardInstance, targetType: TargetType, tagId?: number): CardInstance | null;
+  getRandomTargets(source: CardInstance, targetType: TargetType, count: number, tagId?: number, uniqueTargets?: boolean): CardInstance[];
+  getWeightedRandomTarget(source: CardInstance, targetType: TargetType, weightFunction: (card: CardInstance) => number, tagId?: number): CardInstance | null;
   
-  // Méthodes de gestion des cartes Lieu
-  distributeLieuCards: (players: CardInstance[][], config: LieuDistributionConfig) => LieuDistributionResult;
-  selectRandomActiveLieu: (commonLieuCards: CardInstance[]) => CardInstance | null;
-  changeLieuCard: (newLieuCard: CardInstance) => void;
-  getActiveLieuCard: () => CardInstance | null;
+  // Nouvelle méthode pour le ciblage manuel
+  getManualTargets(source: CardInstance, criteria?: TargetingCriteria): CardInstance[];
+  
+  // Gestion des lieux
+  distributeLieuCards(config: LieuDistributionConfig): LieuDistributionResult;
+  changeLieuCard(newLieuCard: CardInstance): void;
+  getActiveLieuCard(): CardInstance | null;
+}
+
+/**
+ * Interface pour les critères de ciblage manuel
+ */
+export interface TargetingCriteria {
+  // Types de critères possibles
+  byTag?: number[];       // Ciblage par tags
+  byRarity?: string[];    // Ciblage par rareté
+  byHealthPercent?: {     // Ciblage par pourcentage de santé
+    min?: number;
+    max?: number;
+  };
+  excludeTags?: number[]; // Tags à exclure
+}
+
+/**
+ * Interface pour la gestion des options de ciblage manuel
+ */
+export interface ManualTargetingOptions {
+  card: CardInstance;          // Carte qui effectue l'action
+  possibleTargets: CardInstance[]; // Cibles possibles
+  criteria?: TargetingCriteria;    // Critères optionnels pour filtrer les cibles
+  spell?: SpellInstance;       // Sort associé à l'action, si applicable
+  maxTargets?: number;         // Nombre maximum de cibles sélectionnables
+  minTargets?: number;         // Nombre minimum de cibles nécessaires
+  onTargetSelected: (targets: CardInstance[]) => void; // Callback appelé lors de la sélection
+  onCancel: () => void;        // Callback appelé si l'utilisateur annule
 } 

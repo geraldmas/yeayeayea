@@ -9,7 +9,8 @@ import {
   CombatManager,
   LieuDistributionConfig,
   LieuDistributionResult,
-  ObjectSlot
+  ObjectSlot,
+  TargetingCriteria
 } from '../types/combat';
 import { CardConversionService } from './cardConversionService';
 import { LieuCardService } from './lieuCardService';
@@ -607,6 +608,7 @@ export class CombatManagerImpl implements CombatManager {
   private cardConversionService: CardConversionService;
   private lieuCardService: LieuCardService;
   private actionResolutionService: ActionResolutionService;
+  private activeLieuCard: CardInstance | null = null;
 
   constructor() {
     this.cardConversionService = new CardConversionService();
@@ -813,10 +815,75 @@ export class CombatManagerImpl implements CombatManager {
       case 'random':
         // Géré par la méthode getRandomTarget
         return [];
+        
+      case 'manual':
+        // Pour le ciblage manuel, on retourne par défaut tous les adversaires
+        // Le filtrage spécifique sera fait par getManualTargets
+        return this.cardInstances.filter(card => card.instanceId !== source.instanceId);
       
       default:
         return [];
     }
+  }
+
+  /**
+   * Obtient une liste de cibles potentielles pour le ciblage manuel
+   * @param source La carte source de l'action
+   * @param criteria Critères optionnels pour filtrer les cibles potentielles
+   * @returns Liste de cibles potentielles pour un ciblage manuel
+   */
+  public getManualTargets(source: CardInstance, criteria?: TargetingCriteria): CardInstance[] {
+    // Commencer avec les adversaires comme cibles potentielles par défaut
+    let potentialTargets = this.cardInstances.filter(card => card.instanceId !== source.instanceId);
+    
+    // Si aucun critère n'est spécifié, retourner toutes les cibles potentielles
+    if (!criteria) {
+      return potentialTargets;
+    }
+    
+    // Filtrer par tags si spécifié
+    if (criteria.byTag && criteria.byTag.length > 0) {
+      potentialTargets = potentialTargets.filter(card => {
+        // La carte doit avoir au moins un des tags spécifiés
+        return criteria.byTag!.some(tagId => card.hasTag(tagId));
+      });
+    }
+    
+    // Filtrer par rareté si spécifié
+    if (criteria.byRarity && criteria.byRarity.length > 0) {
+      potentialTargets = potentialTargets.filter(card => {
+        return criteria.byRarity!.includes(card.cardDefinition.rarity);
+      });
+    }
+    
+    // Filtrer par pourcentage de santé si spécifié
+    if (criteria.byHealthPercent) {
+      potentialTargets = potentialTargets.filter(card => {
+        const healthPercent = (card.currentHealth / card.maxHealth) * 100;
+        
+        // Vérifier le seuil minimum si spécifié
+        if (criteria.byHealthPercent!.min !== undefined && healthPercent < criteria.byHealthPercent!.min) {
+          return false;
+        }
+        
+        // Vérifier le seuil maximum si spécifié
+        if (criteria.byHealthPercent!.max !== undefined && healthPercent > criteria.byHealthPercent!.max) {
+          return false;
+        }
+        
+        return true;
+      });
+    }
+    
+    // Exclure les cartes ayant certains tags
+    if (criteria.excludeTags && criteria.excludeTags.length > 0) {
+      potentialTargets = potentialTargets.filter(card => {
+        // La carte ne doit avoir aucun des tags à exclure
+        return !criteria.excludeTags!.some(tagId => card.hasTag(tagId));
+      });
+    }
+    
+    return potentialTargets;
   }
 
   public getRandomTarget(source: CardInstance, targetType: TargetType, tagId?: number): CardInstance | null {
@@ -950,15 +1017,12 @@ export class CombatManagerImpl implements CombatManager {
 
   /**
    * Distribue les cartes Lieu pour le début d'une partie
-   * @param players Tableau de cartes par joueur
    * @param config Configuration de distribution des cartes Lieu
    * @returns Résultat de la distribution
    */
-  public distributeLieuCards(
-    players: CardInstance[][],
-    config: LieuDistributionConfig
-  ): LieuDistributionResult {
-    return this.lieuCardService.distributeLieuCards(players, config);
+  public distributeLieuCards(config: LieuDistributionConfig): LieuDistributionResult {
+    // Déléguer au service spécialisé
+    return this.lieuCardService.distributeLieuCards(config);
   }
   
   /**
@@ -984,5 +1048,16 @@ export class CombatManagerImpl implements CombatManager {
    */
   public getActiveLieuCard(): CardInstance | null {
     return this.lieuCardService.getActiveLieuCard();
+  }
+
+  /**
+   * Convertit une carte en instance de carte pour le combat
+   * @param card La carte à convertir
+   * @param tags Tags optionnels à associer à la carte
+   * @param spells Sorts optionnels à associer à la carte
+   * @returns L'instance de carte créée
+   */
+  public convertCardToInstance(card: Card, tags?: Tag[], spells?: Spell[]): CardInstance {
+    return this.cardConversionService.convertCardToInstance(card, tags, spells);
   }
 } 

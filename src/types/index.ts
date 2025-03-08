@@ -28,7 +28,7 @@ export interface Spell {
 export interface SpellEffect {
   type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration';
   value: number; 
-  targetType?: 'self' | 'opponent' | 'all' | 'tagged';
+  targetType?: 'self' | 'opponent' | 'all' | 'tagged' | 'manual';
   tagTarget?: string;
   chance?: number;
   duration?: number;
@@ -45,6 +45,15 @@ export interface SpellEffect {
     };
   };
   alteration?: number;
+  manualTargetingCriteria?: {
+    byTag?: number[];
+    byRarity?: string[];
+    byHealthPercent?: {
+      min?: number;
+      max?: number;
+    };
+    excludeTags?: number[];
+  };
 }
 
 export interface AlterationEffect {

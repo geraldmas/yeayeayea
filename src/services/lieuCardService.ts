@@ -5,6 +5,7 @@ import {
   LieuDistributionConfig,
   LieuDistributionResult
 } from '../types/combat';
+import { CardInstanceImpl } from './combatService';
 
 /**
  * Service de gestion des cartes Lieu
@@ -20,48 +21,39 @@ export class LieuCardService {
 
   /**
    * Distribue les cartes Lieu au début de la partie
-   * @param players Tableaux de cartes de chaque joueur
    * @param config Configuration de distribution des cartes Lieu
    * @returns Le résultat de la distribution
    */
   public distributeLieuCards(
-    players: CardInstance[][],
     config: LieuDistributionConfig
   ): LieuDistributionResult {
-    // Vérifier qu'il y a suffisamment de joueurs
-    if (players.length < 2) {
-      throw new Error('Au moins deux joueurs sont nécessaires pour distribuer les cartes Lieu');
-    }
-
-    // Extraire les cartes Lieu de chaque joueur
-    const lieuCardsFromPlayers: CardInstance[] = [];
+    // Pour cette implémentation simplifiée, nous allons créer des cartes lieu fictives
+    // Dans une implémentation réelle, ces cartes seraient chargées depuis une source de données
     
-    players.forEach(playerCards => {
-      // Filtrer les cartes de type 'lieu'
-      const playerLieuCards = playerCards.filter(
-        card => card.cardDefinition.type === 'lieu'
-      );
-      
-      // Vérifier que le joueur a suffisamment de cartes Lieu
-      if (playerLieuCards.length < config.lieuCardsPerPlayer) {
-        throw new Error(`Chaque joueur doit avoir au moins ${config.lieuCardsPerPlayer} cartes Lieu`);
-      }
-      
-      // Prendre seulement le nombre configuré de cartes Lieu par joueur
-      const selectedLieuCards = playerLieuCards.slice(0, config.lieuCardsPerPlayer);
-      lieuCardsFromPlayers.push(...selectedLieuCards);
-    });
+    const mockLieuCards: CardInstance[] = [];
     
-    // Vérifier qu'il y a suffisamment de cartes Lieu au total
-    if (lieuCardsFromPlayers.length < config.totalCommonLieuCards) {
-      throw new Error(`Il n'y a pas assez de cartes Lieu entre les joueurs pour atteindre le total requis de ${config.totalCommonLieuCards}`);
+    // Création de cartes Lieu fictives pour la simulation
+    for (let i = 0; i < config.totalCommonLieuCards; i++) {
+      const mockCardDef: Card = {
+        id: 1000 + i,
+        name: `Lieu ${i + 1}`,
+        type: 'lieu',
+        rarity: 'interessant',
+        description: `Description du lieu ${i + 1}`,
+        image: '',
+        properties: {},
+        is_wip: false,
+        is_crap: false,
+        summon_cost: 0,
+        passive_effect: null
+      };
+      
+      const mockLieuCard = new CardInstanceImpl(mockCardDef);
+      mockLieuCards.push(mockLieuCard);
     }
     
-    // Mélanger les cartes Lieu des joueurs
-    const shuffledLieuCards = this.shuffleArray(lieuCardsFromPlayers);
-    
-    // Sélectionner le nombre configuré de cartes Lieu pour la mise en commun
-    this.commonLieuCards = shuffledLieuCards.slice(0, config.totalCommonLieuCards);
+    // Mélanger les cartes Lieu
+    this.commonLieuCards = this.shuffleArray(mockLieuCards);
     
     // Sélectionner aléatoirement une carte Lieu active
     this.activeLieuCard = this.selectRandomActiveLieu(this.commonLieuCards);
