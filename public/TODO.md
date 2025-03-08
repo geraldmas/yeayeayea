@@ -80,7 +80,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 ### 3.2 Système de Tags
 - [x] 🔥 Créer l'interface de gestion des tags
 - [ ] Développer le moteur de règles pour les tags
-  - [ ] 🔥 Parser de règles pour les effets
+  - [x] 🔥 Parser de règles pour les effets
   - [ ] 🚀 Système d'évaluation des effets
   - [ ] 🚀 Gestion des priorités d'application
 - [ ] Implémenter les synergies entre tags
