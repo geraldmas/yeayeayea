@@ -8,6 +8,7 @@ import {
   TargetType, 
   CombatManager 
 } from '../types/combat';
+import { CardConversionService } from './cardConversionService';
 
 /**
  * Implémentation de l'interface CardInstance
@@ -395,13 +396,15 @@ export class CardInstanceImpl implements CardInstance {
  */
 export class CombatManagerImpl implements CombatManager {
   public cardInstances: CardInstance[] = [];
+  private cardConversionService: CardConversionService;
 
   constructor() {
-    this.cardInstances = [];
+    this.cardConversionService = new CardConversionService();
   }
 
   public initializeCardInstance(card: Card): CardInstance {
-    const cardInstance = new CardInstanceImpl(card);
+    // Utiliser le service de conversion pour créer une instance
+    const cardInstance = this.cardConversionService.convertCardToInstance(card);
     this.cardInstances.push(cardInstance);
     return cardInstance;
   }
