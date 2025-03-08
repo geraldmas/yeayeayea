@@ -6,7 +6,7 @@ import TagList from './TagList';
 import CardPreview from './CardPreview';
 import { updateCard, insertCard } from '../utils/supabaseClient';
 import { updateCardSpells, updateCardTags } from '../utils/supabaseUtils';
-import { getCardSpells, getCardTags } from '../utils/validation';
+import { getCardSpells, getCardTags, validateCard } from '../utils/validation';
 import './CardForm.css';
 
 // Add this interface for toast notifications
@@ -239,22 +239,6 @@ const CardForm: React.FC<CardFormProps> = ({
     }));
   };
 
-  // Add validation before sending to API
-  const validateCard = async (card: Card): Promise<string[]> => {
-    const requiredFields = ['name', 'type', 'rarity'];
-    const missingFields = requiredFields.filter(field => !card[field as keyof Card]);
-    
-    if (missingFields.length > 0) {
-      return missingFields;
-    }
-    
-    if (card.type === 'personnage' && (!card.properties?.health || card.properties.health <= 0)) {
-      return ['Personnages must have health greater than 0'];
-    }
-    
-    return [];
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -268,7 +252,7 @@ const CardForm: React.FC<CardFormProps> = ({
       // Vérifions que les propriétés de base sont valides
       console.log('Carte avant validation:', JSON.stringify(localCard));
 
-      // Valider la carte avant la sauvegarde
+      // Valider la carte avant la sauvegarde en utilisant le système de validation amélioré
       const validationErrors = await validateCard(localCard);
       if (validationErrors.length > 0) {
         showToast('Erreurs de validation : ' + validationErrors.join(', '), 'error');
