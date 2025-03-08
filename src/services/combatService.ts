@@ -6,9 +6,12 @@ import {
   TagInstance, 
   SpellInstance, 
   TargetType, 
-  CombatManager 
+  CombatManager,
+  LieuDistributionConfig,
+  LieuDistributionResult
 } from '../types/combat';
 import { CardConversionService } from './cardConversionService';
+import { LieuCardService } from './lieuCardService';
 
 /**
  * Implémentation de l'interface CardInstance
@@ -397,9 +400,11 @@ export class CardInstanceImpl implements CardInstance {
 export class CombatManagerImpl implements CombatManager {
   public cardInstances: CardInstance[] = [];
   private cardConversionService: CardConversionService;
+  private lieuCardService: LieuCardService;
 
   constructor() {
     this.cardConversionService = new CardConversionService();
+    this.lieuCardService = new LieuCardService();
   }
 
   public initializeCardInstance(card: Card): CardInstance {
@@ -653,5 +658,43 @@ export class CombatManagerImpl implements CombatManager {
     
     // En cas d'erreur de calcul, retourner la dernière cible
     return validTargets[validTargets.length - 1];
+  }
+
+  /**
+   * Distribue les cartes Lieu pour le début d'une partie
+   * @param players Tableau de cartes par joueur
+   * @param config Configuration de distribution des cartes Lieu
+   * @returns Résultat de la distribution
+   */
+  public distributeLieuCards(
+    players: CardInstance[][],
+    config: LieuDistributionConfig
+  ): LieuDistributionResult {
+    return this.lieuCardService.distributeLieuCards(players, config);
+  }
+  
+  /**
+   * Sélectionne aléatoirement une carte Lieu active
+   * @param commonLieuCards Cartes Lieu disponibles
+   * @returns La carte Lieu sélectionnée ou null si aucune carte disponible
+   */
+  public selectRandomActiveLieu(commonLieuCards: CardInstance[]): CardInstance | null {
+    return this.lieuCardService.selectRandomActiveLieu(commonLieuCards);
+  }
+  
+  /**
+   * Change la carte Lieu active
+   * @param newLieuCard Nouvelle carte Lieu à activer
+   */
+  public changeLieuCard(newLieuCard: CardInstance): void {
+    this.lieuCardService.changeLieuCard(newLieuCard);
+  }
+  
+  /**
+   * Retourne la carte Lieu active
+   * @returns La carte Lieu active ou null si aucune n'est active
+   */
+  public getActiveLieuCard(): CardInstance | null {
+    return this.lieuCardService.getActiveLieuCard();
   }
 } 

@@ -130,6 +130,28 @@ export interface SpellInstance {
 export type TargetType = 'self' | 'opponent' | 'all' | 'tagged' | 'random';
 
 /**
+ * Configuration pour la distribution des cartes Lieu
+ */
+export interface LieuDistributionConfig {
+  // Nombre de cartes lieu par joueur dans son booster
+  lieuCardsPerPlayer: number;
+  
+  // Nombre total de cartes lieu mises en commun
+  totalCommonLieuCards: number;
+}
+
+/**
+ * Résultat de la distribution des cartes Lieu
+ */
+export interface LieuDistributionResult {
+  // Cartes lieu mises en commun (incluant celles des deux joueurs)
+  commonLieuCards: CardInstance[];
+  
+  // Carte lieu active actuellement
+  activeLieuCard: CardInstance | null;
+}
+
+/**
  * Gestionnaire de combat
  */
 export interface CombatManager {
@@ -145,4 +167,10 @@ export interface CombatManager {
   // Méthodes de ciblage
   getValidTargets: (source: CardInstance, targetType: TargetType, tagId?: number) => CardInstance[];
   getRandomTarget: (source: CardInstance, targetType: TargetType) => CardInstance | null;
+  
+  // Méthodes de gestion des cartes Lieu
+  distributeLieuCards: (players: CardInstance[][], config: LieuDistributionConfig) => LieuDistributionResult;
+  selectRandomActiveLieu: (commonLieuCards: CardInstance[]) => CardInstance | null;
+  changeLieuCard: (newLieuCard: CardInstance) => void;
+  getActiveLieuCard: () => CardInstance | null;
 } 
