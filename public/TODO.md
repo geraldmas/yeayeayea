@@ -31,7 +31,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Gestion des sessions
   - [x] 🚀 Vérification d'administration
 - [ ] Développer le système de validation des données
-  - [ ] 🔥 Validation des cartes (type, coût, etc.)
+  - [x] 🔥 Validation des cartes (type, coût, etc.)
   - [ ] 🚀 Validation des relations (sorts, tags)
 - [ ] Créer les endpoints pour la gestion des boosters et collections
   - [x] 🚀 Création de base pour les boosters
@@ -73,7 +73,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] 🔥 Système de distribution initiale
   - [ ] 🚀 Mécanique de sélection active
 - [ ] Développer les mécaniques spécifiques des cartes Objet
-  - [ ] 🔥 Système d'emplacements
+  - [ ] 🔥 Système d'emplacements (sur le terrain, pas de système d'équipement !)
   - [ ] 🚀 Effets passifs
   - [ ] 🚀 Système de vente en charisme
 
@@ -113,7 +113,9 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] ⚡ Système de monnaie et ressources
 - [ ] Créer le module de collection/inventaire
   - [ ] 🚀 Visualisation de l'inventaire
-  - [ ] 🚀 Gestion des decks
+    - [ ] 🚀 Gestion des références aux cartes et leur quantité par niveau
+    - [ ] ⚡ Filtres et recherche de cartes
+  - [ ] �� Gestion des decks
 - [ ] Concevoir l'interface de partie
   - [ ] 🔥 Zone de jeu tactile
   - [ ] 🔥 Affichage des informations de jeu
@@ -122,9 +124,13 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 ## 5. Mécaniques de Jeu
 
 ### 5.1 Système de Combat
-- [ ] Implémenter le système de tour
-  - [ ] 🔥 Gestion du budget de motivation
-  - [ ] 🚀 Système de déploiement des actions
+- [ ] Implémenter la gestion des instances de carte en combat
+  - [x] 🔥 Créer la structure CardInstance distincte de CardDefinition
+  - [ ] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
+  - [ ] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
+  - [ ] 🚀 Système de conversion Card→CardInstance au début du combat
+  - [ ] ⚡ Nettoyage des instances à la fin du combat
+  - [ ] ⚡ Mécanisme de persistance sélective d'effets entre tours
 - [ ] Développer le système de ciblage
   - [ ] 🔥 Ciblage aléatoire
   - [ ] 🚀 Ciblage manuel (option tactique)
