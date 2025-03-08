@@ -217,7 +217,13 @@ const GameBoardTest: React.FC = () => {
         <button onClick={() => setOpponentHandCount(prev => prev + 1)}>
           Ajouter une carte à la main adverse
         </button>
-        <button onClick={() => setPlayerDeckCount(prev => Math.max(0, prev - 1))}>
+        <button onClick={() => {
+          // Réduire le nombre de cartes dans le deck
+          setPlayerDeckCount(prev => Math.max(0, prev - 1));
+          // Ajouter une carte aléatoire à la main du joueur
+          const randomCard = playerCards[Math.floor(Math.random() * playerCards.length)];
+          setPlayerHand(prev => [...prev, randomCard]);
+        }}>
           Piocher une carte
         </button>
         <button onClick={() => {
@@ -230,12 +236,6 @@ const GameBoardTest: React.FC = () => {
           }
         }}>
           Endommager le 1er personnage
-        </button>
-        <button onClick={() => {
-          const randomCard = playerCards[Math.floor(Math.random() * playerCards.length)];
-          setPlayerHand(prev => [...prev, randomCard]);
-        }}>
-          Ajouter une carte à votre main
         </button>
       </div>
     </div>
