@@ -38,7 +38,52 @@
   - `unique_effect`: A un effet unique
   - `effect`: Configuration détaillée de l'effet
  
+#### 2.4 Système de Tags et Règles
+- **Concept** : Les tags permettent de créer des synergies entre cartes via un système de règles dynamiques
+- **Types d'effets** :
+  - `charismeGeneration`: Modifie la génération de charisme
+  - `damageModifier`: Modifie les dégâts infligés ou reçus  
+  - `motivationModifier`: Modifie la motivation générée ou consommée
+  - `healthModifier`: Modifie les PV max ou actuels
+  - `applyAlteration`: Applique une altération
+  - `conditionalEffect`: Effet qui s'applique sous condition
+  - `synergyEffect`: Effet qui s'applique en fonction d'autres tags
 
+- **Syntaxe du parser de règles** :
+  ```
+  TypeEffet:TypeCible:Valeur:Description:Condition
+  ```
+  
+  - **TypeEffet** : Un des types listés ci-dessus (ex: `damageModifier`)
+  - **TypeCible** : 
+    - `self` : Le possesseur du tag
+    - `opponent` : L'adversaire du possesseur
+    - `tagged(TAG)` : Les personnages portant un tag spécifique
+    - `all` : Tous les personnages
+    - `ownTeam` : Les personnages de l'équipe du possesseur
+    - `opponentTeam` : Les personnages de l'équipe adverse
+  - **Valeur** : 
+    - Nombre absolu (ex: `5`) ou 
+    - Pourcentage (ex: `+20%`)
+  - **Description** : Texte explicatif de l'effet
+  - **Condition** (optionnelle) : Format `IF(typeCondition,comparison,valeur)`
+    - **typeCondition** :
+      - `healthPercentage` : Pourcentage de PV
+      - `charismeAmount` : Montant de charisme
+      - `motivationAmount` : Montant de motivation
+      - `hasTag` : Possession d'un tag
+      - `hasAlteration` : Possession d'une altération
+      - `activeLieu` : Lieu actif
+      - `chance` : Probabilité (%)
+    - **comparison** : `equal`, `notEqual`, `greater`, `less`, `greaterOrEqual`, `lessOrEqual`
+    - **valeur** : Valeur de comparaison
+
+- **Exemples de règles** :
+  - `damageModifier:tagged(FRAGILE):+20%:Augmente les dégâts de 20% sur les cibles fragiles`
+  - `charismeGeneration:self:+10%:Augmente la génération de charisme de 10%`
+  - `healthModifier:self:+5:Augmente les PV de 5:IF(healthPercentage,less,50)`
+  - `applyAlteration:opponentTeam:0:Applique poison à l'équipe adverse:IF(chance,greater,75)`
+ 
 
 # Canevas Système de Combat – Jeu de Carte Mobile
 
@@ -114,7 +159,7 @@
 
 ### 3.2. Charisme
 - **Acquisition** :
-  - Gagné lors de la mort d’un adversaire, en fonction de sa rareté :
+  - Gagné lors de la mort d'un adversaire, en fonction de sa rareté :
     - Rareté 1 : `{pts_rareté1}` pts (ex. 5 pts)
     - Rareté 2 : `{pts_rareté2}` pts (ex. 10 pts)
     - Rareté 3 : `{pts_rareté3}` pts (ex. 20 pts)
@@ -136,7 +181,7 @@
 
 ### 4.2. Attaques sur la Base
 - **Condition** :
-  - L’adversaire ne peut être attaqué directement tant qu'il a au moins un personnage sur le terrain
+  - L'adversaire ne peut être attaqué directement tant qu'il a au moins un personnage sur le terrain
 - **Dégâts** :
   - Dégâts sur la base divisés par deux (modifiable via objets/événements)
 - **Continuité des effets** :
