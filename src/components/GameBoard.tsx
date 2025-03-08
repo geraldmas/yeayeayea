@@ -152,19 +152,35 @@ const GameBoard: React.FC<GameBoardProps> = ({
   // Rendu de la main du joueur
   const renderPlayerHand = () => {
     return (
-      <div className="player-hand">
-        {playerHand.map((card) => (
-          <div 
-            key={`hand-card-${card.id}`}
-            className="hand-card"
-            draggable
-            onDragStart={(e) => handleDragStart(e, card)}
-            onClick={() => handleCardClick(card, 'player-hand')}
-          >
-            <div className="card-name">{card.name}</div>
-            <div className="card-type">{card.type}</div>
-          </div>
-        ))}
+      <div className="player-hand-container">
+        <div className="section-title">Votre Main</div>
+        <div className="player-hand">
+          {playerHand.length > 0 ? (
+            playerHand.map((card) => (
+              <div 
+                key={`hand-card-${card.id}`}
+                className={`hand-card hand-card-${card.type}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, card)}
+                onClick={() => handleCardClick(card, 'player-hand')}
+              >
+                <div className="card-name">{card.name}</div>
+                <div className="card-type">{card.type}</div>
+                {card.type === 'personnage' && card.properties && card.properties.health && (
+                  <div className="card-health">❤️ {card.properties.health}</div>
+                )}
+                {card.rarity && (
+                  <div className="card-rarity">{card.rarity}</div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="empty-hand-message">
+              <span>Aucune carte en main</span>
+              <div className="hand-hint">Utilisez le bouton "Ajouter une carte à votre main" ci-dessous</div>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -252,6 +268,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
             {renderCharacterSlots(playerCharacters, true)}
           </div>
         </div>
+      </div>
+
+      {/* Zone de la main du joueur mise en évidence, séparée du reste */}
+      <div className="main-player-hand-area">
         {renderPlayerHand()}
       </div>
     </div>

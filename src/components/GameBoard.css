@@ -7,7 +7,7 @@
   height: 100vh;
   max-width: 100%;
   background-color: #2c3e50; /* Fond sombre */
-  padding: 10px;
+  padding: 0;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
@@ -39,6 +39,7 @@
 /* Zone du joueur */
 .player-area {
   justify-content: flex-end;
+  height: 35vh; /* Réduire légèrement pour laisser de la place à la main */
 }
 
 /* Main du joueur */
@@ -46,31 +47,37 @@
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 5px;
-  gap: 8px;
-  height: 15vh;
+  padding: 10px;
+  gap: 12px;
+  height: 20vh;
+  min-height: 150px;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(41, 128, 185, 0.2);
   border-radius: 10px;
+  position: relative;
+  z-index: 10;
 }
 
 .hand-card {
-  width: 70px;
-  height: 100px;
+  width: 90px;
+  height: 130px;
   background-color: #f5f5f5;
+  border: 2px solid #2980b9;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  padding: 5px;
-  font-size: 0.8rem;
+  padding: 8px;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .hand-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-15px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  z-index: 20;
 }
 
 /* Main de l'adversaire (face cachée) */
@@ -157,12 +164,16 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #2c3e50;
+  font-size: 1rem;
 }
 
 .card-health {
-  margin-top: 5px;
+  margin-top: 8px;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  color: #e74c3c;
+  font-weight: bold;
 }
 
 .card-tags {
@@ -348,4 +359,103 @@
     width: 60px;
     height: 90px;
   }
+}
+
+.player-hand-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 3px solid #3498db;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 8px;
+  background-color: #3498db;
+  padding: 8px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.empty-hand-message {
+  color: white;
+  text-align: center;
+  font-style: italic;
+  padding: 15px;
+  width: 100%;
+  font-size: 1.1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 2px dashed rgba(255, 255, 255, 0.4);
+}
+
+.card-type {
+  margin-top: 5px;
+  text-align: center;
+  font-style: italic;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.card-rarity {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: gold;
+  border-radius: 4px;
+}
+
+.hand-hint {
+  font-size: 0.8rem;
+  margin-top: 5px;
+  color: #bdc3c7;
+}
+
+/* Styles spécifiques par type de carte */
+.hand-card-personnage {
+  background: linear-gradient(135deg, #f5f5f5, #e8f4f8);
+  border-color: #3498db;
+}
+
+.hand-card-objet {
+  background: linear-gradient(135deg, #f5f5f5, #e8f8e8);
+  border-color: #2ecc71;
+}
+
+.hand-card-action {
+  background: linear-gradient(135deg, #f5f5f5, #f8e8e8);
+  border-color: #e74c3c;
+}
+
+.hand-card-evenement {
+  background: linear-gradient(135deg, #f5f5f5, #f8f4e8);
+  border-color: #f39c12;
+}
+
+.hand-card-lieu {
+  background: linear-gradient(135deg, #f5f5f5, #f0e8f8);
+  border-color: #9b59b6;
+}
+
+.main-player-hand-area {
+  width: 100%;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-top: 4px solid #3498db;
+  margin-top: 10px;
+  position: relative;
+  z-index: 100; /* Mettre la main au-dessus de tous les autres éléments */
 } 

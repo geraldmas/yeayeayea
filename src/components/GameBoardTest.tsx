@@ -231,6 +231,12 @@ const GameBoardTest: React.FC = () => {
         }}>
           Endommager le 1er personnage
         </button>
+        <button onClick={() => {
+          const randomCard = playerCards[Math.floor(Math.random() * playerCards.length)];
+          setPlayerHand(prev => [...prev, randomCard]);
+        }}>
+          Ajouter une carte à votre main
+        </button>
       </div>
     </div>
   );
