@@ -135,7 +135,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Ciblage aléatoire
   - [ ] 🚀 Ciblage manuel (option tactique)
 - [ ] Créer le système de résolution des actions
-  - [ ] 🔥 Gestion de la simultanéité
+  - [x] 🔥 Gestion de la simultanéité
   - [ ] 🚀 Système de conflits et priorités
 
 ### 5.2 Gestion des Ressources

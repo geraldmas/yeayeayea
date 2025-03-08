@@ -1,5 +1,5 @@
 import { CardInstanceImpl, CombatManagerImpl } from '../combatService';
-import { Card, Alteration, Tag, Spell } from '../../types/index';
+import { Card, Alteration, Tag, Spell, SpellEffect } from '../../types/index';
 import { TargetType, CardInstance } from '../../types/combat';
 
 // Mocks pour les tests
@@ -192,6 +192,9 @@ describe('CombatManager', () => {
     const initialHealth = target.currentHealth;
     
     combatManager.executeAttack(attacker, target);
+    
+    // Résoudre les actions planifiées
+    combatManager.resolveAllActions();
     
     expect(target.currentHealth).toBe(initialHealth - 1);
     expect(attacker.isExhausted).toBe(true);
@@ -409,5 +412,103 @@ describe('Système de ciblage aléatoire', () => {
     
     // Devrait quand même retourner une cible (sélection uniforme)
     expect(target).not.toBeNull();
+  });
+});
+
+describe('Résolution simultanée des actions', () => {
+  let combatManager: CombatManagerImpl;
+  let attacker: CardInstanceImpl;
+  let target1: CardInstanceImpl;
+  let target2: CardInstanceImpl;
+  let mockSpell: Spell;
+
+  beforeEach(() => {
+    combatManager = new CombatManagerImpl();
+    
+    // Créer les cartes pour les tests
+    attacker = new CardInstanceImpl({...mockCard, id: 1});
+    target1 = new CardInstanceImpl({...mockCard, id: 2});
+    target2 = new CardInstanceImpl({...mockCard, id: 3});
+    
+    // S'assurer que l'attaquant peut agir
+    attacker.isExhausted = false;
+    
+    // Définir les PV pour les tests
+    attacker.currentHealth = 10;
+    target1.currentHealth = 10;
+    target2.currentHealth = 10;
+    
+    // Ajouter les cartes au gestionnaire
+    combatManager.cardInstances = [attacker, target1, target2];
+    
+    // Créer un sort de test
+    mockSpell = {
+      id: 1,
+      name: 'Test Spell',
+      description: 'Test description',
+      power: 5,
+      cost: 2,
+      range_min: 1,
+      range_max: 3,
+      effects: [
+        { type: 'damage', value: 3 } as SpellEffect
+      ],
+      is_value_percentage: false
+    };
+    
+    // Ajouter le sort aux sorts disponibles de l'attaquant
+    attacker.availableSpells = [{
+      spell: mockSpell,
+      cooldown: 0,
+      isAvailable: true
+    }];
+  });
+
+  test('doit planifier et résoudre les actions simultanément', () => {
+    // Planifier plusieurs actions
+    combatManager.executeAttack(attacker, target1);
+    combatManager.castSpell(attacker, mockSpell, [target2]);
+    
+    // Vérifier que l'attaquant n'est pas encore épuisé (les actions sont seulement planifiées)
+    expect(attacker.isExhausted).toBe(false);
+    
+    // Les cibles ne devraient pas encore avoir reçu de dégâts
+    expect(target1.currentHealth).toBe(10);
+    expect(target2.currentHealth).toBe(10);
+    
+    // Résoudre les actions
+    combatManager.resolveAllActions();
+    
+    // Maintenant l'attaquant devrait être épuisé
+    expect(attacker.isExhausted).toBe(true);
+    
+    // Les cibles devraient avoir reçu des dégâts
+    expect(target1.currentHealth).toBe(9); // 10 - 1 de l'attaque
+    expect(target2.currentHealth).toBe(7); // 10 - 3 du sort
+  });
+
+  test('doit résoudre correctement les conflits de ressources', () => {
+    // Créer un mock pour ActionResolutionService
+    const originalResolveConflicts = (combatManager as any).actionResolutionService.resolveConflictsAutomatically;
+    
+    // Espionner la méthode pour vérifier qu'elle est appelée
+    const spyResolveConflicts = jest.fn().mockImplementation(() => {
+      return [{ conflict: {}, resolution: 'Test resolution' }];
+    });
+    
+    (combatManager as any).actionResolutionService.resolveConflictsAutomatically = spyResolveConflicts;
+    
+    // Planifier des actions
+    combatManager.executeAttack(attacker, target1);
+    combatManager.castSpell(attacker, mockSpell, [target2]);
+    
+    // Résoudre les actions
+    combatManager.resolveAllActions();
+    
+    // Vérifier que la méthode de résolution des conflits a été appelée
+    expect(spyResolveConflicts).toHaveBeenCalled();
+    
+    // Restaurer la méthode originale
+    (combatManager as any).actionResolutionService.resolveConflictsAutomatically = originalResolveConflicts;
   });
 }); 

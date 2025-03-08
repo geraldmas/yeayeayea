@@ -12,6 +12,7 @@ import {
 } from '../types/combat';
 import { CardConversionService } from './cardConversionService';
 import { LieuCardService } from './lieuCardService';
+import { ActionResolutionService, ActionType } from './actionResolutionService';
 
 /**
  * Implémentation de l'interface CardInstance
@@ -401,10 +402,12 @@ export class CombatManagerImpl implements CombatManager {
   public cardInstances: CardInstance[] = [];
   private cardConversionService: CardConversionService;
   private lieuCardService: LieuCardService;
+  private actionResolutionService: ActionResolutionService;
 
   constructor() {
     this.cardConversionService = new CardConversionService();
     this.lieuCardService = new LieuCardService();
+    this.actionResolutionService = new ActionResolutionService();
   }
 
   public initializeCardInstance(card: Card): CardInstance {
@@ -420,6 +423,26 @@ export class CombatManagerImpl implements CombatManager {
       return;
     }
 
+    // Plutôt que d'exécuter directement l'attaque, on la planifie pour résolution simultanée
+    const actionId = this.actionResolutionService.planAction({
+      type: ActionType.ATTACK,
+      source: attacker,
+      targets: [target],
+      priority: 1, // Priorité par défaut
+      cost: 1 // Coût par défaut pour une attaque
+    });
+
+    console.log(`Attaque planifiée: ${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} (ID: ${actionId})`);
+    
+    // On ne marque pas immédiatement l'attaquant comme ayant agi, cela sera fait lors de la résolution
+  }
+
+  /**
+   * Exécute une attaque planifiée
+   * @param attacker L'attaquant
+   * @param target La cible
+   */
+  private executeAttackAction(attacker: CardInstance, target: CardInstance): void {
     // Logique d'attaque de base (à étendre selon les règles du jeu)
     const damage = 1; // Valeur par défaut, à remplacer par une formule de calcul
     
@@ -436,6 +459,28 @@ export class CombatManagerImpl implements CombatManager {
       return;
     }
 
+    // Plutôt que d'exécuter directement le sort, on le planifie pour résolution simultanée
+    const actionId = this.actionResolutionService.planAction({
+      type: ActionType.CAST_SPELL,
+      source: caster,
+      targets,
+      spell,
+      priority: 1, // Priorité par défaut
+      cost: spell.cost || 0
+    });
+
+    console.log(`Sort planifié: ${caster.cardDefinition.name} lance ${spell.name} (ID: ${actionId})`);
+    
+    // On ne marque pas immédiatement le lanceur comme ayant agi, cela sera fait lors de la résolution
+  }
+
+  /**
+   * Exécute un sort planifié sur les cibles
+   * @param caster Le lanceur du sort
+   * @param spell Le sort à lancer
+   * @param targets Les cibles du sort
+   */
+  private executeSpell(caster: CardInstance, spell: Spell, targets: CardInstance[]): void {
     // Appliquer les effets du sort à chaque cible
     spell.effects.forEach(effect => {
       targets.forEach(target => {
@@ -480,6 +525,45 @@ export class CombatManagerImpl implements CombatManager {
     
     // Marquer le lanceur comme ayant agi
     caster.isExhausted = true;
+  }
+
+  /**
+   * Résout toutes les actions planifiées de manière simultanée
+   */
+  public resolveAllActions(): void {
+    console.log("Résolution des actions planifiées...");
+    
+    // Résoudre les conflits automatiquement avant l'exécution
+    const resolutions = this.actionResolutionService.resolveConflictsAutomatically();
+    if (resolutions.length > 0) {
+      console.log("Conflits résolus:");
+      resolutions.forEach(resolution => {
+        console.log(` - ${resolution.resolution}`);
+      });
+    }
+    
+    // Exécuter les actions planifiées
+    this.actionResolutionService.resolveActions(action => {
+      switch (action.type) {
+        case ActionType.CAST_SPELL:
+          if (action.spell) {
+            this.executeSpell(action.source, action.spell, action.targets);
+            console.log(`Sort exécuté: ${action.source.cardDefinition.name} lance ${action.spell.name}`);
+          }
+          break;
+        case ActionType.ATTACK:
+          // Gérer les attaques de base
+          if (action.targets.length > 0) {
+            this.executeAttackAction(action.source, action.targets[0]);
+          }
+          break;
+        // Autres types d'actions...
+        default:
+          console.log(`Type d'action non géré: ${action.type}`);
+      }
+    });
+    
+    console.log("Toutes les actions ont été résolues");
   }
 
   public applyAlterations(): void {
