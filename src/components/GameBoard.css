@@ -4,8 +4,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
-  max-width: 100%;
+  height: 100%;
+  width: 100%;
   background-color: #2c3e50; /* Fond sombre */
   padding: 0;
   box-sizing: border-box;
@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 35vh;
+  height: 28%; /* Réduction pour équilibrer l'écran */
 }
 
 .center-area {
@@ -27,7 +27,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 15vh;
+  height: 12%; /* Réduction pour donner plus d'espace à la main */
   position: relative;
   background-color: rgba(0, 0, 0, 0.15); /* Fond légèrement plus foncé */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -38,19 +38,19 @@
 /* Zone de l'adversaire */
 .opponent-area {
   justify-content: flex-start;
-  height: 35vh;
+  height: 28%; /* Réduction pour équilibrer l'écran */
   background-color: rgba(0, 0, 0, 0.2); /* Fond légèrement plus foncé */
   border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Séparation légère */
-  padding: 10px;
+  padding: 5px;
 }
 
 /* Zone du joueur */
 .player-area {
   justify-content: flex-end;
-  height: 35vh;
+  height: 28%; /* Égal à opponent-area pour l'équilibre */
   background-color: rgba(0, 0, 0, 0.3); /* Fond un peu plus foncé que la zone adversaire */
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-  padding: 10px;
+  padding: 5px;
 }
 
 /* Main du joueur */
@@ -58,37 +58,37 @@
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 15px;
-  gap: 15px;
-  height: 25vh;
-  min-height: 180px;
+  padding: 5px;
+  gap: 8px;
+  height: calc(100% - 40px); /* Hauteur restante après le titre */
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* Aligner à gauche pour le défilement */
   background-color: rgba(41, 128, 185, 0.3);
-  border-radius: 10px;
+  border-radius: 8px;
   position: relative;
   z-index: 10;
 }
 
 .hand-card {
-  width: 110px;
-  height: 160px;
+  min-width: 80px; /* Taille fixe minimale */
+  height: 120px;
+  flex-shrink: 0; /* Empêche la réduction de taille */
   background-color: #f5f5f5;
   border: 3px solid #2980b9;
-  border-radius: 10px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  font-size: 1rem;
+  padding: 6px;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
 }
 
 .hand-card:hover {
-  transform: translateY(-20px) scale(1.1);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.7);
+  transform: translateY(-15px) scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
   z-index: 20;
 }
 
@@ -121,8 +121,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 25vh;
-  padding: 5px;
+  height: 85%;
+  padding: 2px;
   box-sizing: border-box;
 }
 
@@ -139,9 +139,9 @@
 /* Emplacements de personnages */
 .character-slot {
   width: 30%;
-  height: 90%;
+  height: 85%;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 8px;
   border: 2px dashed rgba(255, 255, 255, 0.3);
   display: flex;
   justify-content: center;
@@ -207,10 +207,10 @@
 
 /* Emplacements d'objets */
 .object-slot {
-  width: 25%;
-  height: 80%;
+  width: 30%;
+  height: 85%;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 10px; /* Plus arrondi pour différencier des emplacements personnage */
+  border-radius: 8px;
   border: 2px dashed rgba(255, 255, 255, 0.3);
   display: flex;
   justify-content: center;
@@ -247,8 +247,8 @@
 
 /* Zone du lieu actif */
 .active-lieu {
-  width: 80%;
-  height: 80%;
+  width: 85%;
+  height: 85%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -379,25 +379,26 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   border: 3px solid #3498db;
   border-radius: 10px;
-  padding: 15px;
+  padding: 8px;
   box-shadow: 0 0 25px rgba(52, 152, 219, 0.6);
-  min-height: 20vh;
+  box-sizing: border-box;
 }
 
 .section-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #ffffff;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   background-color: #3498db;
-  padding: 10px;
+  padding: 5px;
   border-radius: 5px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -467,11 +468,14 @@
 
 .main-player-hand-area {
   width: 100%;
-  padding: 15px;
-  background-color: #2c3e50; /* Même couleur que le fond pour continuité */
-  border-top: 8px solid #3498db; /* Bordure plus épaisse */
-  box-shadow: 0 -10px 20px rgba(52, 152, 219, 0.4); /* Ombre portée vers le haut */
+  height: 32%; /* Augmentation significative pour la visibilité */
+  background-color: #2c3e50;
+  border-top: 8px solid #3498db;
+  box-shadow: 0 -10px 20px rgba(52, 152, 219, 0.4);
   position: relative;
   z-index: 100;
-  min-height: 25vh; /* Hauteur minimale garantie */
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  box-sizing: border-box;
 } 

@@ -13,12 +13,14 @@
 }
 
 .game-board-container {
-  width: 100%;
-  height: 90vh;
-  margin-bottom: 20px;
+  width: 360px; /* Largeur standard d'un téléphone mobile */
+  height: 640px; /* Hauteur proportionnelle au format téléphone */
+  margin: 0 auto 20px; /* Centré horizontalement */
   border: 2px solid #34495e;
-  border-radius: 10px;
+  border-radius: 20px; /* Plus arrondi pour simuler un téléphone */
   overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Ombre pour effet 3D */
+  position: relative;
 }
 
 .test-controls {

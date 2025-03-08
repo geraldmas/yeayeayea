@@ -125,12 +125,14 @@ const GameBoardTest: React.FC = () => {
     createCardInstance(playerCards[8])
   );
   
-  // Cartes en main
+  // Cartes en main - Ajouter quelques cartes par défaut pour montrer la main
   const [playerHand, setPlayerHand] = useState<Card[]>([
     playerCards[2], // Un personnage
-    playerCards[5], // Un objet
+    playerCards[5], // Un objet 
     playerCards[6], // Une action
-    playerCards[7]  // Une action
+    playerCards[7], // Une action
+    createTestCard(15, 'Carte Test 1', 'personnage'),
+    createTestCard(16, 'Carte Test 2', 'objet')
   ]);
   
   // Nombre de cartes dans la main adverse (faces cachées)
