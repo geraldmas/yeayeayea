@@ -1,0 +1,147 @@
+.game-card-grid-container {
+  margin-bottom: var(--space-xl);
+  width: 100%;
+}
+
+.game-card-grid-header {
+  margin-bottom: var(--space-lg);
+  position: relative;
+}
+
+.game-card-grid-title {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  margin-bottom: var(--space-xs);
+  position: relative;
+}
+
+.game-card-grid-title::after {
+  background: var(--gradient-primary);
+  bottom: -10px;
+  content: '';
+  height: 3px;
+  left: 0;
+  position: absolute;
+  width: 60px;
+}
+
+.game-card-grid-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-top: var(--space-md);
+  max-width: 600px;
+}
+
+.game-card-grid {
+  display: grid;
+  gap: var(--space-xl);
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  place-items: center;
+  width: 100%;
+}
+
+.game-card-wrapper {
+  perspective: 1000px;
+  position: relative;
+  transition: all var(--transition-medium);
+}
+
+/* Effet pour décaler les cartes en staggered animation */
+.game-card-wrapper {
+  animation: fadeInUp 0.5s forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.game-card-wrapper:nth-child(1) { animation-delay: 0.1s; }
+.game-card-wrapper:nth-child(2) { animation-delay: 0.15s; }
+.game-card-wrapper:nth-child(3) { animation-delay: 0.2s; }
+.game-card-wrapper:nth-child(4) { animation-delay: 0.25s; }
+.game-card-wrapper:nth-child(5) { animation-delay: 0.3s; }
+.game-card-wrapper:nth-child(6) { animation-delay: 0.35s; }
+.game-card-wrapper:nth-child(7) { animation-delay: 0.4s; }
+.game-card-wrapper:nth-child(8) { animation-delay: 0.45s; }
+.game-card-wrapper:nth-child(9) { animation-delay: 0.5s; }
+.game-card-wrapper:nth-child(10) { animation-delay: 0.55s; }
+.game-card-wrapper:nth-child(11) { animation-delay: 0.6s; }
+.game-card-wrapper:nth-child(12) { animation-delay: 0.65s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Message quand la grille est vide */
+.game-card-grid-empty {
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-lg);
+  color: var(--text-dimmed);
+  display: flex;
+  font-style: italic;
+  height: 200px;
+  justify-content: center;
+  margin: var(--space-xl) 0;
+  text-align: center;
+  width: 100%;
+}
+
+/* Bouton pour charger plus de cartes */
+.game-card-grid-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+  width: 100%;
+}
+
+.game-card-grid-load-more button {
+  min-width: 180px;
+}
+
+/* Animation de chargement */
+.game-card-grid-load-more button:disabled {
+  position: relative;
+}
+
+.game-card-grid-load-more button:disabled::after {
+  animation: loadingDots 1.5s infinite;
+  content: '...';
+  position: absolute;
+}
+
+@keyframes loadingDots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+  100% { content: '.'; }
+}
+
+/* Style responsive */
+@media (max-width: 768px) {
+  .game-card-grid {
+    gap: var(--space-lg);
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  
+  .game-card-grid-title {
+    font-size: 1.5rem;
+  }
+  
+  .game-card-grid-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+} 

@@ -1,0 +1,309 @@
+.game-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--border-medium);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 360px;
+  overflow: hidden;
+  position: relative;
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+  width: 250px;
+}
+
+.game-card:hover {
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-strong);
+  transform: translateY(-10px);
+  z-index: 5;
+}
+
+/* En-tête de la carte */
+.card-header {
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  position: relative;
+  z-index: 2;
+}
+
+.card-name {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 75%;
+}
+
+.card-cost {
+  align-items: center;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  color: white;
+  display: flex;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: bold;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+/* Conteneur d'image */
+.card-image-container {
+  aspect-ratio: 16/9;
+  background: var(--bg-elevated);
+  height: 150px;
+  position: relative;
+  width: 100%;
+}
+
+.card-image {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.card-image-placeholder {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-image-placeholder .card-type-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.card-type-badge {
+  align-items: center;
+  background: rgba(30, 30, 48, 0.85);
+  border-radius: var(--radius-md);
+  bottom: var(--space-xs);
+  display: flex;
+  gap: var(--space-xs);
+  left: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  position: absolute;
+}
+
+.card-type-icon {
+  font-size: 1rem;
+}
+
+.card-type-text {
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.card-status-badge {
+  align-items: center;
+  background: rgba(18, 18, 32, 0.9);
+  border-radius: var(--radius-sm);
+  display: flex;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: var(--space-xs) var(--space-sm);
+  position: absolute;
+  right: var(--space-xs);
+  text-transform: uppercase;
+  top: var(--space-xs);
+}
+
+.card-status-badge.wip {
+  background: rgba(255, 165, 0, 0.9);
+  color: var(--bg-main);
+}
+
+.card-status-badge.crap {
+  background: rgba(238, 64, 64, 0.9);
+  color: white;
+}
+
+.card-status-badge.wip.crap {
+  background: linear-gradient(135deg, rgba(255, 165, 0, 0.9), rgba(238, 64, 64, 0.9));
+  color: white;
+}
+
+/* Corps de la carte */
+.card-body {
+  flex-grow: 1;
+  padding: var(--space-md);
+}
+
+.card-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-height: 100px;
+  overflow: hidden;
+}
+
+.card-no-description {
+  color: var(--text-dimmed);
+  font-style: italic;
+}
+
+/* Pied de carte */
+.card-footer {
+  align-items: center;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-md);
+  z-index: 2;
+}
+
+.card-rarity {
+  align-items: center;
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.rarity-dot {
+  border-radius: var(--radius-full);
+  display: block;
+  height: 8px;
+  width: 8px;
+}
+
+.rarity-text {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.card-id {
+  color: var(--text-dimmed);
+  font-family: var(--font-monospace);
+  font-size: 0.8rem;
+}
+
+.card-health {
+  align-items: center;
+  background: var(--color-secondary);
+  border-radius: var(--radius-md);
+  color: var(--bg-main);
+  display: flex;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 2px 8px;
+}
+
+/* Effet de lueur */
+.card-glow {
+  border-radius: var(--radius-lg);
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transition: opacity var(--transition-medium);
+  width: 100%;
+  z-index: 1;
+}
+
+.game-card:hover .card-glow {
+  opacity: 1;
+}
+
+/* Styles spécifiques par type de carte */
+.card-type-personnage .card-type-badge {
+  background: rgba(117, 64, 238, 0.85);
+}
+
+.card-type-objet .card-type-badge {
+  background: rgba(47, 238, 163, 0.85);
+}
+
+.card-type-evenement .card-type-badge {
+  background: rgba(238, 64, 64, 0.85);
+}
+
+.card-type-lieu .card-type-badge {
+  background: rgba(64, 170, 238, 0.85);
+}
+
+.card-type-action .card-type-badge {
+  background: rgba(238, 170, 64, 0.85);
+}
+
+/* Styles spécifiques par rareté */
+.card-rarity-gros_bodycount .rarity-dot {
+  background-color: var(--rarity-gros-bodycount);
+}
+
+.card-rarity-interessant .rarity-dot {
+  background-color: var(--rarity-interessant);
+}
+
+.card-rarity-banger .rarity-dot {
+  background-color: var(--rarity-banger);
+}
+
+.card-rarity-cheate .rarity-dot {
+  background-color: var(--rarity-cheate);
+  box-shadow: 0 0 5px var(--rarity-cheate);
+}
+
+.card-rarity-gros_bodycount .card-glow {
+  box-shadow: inset 0 0 15px var(--rarity-gros-bodycount);
+}
+
+.card-rarity-interessant .card-glow {
+  box-shadow: inset 0 0 20px var(--rarity-interessant);
+}
+
+.card-rarity-banger .card-glow {
+  box-shadow: inset 0 0 25px var(--rarity-banger);
+}
+
+.card-rarity-cheate .card-glow {
+  animation: legendaryGlow 3s infinite;
+  box-shadow: inset 0 0 30px var(--rarity-cheate);
+}
+
+@keyframes legendaryGlow {
+  0% {
+    box-shadow: inset 0 0 20px var(--rarity-cheate);
+  }
+  50% {
+    box-shadow: inset 0 0 40px var(--rarity-cheate);
+  }
+  100% {
+    box-shadow: inset 0 0 20px var(--rarity-cheate);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .game-card {
+    height: 320px;
+    width: 220px;
+  }
+  
+  .card-name {
+    font-size: 1rem;
+  }
+  
+  .card-image-container {
+    height: 130px;
+  }
+  
+  .card-description {
+    font-size: 0.8rem;
+  }
+} 

@@ -1,0 +1,204 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+}
+
+/* Contenu principal */
+.main-content {
+  flex-grow: 1;
+  padding: var(--space-xl) var(--space-lg);
+  position: relative;
+  transition: all var(--transition-medium);
+  z-index: 1;
+}
+
+/* Mode admin */
+.admin-mode {
+  background-image: url('/images/bg-pattern.png'), 
+                    radial-gradient(circle at 50% 50%, rgba(238, 64, 64, 0.05), transparent 70%);
+}
+
+.admin-content {
+  background: var(--bg-admin);
+  border-left: 3px solid var(--text-admin);
+  border-right: 3px solid var(--text-admin);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.admin-badge {
+  align-items: center;
+  background: var(--text-admin);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  color: var(--bg-admin);
+  display: flex;
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: bold;
+  gap: var(--space-xs);
+  left: 50%;
+  padding: var(--space-xs) var(--space-md);
+  position: fixed;
+  text-transform: uppercase;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 999;
+}
+
+.admin-badge-icon {
+  font-size: 1.2rem;
+}
+
+/* Animation d'entrée pour le badge admin */
+@keyframes adminBadgePulse {
+  0% {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.admin-badge {
+  animation: adminBadgePulse 3s infinite;
+}
+
+/* Footer */
+.game-footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+  margin-top: var(--space-xl);
+  padding: var(--space-xl) var(--space-lg);
+  position: relative;
+  z-index: 2;
+}
+
+.footer-content {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-bottom: var(--space-lg);
+}
+
+.footer-section {
+  padding: var(--space-sm);
+}
+
+.footer-title {
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--text-primary);
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-xs);
+  position: relative;
+}
+
+.footer-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: var(--space-sm);
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  position: relative;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-links a::before {
+  color: var(--color-primary);
+  content: '>';
+  font-family: var(--font-monospace);
+  left: -12px;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.footer-links a:hover {
+  color: var(--text-primary);
+}
+
+.footer-links a:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) translateX(-3px);
+}
+
+.footer-copyright {
+  border-top: 1px solid var(--border-light);
+  color: var(--text-dimmed);
+  display: flex;
+  font-size: 0.8rem;
+  justify-content: space-between;
+  padding-top: var(--space-md);
+}
+
+.footer-socials {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.social-icon {
+  align-items: center;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  display: flex;
+  font-size: 1rem;
+  height: 2rem;
+  justify-content: center;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  width: 2rem;
+}
+
+.social-icon:hover {
+  background: var(--color-primary);
+  transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer-copyright {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+  
+  .footer-socials {
+    justify-content: center;
+  }
+  
+  .admin-badge {
+    font-size: 0.7rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+} 
