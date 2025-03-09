@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavig
 import CardForm from './components/CardForm';
 import BoosterForm from './components/BoosterForm';
 import CardBrowser from './components/CardBrowser';
-import Notification from './components/Notification';
 import Login from './components/Login';
 import Help from './components/Help';
 import UserManager from './components/UserManager';
@@ -17,7 +16,7 @@ import TodoProgress from './components/TodoProgress';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
-import { GameLayout, GameCardGrid, AdminPanel } from './components/ui';
+import { GameLayout, GameCardGrid, AdminPanel, Notification } from './components/ui';
 
 interface LoadedTagsMap {
   [cardId: number]: { id: number; name: string; passive_effect: string | null }[];
