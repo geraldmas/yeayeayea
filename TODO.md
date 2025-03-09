@@ -31,7 +31,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Gestion des sessions
   - [x] 🚀 Vérification d'administration
 - [ ] Développer le système de validation des données
-  - [ ] 🔥 Validation des cartes (type, coût, etc.)
+  - [x] 🔥 Validation des cartes (type, coût, etc.)
   - [ ] 🚀 Validation des relations (sorts, tags)
 - [ ] Créer les endpoints pour la gestion des boosters et collections
   - [x] 🚀 Création de base pour les boosters
@@ -59,28 +59,28 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 
 ## 3. Système de Cartes
 
-### 3.1 Types de Cartes
+### 3🔥.1 Types de Cartes
 - [x] 🔥 Implémenter la structure de base pour les cartes Personnage
 - [x] 🔥 Implémenter la structure de base pour les cartes Lieu
 - [x] 🔥 Implémenter la structure de base pour les cartes Objet
-- [x] 🔥 Implémenter la structure de base pour les cartes Action
+- [x]  Implémenter la structure de base pour les cartes Action
 - [x] 🔥 Implémenter la structure de base pour les cartes Événement
 - [ ] Développer les mécaniques spécifiques des cartes Personnage
-  - [ ] 🔥 Système de PV et niveau
+  - [x] 🔥 Système de PV et niveau
   - [ ] 🚀 Système de sorts et d'évolution
   - [ ] 🚀 Gestion avancée des tags
 - [ ] Développer les mécaniques spécifiques des cartes Lieu
-  - [ ] 🔥 Système de distribution initiale
+  - [x] 🔥 Système de distribution initiale
   - [ ] 🚀 Mécanique de sélection active
 - [ ] Développer les mécaniques spécifiques des cartes Objet
-  - [ ] 🔥 Système d'emplacements
+  - [x] 🔥 Système d'emplacements (sur le terrain, pas de système d'équipement !)
   - [ ] 🚀 Effets passifs
   - [ ] 🚀 Système de vente en charisme
 
 ### 3.2 Système de Tags
 - [x] 🔥 Créer l'interface de gestion des tags
 - [ ] Développer le moteur de règles pour les tags
-  - [ ] 🔥 Parser de règles pour les effets
+  - [x] 🔥 Parser de règles pour les effets
   - [ ] 🚀 Système d'évaluation des effets
   - [ ] 🚀 Gestion des priorités d'application
 - [ ] Implémenter les synergies entre tags
@@ -113,28 +113,34 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] ⚡ Système de monnaie et ressources
 - [ ] Créer le module de collection/inventaire
   - [ ] 🚀 Visualisation de l'inventaire
+    - [ ] 🚀 Gestion des références aux cartes et leur quantité par niveau
+    - [ ] ⚡ Filtres et recherche de cartes
   - [ ] 🚀 Gestion des decks
 - [ ] Concevoir l'interface de partie
-  - [ ] 🔥 Zone de jeu tactile
+  - [x] 🔥 Zone de jeu tactile
   - [ ] 🔥 Affichage des informations de jeu
   - [ ] 🚀 Système de tour et actions
 
 ## 5. Mécaniques de Jeu
 
 ### 5.1 Système de Combat
-- [ ] Implémenter le système de tour
-  - [ ] 🔥 Gestion du budget de motivation
-  - [ ] 🚀 Système de déploiement des actions
+- [ ] Implémenter la gestion des instances de carte en combat
+  - [x] 🔥 Créer la structure CardInstance distincte de CardDefinition
+  - [x] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
+  - [x] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
+  - [x] 🚀 Système de conversion Card→CardInstance au début du combat
+  - [x] ⚡ Nettoyage des instances à la fin du combat
+  - [x] ⚡ Mécanisme de persistance sélective d'effets entre tours
 - [ ] Développer le système de ciblage
-  - [ ] 🔥 Ciblage aléatoire
-  - [ ] 🚀 Ciblage manuel (option tactique)
+  - [x] 🔥 Ciblage aléatoire
+  - [x] 🚀 Ciblage manuel (option tactique)
 - [ ] Créer le système de résolution des actions
-  - [ ] 🔥 Gestion de la simultanéité
+  - [x] 🔥 Gestion de la simultanéité
   - [ ] 🚀 Système de conflits et priorités
 
 ### 5.2 Gestion des Ressources
 - [ ] Implémenter le système de motivation
-  - [ ] 🔥 Renouvellement par tour
+  - [x] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
 - [ ] Développer le système de charisme
   - [ ] 🔥 Acquisition et stockage
