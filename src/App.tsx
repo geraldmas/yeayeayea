@@ -343,7 +343,7 @@ const AppContent: React.FC = () => {
         <Route path="/" element={
           <div className="home-container">
             <div className="welcome-section">
-              <h1>Bienvenue dans TCG Card Editor</h1>
+              <h1>Bienvenue dans Yeayeayea</h1>
               <p className="subtitle">Créez, modifiez et testez vos cartes de jeu</p>
               
               <div className="quick-actions">

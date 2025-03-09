@@ -1,4 +1,4 @@
-// API endpoints for the TCG Card Editor
+// API endpoints for the Yeayeayea
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();

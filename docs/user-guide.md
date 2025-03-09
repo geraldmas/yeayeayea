@@ -1,8 +1,8 @@
-# Guide Utilisateur - TCG Card Editor
+# Guide Utilisateur - Yeayeayea
 
 ## Introduction
 
-Le TCG Card Editor est un outil de création et de gestion de cartes pour un jeu de cartes à collectionner. Il permet de créer, modifier et organiser des cartes avec leurs propriétés, sorts, tags et altérations.
+Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de cartes à collectionner. Il permet de créer, modifier et organiser des cartes avec leurs propriétés, sorts, tags et altérations.
 
 ## Fonctionnalités Principales
 

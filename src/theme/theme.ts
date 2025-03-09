@@ -1,4 +1,4 @@
-// Thème de couleur et de design pour TCG Card Editor
+// Thème de couleur et de design pour Yeayeayea
 // Ce fichier contient les variables de design global pour l'application
 
 export const theme = {

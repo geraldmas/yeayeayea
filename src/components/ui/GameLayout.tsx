@@ -53,7 +53,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
       <footer className="game-footer">
         <div className="footer-content">
           <div className="footer-section">
-            <h4 className="footer-title">TCG Card Editor</h4>
+            <h4 className="footer-title">Yeayeayea</h4>
             <p className="footer-description">
               Créez, modifiez et testez vos cartes pour votre propre jeu de cartes à collectionner.
             </p>
@@ -80,7 +80,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
         </div>
         
         <div className="footer-copyright">
-          <p>&copy; {new Date().getFullYear()} TCG Card Editor. Tous droits réservés.</p>
+          <p>&copy; {new Date().getFullYear()} Yeayeayea. Tous droits réservés.</p>
           <div className="footer-socials">
             <a href="#" className="social-icon">
               <span>🐦</span>

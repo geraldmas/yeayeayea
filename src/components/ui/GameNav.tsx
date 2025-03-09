@@ -47,7 +47,7 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
       <nav className={`game-nav ${isScrolled ? 'scrolled' : ''}`}>
         <div className="game-nav-logo">
           <Link to="/" onClick={closeMobileMenu}>
-            <span className="text-primary">TCG</span> Card Editor
+            <span className="text-primary">Yea</span>yeayea
           </Link>
         </div>
         

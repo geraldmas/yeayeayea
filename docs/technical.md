@@ -1,8 +1,8 @@
-# Documentation Technique - TCG Card Editor
+# Documentation Technique - Yeayeayea
 
 ## Architecture Globale
 
-Le projet est une application React TypeScript qui permet de gérer et éditer des cartes pour un jeu de cartes à collectionner (TCG). L'application utilise Supabase comme backend et est structurée de manière modulaire.
+Le projet est une application React TypeScript qui permet de gérer et éditer des cartes pour un jeu de cartes à collectionner (YYY). L'application utilise Supabase comme backend et est structurée de manière modulaire.
 
 ## Structure des Données
 

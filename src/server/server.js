@@ -1,4 +1,4 @@
-// Main server file for TCG Card Editor
+// Main server file for Yeayeayea
 const express = require('express');
 const path = require('path');
 const cors = require('cors');

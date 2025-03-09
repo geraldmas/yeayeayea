@@ -1,6 +1,6 @@
-# Tests pour TCG Card Editor
+# Tests pour Yeayeayea
 
-Ce dossier contient les tests unitaires et d'intégration pour l'application TCG Card Editor.
+Ce dossier contient les tests unitaires et d'intégration pour l'application Yeayeayea.
 
 ## Structure des tests
 
