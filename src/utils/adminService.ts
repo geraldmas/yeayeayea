@@ -1,9 +1,18 @@
 import { supabase } from './supabaseClient';
 import type { User } from '../types/userTypes';
 
+/**
+ * @file adminService.ts
+ * @description Service pour les fonctionnalités d'administration du jeu Yeayeayea
+ * Ce module fournit des fonctions pour gérer les utilisateurs, leurs droits et leurs données
+ * depuis une interface d'administration
+ */
+
 export const adminService = {
   /**
-   * Récupère tous les utilisateurs
+   * Récupère tous les utilisateurs du système
+   * @returns Liste des utilisateurs triés par nom d'utilisateur
+   * @throws Erreur en cas d'échec de la récupération
    */
   async getAllUsers() {
     const { data, error } = await supabase
@@ -16,7 +25,10 @@ export const adminService = {
   },
 
   /**
-   * Récupère un utilisateur par son ID
+   * Récupère un utilisateur par son identifiant
+   * @param userId - Identifiant de l'utilisateur à récupérer
+   * @returns Données de l'utilisateur
+   * @throws Erreur si l'utilisateur n'existe pas ou en cas d'échec de la récupération
    */
   async getUserById(userId: string) {
     const { data, error } = await supabase
@@ -30,7 +42,16 @@ export const adminService = {
   },
 
   /**
-   * Crée un nouvel utilisateur
+   * Crée un nouvel utilisateur avec les droits spécifiés
+   * @param userData - Objet contenant les données du nouvel utilisateur
+   * @param userData.username - Nom d'utilisateur
+   * @param userData.password - Mot de passe (devrait être hashé en production)
+   * @param userData.isAdmin - Indique si l'utilisateur est un administrateur
+   * @param userData.experience_points - Points d'expérience initiaux
+   * @param userData.level - Niveau initial
+   * @param userData.currency - Monnaie initiale
+   * @returns L'utilisateur créé
+   * @throws Erreur en cas d'échec de la création
    */
   async createUser(userData: {
     username: string;
@@ -62,6 +83,16 @@ export const adminService = {
 
   /**
    * Met à jour un utilisateur existant
+   * @param userId - Identifiant de l'utilisateur à mettre à jour
+   * @param updates - Objet contenant les champs à mettre à jour
+   * @param updates.username - Nouveau nom d'utilisateur
+   * @param updates.password - Nouveau mot de passe (devrait être hashé en production)
+   * @param updates.isAdmin - Nouveau statut administrateur
+   * @param updates.experience_points - Nouveaux points d'expérience
+   * @param updates.level - Nouveau niveau
+   * @param updates.currency - Nouvelle quantité de monnaie
+   * @returns L'utilisateur mis à jour
+   * @throws Erreur en cas d'échec de la mise à jour
    */
   async updateUser(userId: string, updates: {
     username?: string;

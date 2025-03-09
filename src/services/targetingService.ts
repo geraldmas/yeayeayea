@@ -3,32 +3,55 @@ import { v4 as uuidv4 } from 'uuid';
 import { SpellEffect } from '../types/index';
 
 /**
+ * @file targetingService.ts
+ * @description Service de gestion du ciblage pour le jeu Yeayeayea
+ * Ce module fournit les fonctionnalités pour déterminer quelles cartes peuvent être ciblées
+ * par des sorts, actions ou effets, et gère le ciblage manuel par l'utilisateur.
+ */
+
+/**
  * Résultat d'une opération de ciblage
  */
 export interface TargetingResult {
+  /** Identifiant unique de l'opération de ciblage */
   id: string;
+  /** Liste des cartes ciblées */
   targets: CardInstance[];
+  /** Indique si l'opération de ciblage a réussi */
   success: boolean;
+  /** Message d'erreur en cas d'échec */
   error?: string;
 }
 
 /**
  * Fonction de callback pour la sélection manuelle de cibles
+ * Utilisée pour permettre à l'interface utilisateur de gérer les sélections de cibles
  */
 export type ManualTargetingCallback = (options: {
+  /** Carte source qui effectue l'action */
   source: CardInstance;
+  /** Critères optionnels pour filtrer les cibles disponibles */
   criteria?: TargetingCriteria;
+  /** Nombre minimum de cibles à sélectionner */
   minTargets?: number;
+  /** Nombre maximum de cibles à sélectionner */
   maxTargets?: number;
+  /** Fonction à appeler lorsque la sélection est terminée */
   onComplete: (result: TargetingResult) => void;
+  /** Fonction à appeler lorsque la sélection est annulée */
   onCancel: () => void;
 }) => void;
 
 /**
  * Service responsable de la gestion du ciblage
+ * Permet de déterminer quelles cartes peuvent être ciblées par des sorts ou actions,
+ * selon différents critères et types de ciblage (aléatoire, manuel, spécifique).
  */
 export class TargetingService {
+  /** Callback pour le ciblage manuel, défini par l'interface utilisateur */
   private manualTargetingCallback: ManualTargetingCallback | null = null;
+  
+  /** Map des opérations de ciblage en attente, avec leurs callbacks de résolution */
   private pendingTargetOperations: Map<string, (targets: CardInstance[]) => void> = new Map();
   
   /**
@@ -42,7 +65,7 @@ export class TargetingService {
   /**
    * Réalise une opération de ciblage (automatique ou manuel)
    * @param source Carte source de l'action
-   * @param targetType Type de ciblage
+   * @param targetType Type de ciblage (self, opponent, all, tagged, random, manual)
    * @param availableTargets Toutes les cibles disponibles
    * @param effect Effet à appliquer avec des critères de ciblage éventuels
    * @param count Nombre de cibles à sélectionner (par défaut 1)

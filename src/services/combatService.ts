@@ -18,29 +18,70 @@ import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
 
 /**
+ * @file combatService.ts
+ * @description Service central de gestion du combat pour le jeu Yeayeayea
+ * Ce module implémente le système de combat complet avec la gestion des instances de cartes,
+ * des altérations, du ciblage, et de la résolution des actions et sorts.
+ */
+
+/**
  * Implémentation de l'interface CardInstance
+ * Représente une instance de carte en jeu avec son état actuel (santé, altérations, etc.)
  */
 export class CardInstanceImpl implements CardInstance {
+  /** Identifiant unique pour cette instance spécifique */
   public instanceId: string;
+  
+  /** Référence à la définition de carte originale */
   public cardDefinition: Card;
+  
+  /** Points de vie actuels */
   public currentHealth: number;
+  
+  /** Points de vie maximum */
   public maxHealth: number;
+  
+  /** Position sur le terrain (optionnelle) */
   public position?: { x: number; y: number };
+  
+  /** Altérations actives sur cette carte */
   public activeAlterations: ActiveAlteration[];
+  
+  /** Tags actifs sur cette carte */
   public activeTags: TagInstance[];
+  
+  /** Sorts disponibles pour cette carte */
   public availableSpells: SpellInstance[];
+  
+  /** Emplacements d'objets (uniquement pour les personnages) */
   public objectSlots?: ObjectSlot[];
+  
+  /** Indique si la carte a déjà été utilisée ce tour */
   public isExhausted: boolean;
+  
+  /** Indique si la carte est inclinée (pour les actions spéciales) */
   public isTapped: boolean;
+  
+  /** Compteurs spécifiques */
   public counters: { [key: string]: number };
+  
+  /** Statistiques temporaires modifiées par les altérations */
   public temporaryStats: { 
     attack: number;
     defense: number;
     [key: string]: number;
   };
+  
+  /** Historique des changements de PV pour débogage et affichage */
   public damageHistory: Array<{ type: 'damage' | 'heal', amount: number, source?: string, timestamp: number }>;
+  
+  /** Effets actifs par catégorie pour faciliter les calculs */
   public activeEffects: { [key: string]: Array<{ value: number, source: string, isPercentage: boolean }> };
 
+  /**
+   * Crée une nouvelle instance de carte à partir d'une définition de carte
+   * @param card - La définition de carte à instancier
+   */
   constructor(card: Card) {
     this.instanceId = uuidv4();
     this.cardDefinition = card;

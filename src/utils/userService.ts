@@ -7,8 +7,24 @@ import type {
     UserAchievement
 } from '../types/userTypes';
 
+/**
+ * @file userService.ts
+ * @description Service de gestion des utilisateurs pour le jeu Yeayeayea
+ * Fournit des fonctions pour l'authentification, la gestion des profils,
+ * des inventaires, des decks et des réalisations des joueurs.
+ */
+
+/**
+ * Service pour la gestion des utilisateurs et de leurs données
+ */
 export const userService = {
-    // Authentification
+    /**
+     * Inscrit un nouvel utilisateur
+     * @param username - Nom d'utilisateur
+     * @param password - Mot de passe (devrait être hashé dans une vraie application)
+     * @returns Données du profil utilisateur créé
+     * @throws Erreur en cas d'échec de la création
+     */
     async signUp(username: string, password: string) {
         // Créer le profil utilisateur
         const { data: userData, error: userError } = await supabase
@@ -29,6 +45,13 @@ export const userService = {
         return userData;
     },
 
+    /**
+     * Connecte un utilisateur existant
+     * @param username - Nom d'utilisateur
+     * @param password - Mot de passe
+     * @returns Données du profil utilisateur
+     * @throws Erreur si les identifiants sont incorrects
+     */
     async signIn(username: string, password: string) {
         const { data, error } = await supabase
             .from('users')
@@ -48,12 +71,22 @@ export const userService = {
         return data;
     },
 
+    /**
+     * Déconnecte l'utilisateur actuel
+     * @throws Erreur en cas d'échec de la déconnexion
+     */
     async signOut() {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
     },
 
-    // Gestion du profil
+    /**
+     * Met à jour le profil d'un utilisateur
+     * @param userId - Identifiant de l'utilisateur
+     * @param updates - Objet partiel contenant les champs à mettre à jour
+     * @returns Profil utilisateur mis à jour
+     * @throws Erreur en cas d'échec de la mise à jour
+     */
     async updateProfile(userId: string, updates: Partial<User>) {
         const { data, error } = await supabase
             .from('users')
@@ -66,7 +99,12 @@ export const userService = {
         return data;
     },
 
-    // Gestion de l'inventaire
+    /**
+     * Récupère l'inventaire de cartes d'un utilisateur
+     * @param userId - Identifiant de l'utilisateur
+     * @returns Liste des cartes dans l'inventaire avec leurs détails
+     * @throws Erreur en cas d'échec de la récupération
+     */
     async getInventory(userId: string) {
         const { data, error } = await supabase
             .from('card_inventory')
@@ -80,6 +118,12 @@ export const userService = {
         return data;
     },
 
+    /**
+     * Ajoute une carte à l'inventaire d'un utilisateur
+     * @param item - Objet contenant les détails de l'élément d'inventaire à ajouter
+     * @returns L'élément d'inventaire créé
+     * @throws Erreur en cas d'échec de l'ajout
+     */
     async addToInventory(item: Omit<CardInventoryItem, 'acquired_at'>) {
         const { data, error } = await supabase
             .from('card_inventory')
@@ -94,7 +138,12 @@ export const userService = {
         return data;
     },
 
-    // Gestion des decks
+    /**
+     * Récupère les decks d'un utilisateur
+     * @param userId - Identifiant de l'utilisateur
+     * @returns Liste des decks de l'utilisateur avec leurs cartes
+     * @throws Erreur en cas d'échec de la récupération
+     */
     async getDecks(userId: string) {
         const { data, error } = await supabase
             .from('decks')
@@ -111,6 +160,12 @@ export const userService = {
         return data;
     },
 
+    /**
+     * Crée un nouveau deck pour un utilisateur
+     * @param deck - Objet contenant les détails du deck à créer
+     * @returns Le deck créé
+     * @throws Erreur en cas d'échec de la création
+     */
     async createDeck(deck: Omit<Deck, 'id' | 'created_at' | 'updated_at'>) {
         const { data, error } = await supabase
             .from('decks')
@@ -122,6 +177,13 @@ export const userService = {
         return data;
     },
 
+    /**
+     * Met à jour un deck existant
+     * @param deckId - Identifiant du deck à mettre à jour
+     * @param updates - Objet partiel contenant les champs à mettre à jour
+     * @returns Le deck mis à jour
+     * @throws Erreur en cas d'échec de la mise à jour
+     */
     async updateDeck(deckId: string, updates: Partial<Deck>) {
         const { data, error } = await supabase
             .from('decks')
@@ -134,7 +196,12 @@ export const userService = {
         return data;
     },
 
-    // Gestion des réalisations
+    /**
+     * Récupère les réalisations obtenues par un utilisateur
+     * @param userId - Identifiant de l'utilisateur
+     * @returns Liste des réalisations de l'utilisateur
+     * @throws Erreur en cas d'échec de la récupération
+     */
     async getAchievements(userId: string) {
         const { data, error } = await supabase
             .from('user_achievements')
