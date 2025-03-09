@@ -2,6 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 import type { Card } from '../types';
 import type { Database } from '../types/database.types';
 
+/**
+ * @file supabaseClient.ts
+ * @description Client Supabase et fonctions d'accès à la base de données
+ * Ce module configure le client Supabase et fournit des fonctions pour interagir
+ * avec les tables du jeu Yeayeayea (cartes, sorts, tags, etc.)
+ */
+
+// Récupération des variables d'environnement
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
@@ -9,8 +17,16 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+/**
+ * Instance du client Supabase typée avec le schéma de la base de données
+ */
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
+/**
+ * Sauvegarde une carte dans la base de données (création ou mise à jour)
+ * @param card - La carte à sauvegarder
+ * @returns Un objet contenant la carte sauvegardée ou une erreur
+ */
 export const saveCard = async (card: Card) => {
   try {
     const formattedCard = {
@@ -44,6 +60,10 @@ export const saveCard = async (card: Card) => {
   }
 };
 
+/**
+ * Récupère toutes les cartes de la base de données
+ * @returns Une promesse contenant la liste de toutes les cartes
+ */
 export async function getAllCards() {
   const { data, error } = await supabase
     .from('cards')

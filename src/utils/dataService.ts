@@ -2,8 +2,24 @@ import { supabase } from './supabaseClient';
 import { Database, Json } from '../types/database.types';
 import { Spell, Tag, Alteration, SpellEffect } from '../types';
 
-// Add joinTableService implementation
+/**
+ * @file dataService.ts
+ * @description Service pour la gestion des données du jeu Yeayeayea
+ * Ce module fournit des fonctions pour interagir avec la base de données Supabase
+ * et gérer les relations entre les différentes entités (cartes, tags, sorts, etc.)
+ */
+
+/**
+ * Service pour gérer les relations entre les tables (many-to-many)
+ * Gère les associations entre cartes, tags et sorts
+ */
 export const joinTableService = {
+  /**
+   * Récupère les identifiants des tags associés à une carte spécifique
+   * @param cardId - L'identifiant de la carte
+   * @returns Un tableau d'objets contenant les identifiants des tags
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getTagsByCardId(cardId: number) {
     const { data, error } = await supabase
       .from('card_tags')
@@ -18,6 +34,12 @@ export const joinTableService = {
     return data || [];
   },
   
+  /**
+   * Récupère les identifiants des sorts associés à une carte spécifique
+   * @param cardId - L'identifiant de la carte
+   * @returns Un tableau d'objets contenant les identifiants des sorts
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getSpellsByCardId(cardId: number) {
     const { data, error } = await supabase
       .from('card_spells')
@@ -32,6 +54,12 @@ export const joinTableService = {
     return data || [];
   },
 
+  /**
+   * Met à jour les tags associés à une carte
+   * @param cardId - L'identifiant de la carte
+   * @param tagIds - Tableau d'identifiants des tags à associer
+   * @throws Erreur si les tags n'existent pas ou en cas d'échec de la mise à jour
+   */
   async updateCardTags(cardId: number, tagIds: number[]) {
     // Vérifier d'abord que tous les tags existent
     const { data: existingTags, error: tagCheckError } = await supabase
@@ -117,7 +145,16 @@ export const joinTableService = {
   }
 };
 
+/**
+ * Service pour la gestion des altérations
+ * Fournit les opérations CRUD pour les altérations dans le jeu
+ */
 export const alterationService = {
+  /**
+   * Récupère toutes les altérations disponibles
+   * @returns Une promesse contenant la liste de toutes les altérations
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getAll(): Promise<Alteration[]> {
     const { data, error } = await supabase
       .from('alterations')
@@ -126,6 +163,12 @@ export const alterationService = {
     return data;
   },
 
+  /**
+   * Récupère une altération par son identifiant
+   * @param id - L'identifiant de l'altération à récupérer
+   * @returns Une promesse contenant l'altération ou null si non trouvée
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getById(id: number): Promise<Alteration | null> {
     const { data, error } = await supabase
       .from('alterations')
@@ -136,6 +179,12 @@ export const alterationService = {
     return data;
   },
 
+  /**
+   * Crée une nouvelle altération
+   * @param alteration - L'objet altération à créer (sans id, created_at, updated_at)
+   * @returns Une promesse contenant l'altération créée avec son id
+   * @throws Erreur en cas d'échec de la création
+   */
   async create(alteration: Omit<Alteration, 'id' | 'created_at' | 'updated_at'>): Promise<Alteration> {
     const { data, error } = await supabase
       .from('alterations')
@@ -146,6 +195,13 @@ export const alterationService = {
     return data;
   },
 
+  /**
+   * Met à jour une altération existante
+   * @param id - L'identifiant de l'altération à mettre à jour
+   * @param alteration - Objet partiel contenant les champs à mettre à jour
+   * @returns Une promesse contenant l'altération mise à jour
+   * @throws Erreur en cas d'échec de la mise à jour
+   */
   async update(id: number, alteration: Partial<Omit<Alteration, 'id' | 'created_at' | 'updated_at'>>): Promise<Alteration> {
     const { data, error } = await supabase
       .from('alterations')
@@ -157,6 +213,11 @@ export const alterationService = {
     return data;
   },
 
+  /**
+   * Supprime une altération
+   * @param id - L'identifiant de l'altération à supprimer
+   * @throws Erreur en cas d'échec de la suppression
+   */
   async delete(id: number): Promise<void> {
     const { error } = await supabase
       .from('alterations')
@@ -166,7 +227,16 @@ export const alterationService = {
   }
 };
 
+/**
+ * Service pour la gestion des sorts
+ * Fournit les opérations CRUD pour les sorts des cartes
+ */
 export const spellService = {
+  /**
+   * Récupère tous les sorts disponibles
+   * @returns Une promesse contenant la liste de tous les sorts
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getAll(): Promise<Spell[]> {
     const { data, error } = await supabase
       .from('spells')
@@ -178,6 +248,12 @@ export const spellService = {
     }));
   },
 
+  /**
+   * Récupère un sort par son identifiant
+   * @param id - L'identifiant du sort à récupérer
+   * @returns Une promesse contenant le sort ou null si non trouvé
+   * @throws Erreur en cas d'échec de la requête
+   */
   async getById(id: number): Promise<Spell | null> {
     const { data, error } = await supabase
       .from('spells')

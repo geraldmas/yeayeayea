@@ -1,6 +1,13 @@
 import { Card, Alteration, Tag, Spell } from './index';
 
 /**
+ * @file combat.ts
+ * @description Types spécifiques au système de combat du jeu Yeayeayea
+ * Ce fichier définit les interfaces pour la gestion des instances de cartes en jeu,
+ * les altérations actives, les mécanismes de ciblage et autres fonctionnalités liées au combat
+ */
+
+/**
  * Représente un emplacement d'objet et l'objet équipé
  */
 export interface ObjectSlot {

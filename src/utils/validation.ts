@@ -3,6 +3,18 @@ import { Json } from '../types/database.types';
 import { spellService, tagService, joinTableService } from './dataService';
 import { supabase } from './supabaseClient';
 
+/**
+ * @file validation.ts
+ * @description Fonctions de validation pour les entités du jeu Yeayeayea
+ * Ce module fournit des utilitaires pour valider les cartes, sorts, tags et 
+ * vérifier la cohérence des données avant leur enregistrement en base
+ */
+
+/**
+ * Valide une carte de manière asynchrone avec vérification en base de données
+ * @param card - La carte à valider
+ * @returns Un tableau de chaînes contenant les erreurs de validation, vide si aucune erreur
+ */
 export const validateCard = async (card: Card): Promise<string[]> => {
   const errors: string[] = [];
 
@@ -110,7 +122,12 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   return errors;
 };
 
-// Fonction de validation synchrone (sans chargement des données externes) pour les tests
+/**
+ * Valide une carte de manière synchrone, sans vérification en base de données
+ * Utile pour les tests et les validations côté client sans accès à la base
+ * @param card - La carte à valider
+ * @returns Un tableau de chaînes contenant les erreurs de validation, vide si aucune erreur
+ */
 export const validateCardSync = (card: Card): string[] => {
   const errors: string[] = [];
 
@@ -182,6 +199,12 @@ export const validateCardSync = (card: Card): string[] => {
   return errors;
 };
 
+/**
+ * Valide un sort
+ * Vérifie les propriétés obligatoires et la cohérence des effets du sort
+ * @param spell - Le sort à valider
+ * @returns Un tableau de chaînes contenant les erreurs de validation, vide si aucune erreur
+ */
 export const validateSpell = (spell: Spell): string[] => {
   const errors: string[] = [];
 

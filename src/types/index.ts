@@ -1,5 +1,12 @@
 import type { Json, Database } from './database.types';
 
+/**
+ * @file index.ts
+ * @description Types principaux du jeu Yeayeayea
+ * Ce fichier exporte les interfaces et types utilisés dans l'ensemble de l'application
+ * pour représenter les cartes, sorts, altérations et autres entités du jeu
+ */
+
 export type { Json } from './database.types';
 export type {
     User,
@@ -11,6 +18,9 @@ export type {
     UserAchievement
 } from './userTypes';
 
+/**
+ * Interface représentant un sort avec ses caractéristiques et effets
+ */
 export interface Spell {
   id: number;
   name: string;
@@ -25,6 +35,9 @@ export interface Spell {
   updated_at?: string;
 }
 
+/**
+ * Interface représentant un effet de sort avec ses caractéristiques et conditions d'application
+ */
 export interface SpellEffect {
   type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration';
   value: number; 
