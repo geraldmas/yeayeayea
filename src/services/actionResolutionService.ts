@@ -70,6 +70,64 @@ export interface PlannedAction {
 }
 
 /**
+ * Définit les différentes stratégies de résolution des conflits disponibles
+ * @enum {string}
+ */
+export enum ConflictResolutionStrategy {
+  /** Résout les conflits en favorisant la première action planifiée (FIFO - First In, First Out) */
+  FIFO = 'fifo',
+  
+  /** Résout les conflits en favorisant la dernière action planifiée (LIFO - Last In, First Out) */
+  LIFO = 'lifo',
+  
+  /** Résout les conflits de manière aléatoire */
+  RANDOM = 'random',
+  
+  /** Résout les conflits en fonction de la priorité définie par l'utilisateur */
+  PRIORITY = 'priority',
+  
+  /** Résout les conflits en priorisant les actions ayant le plus haut coût */
+  COST = 'cost',
+  
+  /** Résout les conflits en priorisant les actions ayant le plus bas coût */
+  LOW_COST = 'low_cost'
+}
+
+/**
+ * Interface représentant les détails d'un conflit entre deux actions
+ */
+export interface ConflictDetails {
+  /** Première action impliquée dans le conflit */
+  action1: PlannedAction;
+  
+  /** Deuxième action impliquée dans le conflit */
+  action2: PlannedAction;
+  
+  /** Description textuelle de la raison du conflit */
+  reason: string;
+  
+  /** Type de conflit identifié */
+  type: 'resource' | 'exclusivity' | 'target' | 'other';
+}
+
+/**
+ * Interface décrivant la résolution d'un conflit
+ */
+export interface ConflictResolution {
+  /** Détails du conflit qui a été résolu */
+  conflict: ConflictDetails;
+  
+  /** Description de la règle appliquée pour résoudre le conflit */
+  resolution: string;
+  
+  /** Identifiant de l'action qui a été conservée */
+  keptActionId: string;
+  
+  /** Identifiant de l'action qui a été annulée */
+  cancelledActionId: string;
+}
+
+/**
  * Service responsable de la gestion des actions et de leur résolution simultanée
  * Permet de planifier, annuler et résoudre des actions de combat en gérant
  * les conflits potentiels entre actions concurrentes
@@ -77,6 +135,41 @@ export interface PlannedAction {
 export class ActionResolutionService {
   /** Liste des actions planifiées en attente d'exécution */
   private plannedActions: PlannedAction[] = [];
+  
+  /** Stratégie de résolution de conflits actuelle */
+  private conflictStrategy: ConflictResolutionStrategy = ConflictResolutionStrategy.FIFO;
+  
+  /** Probabilité d'utiliser l'aléatoire pour résoudre un conflit (0-100) */
+  private randomResolutionChance: number = 0;
+  
+  /**
+   * Crée une nouvelle instance du service de résolution d'actions
+   * @param strategy Stratégie de résolution de conflits à utiliser (par défaut: FIFO)
+   * @param randomChance Probabilité d'utiliser l'aléatoire pour résoudre un conflit (0-100)
+   */
+  constructor(
+    strategy: ConflictResolutionStrategy = ConflictResolutionStrategy.FIFO,
+    randomChance: number = 0
+  ) {
+    this.conflictStrategy = strategy;
+    this.randomResolutionChance = Math.min(100, Math.max(0, randomChance));
+  }
+  
+  /**
+   * Modifie la stratégie de résolution de conflits
+   * @param strategy Nouvelle stratégie à utiliser
+   */
+  public setConflictStrategy(strategy: ConflictResolutionStrategy): void {
+    this.conflictStrategy = strategy;
+  }
+  
+  /**
+   * Modifie la probabilité d'utiliser l'aléatoire pour résoudre les conflits
+   * @param chance Probabilité entre 0 et 100
+   */
+  public setRandomResolutionChance(chance: number): void {
+    this.randomResolutionChance = Math.min(100, Math.max(0, chance));
+  }
   
   /**
    * Planifie une nouvelle action à exécuter
@@ -138,18 +231,11 @@ export class ActionResolutionService {
       return;
     }
     
-    // Trier les actions par priorité (décroissante) et timestamp (croissant)
-    const sortedActions = [...this.plannedActions].sort((a, b) => {
-      // D'abord par priorité (décroissante)
-      if (a.priority !== b.priority) {
-        return b.priority - a.priority;
-      }
-      // Ensuite par timestamp (croissant)
-      return a.timestamp - b.timestamp;
-    });
+    // Résout les conflits avant de trier et d'exécuter les actions
+    this.resolveConflictsAutomatically();
     
-    // Créer une copie de l'état actuel avant toute modification
-    // (Dans une implémentation réelle, on devrait cloner l'état du combat)
+    // Trier les actions selon la stratégie actuelle
+    const sortedActions = this.sortActionsByStrategy();
     
     // Appliquer toutes les actions dans l'ordre de priorité
     sortedActions.forEach(action => {
@@ -161,6 +247,73 @@ export class ActionResolutionService {
   }
   
   /**
+   * Trie les actions selon la stratégie de résolution définie
+   * @returns Les actions triées selon la stratégie actuelle
+   */
+  private sortActionsByStrategy(): PlannedAction[] {
+    const actions = [...this.plannedActions];
+    
+    switch (this.conflictStrategy) {
+      case ConflictResolutionStrategy.FIFO:
+        // Premier arrivé, premier servi (timestamp croissant)
+        return actions.sort((a, b) => a.timestamp - b.timestamp);
+        
+      case ConflictResolutionStrategy.LIFO:
+        // Dernier arrivé, premier servi (timestamp décroissant)
+        return actions.sort((a, b) => b.timestamp - a.timestamp);
+        
+      case ConflictResolutionStrategy.RANDOM:
+        // Ordre aléatoire
+        return this.shuffleArray(actions);
+        
+      case ConflictResolutionStrategy.PRIORITY:
+        // Trier par priorité puis par timestamp
+        return actions.sort((a, b) => {
+          if (a.priority !== b.priority) {
+            return b.priority - a.priority; // Priorité décroissante
+          }
+          return a.timestamp - b.timestamp; // Timestamp croissant
+        });
+        
+      case ConflictResolutionStrategy.COST:
+        // Trier par coût puis par timestamp
+        return actions.sort((a, b) => {
+          if (a.cost !== b.cost) {
+            return b.cost - a.cost; // Coût décroissant
+          }
+          return a.timestamp - b.timestamp; // Timestamp croissant
+        });
+        
+      case ConflictResolutionStrategy.LOW_COST:
+        // Trier par coût faible puis par timestamp
+        return actions.sort((a, b) => {
+          if (a.cost !== b.cost) {
+            return a.cost - b.cost; // Coût croissant
+          }
+          return a.timestamp - b.timestamp; // Timestamp croissant
+        });
+        
+      default:
+        // Par défaut, FIFO
+        return actions.sort((a, b) => a.timestamp - b.timestamp);
+    }
+  }
+  
+  /**
+   * Mélange un tableau de manière aléatoire
+   * @param array Tableau à mélanger
+   * @returns Le tableau mélangé
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }
+  
+  /**
    * Détecte les conflits potentiels entre les actions planifiées
    * Un conflit peut exister lorsque deux actions ciblent la même carte,
    * lorsqu'une action pourrait empêcher l'autre d'être exécutée,
@@ -169,8 +322,8 @@ export class ActionResolutionService {
    * @returns Un tableau des conflits détectés, chaque conflit contenant les deux actions
    * en conflit et la raison du conflit
    */
-  public detectConflicts(): { action1: PlannedAction, action2: PlannedAction, reason: string }[] {
-    const conflicts: { action1: PlannedAction, action2: PlannedAction, reason: string }[] = [];
+  public detectConflicts(): ConflictDetails[] {
+    const conflicts: ConflictDetails[] = [];
     
     // Parcourir toutes les paires d'actions pour détecter les conflits
     for (let i = 0; i < this.plannedActions.length; i++) {
@@ -185,12 +338,12 @@ export class ActionResolutionService {
         if (action1.source.instanceId === action2.source.instanceId) {
           const totalCost = action1.cost + action2.cost;
           // Vérifier si la source a assez de motivation pour les deux actions
-          // (Ici on suppose qu'il existe une propriété motivation, à adapter selon l'implémentation réelle)
           if (action1.source.temporaryStats.motivation < totalCost) {
             conflicts.push({
               action1,
               action2,
-              reason: "Ressources insuffisantes pour exécuter les deux actions"
+              reason: "Ressources insuffisantes pour exécuter les deux actions",
+              type: 'resource'
             });
           }
         }
@@ -214,10 +367,29 @@ export class ActionResolutionService {
               conflicts.push({
                 action1,
                 action2,
-                reason: "Altérations potentiellement exclusives sur les mêmes cibles"
+                reason: "Altérations potentiellement exclusives sur les mêmes cibles",
+                type: 'exclusivity'
               });
             }
           }
+        }
+        
+        // 3. Conflit de ciblage (actions qui s'annulent potentiellement sur la même cible)
+        // Par exemple un heal et un dégât appliqués en même temps
+        const commonTargets = action1.targets.filter(target1 => 
+          action2.targets.some(target2 => target1.instanceId === target2.instanceId)
+        );
+        
+        if (commonTargets.length > 0 && 
+            ((action1.type === ActionType.CAST_SPELL && action2.type === ActionType.CAST_SPELL) || 
+             (action1.type === ActionType.ATTACK && action2.type === ActionType.ATTACK))) {
+          
+          conflicts.push({
+            action1,
+            action2,
+            reason: "Actions potentiellement contradictoires sur les mêmes cibles",
+            type: 'target'
+          });
         }
         
         // D'autres types de conflits peuvent être ajoutés selon les règles du jeu
@@ -229,45 +401,151 @@ export class ActionResolutionService {
   
   /**
    * Résout automatiquement les conflits entre actions en appliquant des règles prédéfinies
-   * Cette méthode applique une série de règles pour déterminer quelle action
-   * doit être conservée en cas de conflit :
-   * 1. L'action avec la priorité la plus élevée est conservée
-   * 2. En cas d'égalité de priorité, l'action planifiée en premier est conservée
+   * Cette méthode applique la stratégie de résolution définie pour déterminer quelle action
+   * doit être conservée en cas de conflit.
    * 
    * Les actions en conflit qui ne sont pas conservées sont automatiquement annulées
    * 
    * @returns Un tableau contenant les conflits résolus avec la règle appliquée pour chacun
    */
-  public resolveConflictsAutomatically(): { conflict: any, resolution: string }[] {
+  public resolveConflictsAutomatically(): ConflictResolution[] {
     const conflicts = this.detectConflicts();
-    const resolutions: { conflict: any, resolution: string }[] = [];
+    const resolutions: ConflictResolution[] = [];
     
-    // Pour chaque conflit, appliquer une règle de résolution
+    // Pour chaque conflit, appliquer la stratégie de résolution
     conflicts.forEach(conflict => {
       const { action1, action2 } = conflict;
       
-      // Règle 1: Priorité plus élevée gagne
-      if (action1.priority !== action2.priority) {
-        const lowerPriorityAction = action1.priority < action2.priority ? action1 : action2;
-        this.cancelAction(lowerPriorityAction.id);
-        
-        resolutions.push({
-          conflict,
-          resolution: `Action "${lowerPriorityAction.id}" annulée car priorité inférieure`
-        });
+      // Déterminer si on utilise l'aléatoire pour ce conflit
+      const useRandom = Math.random() * 100 < this.randomResolutionChance;
+      
+      // Fonction pour déterminer quelle action conserver
+      let keepAction1: boolean;
+      let resolutionDescription: string;
+      
+      if (useRandom) {
+        // Résolution aléatoire
+        keepAction1 = Math.random() < 0.5;
+        resolutionDescription = "Résolution aléatoire du conflit";
+      } else {
+        // Appliquer la stratégie définie
+        switch (this.conflictStrategy) {
+          case ConflictResolutionStrategy.FIFO:
+            // Premier arrivé, premier servi
+            keepAction1 = action1.timestamp < action2.timestamp;
+            resolutionDescription = keepAction1 
+              ? "Conservation de l'action planifiée en premier" 
+              : "Conservation de l'action planifiée en dernier";
+            break;
+            
+          case ConflictResolutionStrategy.LIFO:
+            // Dernier arrivé, premier servi
+            keepAction1 = action1.timestamp > action2.timestamp;
+            resolutionDescription = keepAction1 
+              ? "Conservation de l'action planifiée plus tard" 
+              : "Conservation de l'action planifiée plus tôt";
+            break;
+            
+          case ConflictResolutionStrategy.PRIORITY:
+            // Action avec la priorité la plus élevée
+            if (action1.priority !== action2.priority) {
+              keepAction1 = action1.priority > action2.priority;
+              resolutionDescription = keepAction1 
+                ? "Conservation de l'action avec priorité supérieure" 
+                : "Conservation de l'action avec priorité inférieure";
+            } else {
+              // En cas d'égalité, on utilise FIFO
+              keepAction1 = action1.timestamp < action2.timestamp;
+              resolutionDescription = keepAction1 
+                ? "Priorités égales, conservation de l'action planifiée en premier" 
+                : "Priorités égales, conservation de l'action planifiée en second";
+            }
+            break;
+            
+          case ConflictResolutionStrategy.COST:
+            // Action avec le coût le plus élevé
+            if (action1.cost !== action2.cost) {
+              keepAction1 = action1.cost > action2.cost;
+              resolutionDescription = keepAction1 
+                ? "Conservation de l'action avec coût supérieur" 
+                : "Conservation de l'action avec coût inférieur";
+            } else {
+              // En cas d'égalité, on utilise FIFO
+              keepAction1 = action1.timestamp < action2.timestamp;
+              resolutionDescription = keepAction1 
+                ? "Coûts égaux, conservation de l'action planifiée en premier" 
+                : "Coûts égaux, conservation de l'action planifiée en second";
+            }
+            break;
+            
+          case ConflictResolutionStrategy.LOW_COST:
+            // Action avec le coût le plus faible
+            if (action1.cost !== action2.cost) {
+              keepAction1 = action1.cost < action2.cost;
+              resolutionDescription = keepAction1 
+                ? "Conservation de l'action avec coût inférieur" 
+                : "Conservation de l'action avec coût supérieur";
+            } else {
+              // En cas d'égalité, on utilise FIFO
+              keepAction1 = action1.timestamp < action2.timestamp;
+              resolutionDescription = keepAction1 
+                ? "Coûts égaux, conservation de l'action planifiée en premier" 
+                : "Coûts égaux, conservation de l'action planifiée en second";
+            }
+            break;
+            
+          case ConflictResolutionStrategy.RANDOM:
+            // Choix aléatoire
+            keepAction1 = Math.random() < 0.5;
+            resolutionDescription = "Résolution aléatoire du conflit";
+            break;
+            
+          default:
+            // Par défaut, FIFO
+            keepAction1 = action1.timestamp < action2.timestamp;
+            resolutionDescription = keepAction1 
+              ? "Conservation de l'action planifiée en premier (par défaut)" 
+              : "Conservation de l'action planifiée en second (par défaut)";
+        }
       }
-      // Règle 2: En cas d'égalité de priorité, la première action planifiée est conservée
-      else {
-        const laterAction = action1.timestamp > action2.timestamp ? action1 : action2;
-        this.cancelAction(laterAction.id);
-        
-        resolutions.push({
-          conflict,
-          resolution: `Action "${laterAction.id}" annulée car planifiée plus tard`
-        });
-      }
+      
+      // Annuler l'action qui n'est pas conservée
+      const keptAction = keepAction1 ? action1 : action2;
+      const cancelledAction = keepAction1 ? action2 : action1;
+      
+      // Canceller l'action non conservée
+      this.cancelAction(cancelledAction.id);
+      
+      // Enregistrer la résolution
+      resolutions.push({
+        conflict,
+        resolution: resolutionDescription,
+        keptActionId: keptAction.id,
+        cancelledActionId: cancelledAction.id
+      });
     });
     
     return resolutions;
+  }
+  
+  /**
+   * Récupère des informations sur les conflits et leur résolution pour l'interface utilisateur
+   * @returns Un objet contenant les détails des conflits détectés et de leur résolution
+   */
+  public getConflictInfo(): {
+    strategy: ConflictResolutionStrategy;
+    randomChance: number;
+    conflicts: ConflictDetails[];
+    resolutions: ConflictResolution[];
+  } {
+    const conflicts = this.detectConflicts();
+    const resolutions = this.resolveConflictsAutomatically();
+    
+    return {
+      strategy: this.conflictStrategy,
+      randomChance: this.randomResolutionChance,
+      conflicts,
+      resolutions
+    };
   }
 } 

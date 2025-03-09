@@ -1,0 +1,83 @@
+.conflict-resolution-manager {
+  margin: 20px;
+}
+
+.conflict-resolution-manager h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.conflict-resolution-manager .MuiCard-root {
+  transition: box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.conflict-resolution-manager .MuiCard-root:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.conflict-resolution-manager .MuiPaper-root {
+  border-radius: 8px;
+}
+
+/* Styles pour les types de conflits */
+.conflict-type-resource {
+  background-color: rgba(255, 152, 0, 0.1);
+}
+
+.conflict-type-exclusivity {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.conflict-type-target {
+  background-color: rgba(3, 169, 244, 0.1);
+}
+
+.conflict-type-other {
+  background-color: rgba(158, 158, 158, 0.1);
+}
+
+/* Animation pour les résolutions */
+@keyframes highlight {
+  0% { background-color: rgba(76, 175, 80, 0.2); }
+  50% { background-color: rgba(76, 175, 80, 0.4); }
+  100% { background-color: rgba(76, 175, 80, 0.2); }
+}
+
+.conflict-resolution-manager .resolution-highlight {
+  animation: highlight 2s ease;
+}
+
+/* Style pour les éléments de liste */
+.conflict-resolution-manager .MuiListItem-root {
+  border-radius: 4px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.conflict-resolution-manager .MuiListItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Styles pour les icônes */
+.conflict-resolution-manager .MuiListItemIcon-root {
+  min-width: 40px;
+}
+
+/* Style pour les chips */
+.conflict-resolution-manager .MuiChip-root {
+  height: 24px;
+  font-size: 0.75rem;
+}
+
+/* Style pour l'affichage des stratégies */
+.conflict-resolution-manager .strategy-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.conflict-resolution-manager .strategy-info .MuiSvgIcon-root {
+  margin-right: 8px;
+  color: #777;
+} 
