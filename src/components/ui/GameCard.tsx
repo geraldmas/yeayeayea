@@ -77,7 +77,7 @@ const GameCard: React.FC<GameCardProps> = ({
             className="card-image" 
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = '/images/default-card.jpg';
+              target.src = '/images/default-card.svg';
             }}
           />
         ) : (
