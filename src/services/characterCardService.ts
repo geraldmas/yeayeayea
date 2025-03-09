@@ -4,15 +4,44 @@ import { CardInstanceImpl } from './combatService';
 import { CardInstance } from '../types/combat';
 
 /**
+ * @file characterCardService.ts
+ * @description Service de gestion des cartes personnage pour le jeu Yeayeayea
+ * 
+ * Les cartes personnage sont les entités principales que les joueurs utilisent pour combattre.
+ * Contrairement aux autres types de cartes, les personnages peuvent :
+ * - Gagner de l'expérience et monter en niveau
+ * - Avoir des statistiques qui évoluent avec leur niveau
+ * - Lancer des sorts et subir des altérations
+ * - Équiper des objets
+ * 
+ * Ce service fournit les classes et méthodes nécessaires pour instancier des cartes personnage,
+ * gérer leur évolution, et manipuler leurs statistiques pendant le jeu.
+ */
+
+/**
  * Extension de CardInstanceImpl pour les cartes de type personnage.
- * Ajoute les fonctionnalités de niveau et d'expérience.
+ * Ajoute les fonctionnalités de niveau et d'expérience qui permettent
+ * aux personnages d'évoluer au cours d'une partie et de devenir plus puissants.
  */
 export class CharacterCardInstance extends CardInstanceImpl {
+  /** Niveau actuel du personnage */
   public level: number;
+  
+  /** Niveau maximum que le personnage peut atteindre */
   public maxLevel: number;
+  
+  /** Points d'expérience actuels */
   public xp: number;
+  
+  /** Points d'expérience nécessaires pour passer au niveau suivant */
   public xpToNextLevel: number;
 
+  /**
+   * Crée une nouvelle instance de carte personnage à partir d'une définition
+   * Initialise les propriétés de niveau et d'expérience, et calcule les statistiques de base
+   * 
+   * @param card - Définition de carte personnage à instancier
+   */
   constructor(card: CharacterCard) {
     super(card);
     
@@ -32,6 +61,7 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
   /**
    * Met à jour les statistiques en fonction du niveau actuel
+   * Calcule l'attaque et la défense avec des bonus basés sur le niveau du personnage
    */
   public updateStatsForLevel(): void {
     const characterCard = this.cardDefinition as CharacterCard;
@@ -52,8 +82,11 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
   /**
    * Ajoute de l'expérience à un personnage et gère le passage de niveau
-   * @param amount Quantité d'XP à ajouter
-   * @returns true si le personnage a gagné un niveau, false sinon
+   * Cette méthode est appelée lors de la défaite d'adversaires ou l'accomplissement d'objectifs
+   * Si l'XP dépasse le seuil requis, le personnage monte automatiquement de niveau
+   * 
+   * @param amount - Quantité d'XP à ajouter au personnage
+   * @returns `true` si le personnage a gagné un niveau grâce à cette expérience, `false` sinon
    */
   public addExperience(amount: number): boolean {
     if (this.level >= this.maxLevel) {
@@ -72,6 +105,9 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
   /**
    * Fait monter le personnage d'un niveau
+   * Augmente ses statistiques, réinitialise son compteur d'XP et recalcule le seuil pour le niveau suivant
+   * Cette méthode est appelée automatiquement par addExperience ou peut être déclenchée directement
+   * par des effets spéciaux de cartes
    */
   public levelUp(): void {
     if (this.level >= this.maxLevel) {
@@ -108,9 +144,13 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
   /**
    * Calcule l'XP nécessaire pour atteindre le niveau suivant
+   * Utilise une formule quadratique pour créer une courbe d'expérience
+   * qui devient de plus en plus exigeante aux niveaux supérieurs
    * Formule : base * (niveau * facteur)²
-   * @param level Niveau actuel
-   * @returns Expérience nécessaire pour le niveau suivant
+   * 
+   * @param level - Niveau actuel du personnage
+   * @returns Quantité d'XP nécessaire pour passer au niveau suivant
+   * @private
    */
   private calculateXPForNextLevel(level: number): number {
     const baseXP = 100;
@@ -120,10 +160,14 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
   /**
    * Calcule les points de vie maximum en fonction du niveau
+   * Augmente les PV de façon linéaire à chaque niveau, avec un facteur
+   * de croissance proportionnel à la santé de base du personnage
    * Formule : base + (niveau - 1) * (facteurCroissance)
-   * @param baseHealth PV de base au niveau 1
-   * @param level Niveau actuel
+   * 
+   * @param baseHealth - PV de base au niveau 1
+   * @param level - Niveau actuel du personnage
    * @returns Points de vie maximum pour le niveau donné
+   * @private
    */
   private calculateMaxHealthForLevel(baseHealth: number, level: number): number {
     const growthFactor = Math.max(5, baseHealth * 0.15); // 15% de la santé de base, minimum 5
@@ -133,21 +177,29 @@ export class CharacterCardInstance extends CardInstanceImpl {
 
 /**
  * Service pour gérer les cartes de type personnage
+ * Fournit des méthodes utilitaires pour créer, valider et convertir des cartes personnage
+ * Ce service est utilisé par le système de combat et d'autres composants qui manipulent
+ * des cartes personnage
  */
 export class CharacterCardService {
   /**
    * Crée une instance de carte personnage à partir d'une définition
-   * @param card Définition de la carte personnage
-   * @returns Instance de carte personnage initialisée
+   * Cette méthode est le point d'entrée principal pour instancier des cartes personnage
+   * dans le système de combat
+   * 
+   * @param card - Définition de la carte personnage à instancier
+   * @returns Une nouvelle instance de carte personnage initialisée avec ses propriétés de niveau
    */
   public createCharacterInstance(card: CharacterCard): CharacterCardInstance {
     return new CharacterCardInstance(card);
   }
 
   /**
-   * Vérifie si une carte peut être convertie en carte personnage
-   * @param card Carte à vérifier
-   * @returns true si c'est une carte personnage valide, false sinon
+   * Vérifie si une carte peut être considérée comme une carte personnage valide
+   * Utilisé pour valider les données avant de créer une instance de carte personnage
+   * 
+   * @param card - Carte à vérifier
+   * @returns `true` si la carte est un personnage valide avec les propriétés requises, `false` sinon
    */
   public isValidCharacterCard(card: any): card is CharacterCard {
     return (
@@ -159,9 +211,12 @@ export class CharacterCardService {
   }
 
   /**
-   * Convertit une carte en carte personnage si possible
-   * @param card Carte à convertir
-   * @returns Carte personnage ou null si conversion impossible
+   * Convertit une carte générique en carte personnage typée si possible
+   * Cette méthode est utile pour traiter des cartes provenant d'API ou de sources externes
+   * où le typage strict n'est pas garanti
+   * 
+   * @param card - Carte générique à convertir en carte personnage
+   * @returns La carte convertie en CharacterCard ou `null` si la conversion est impossible
    */
   public toCharacterCard(card: any): CharacterCard | null {
     if (!this.isValidCharacterCard(card)) {
