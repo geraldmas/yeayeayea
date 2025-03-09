@@ -17,7 +17,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Chip
+  Chip,
+  SelectChangeEvent
 } from '@mui/material';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
@@ -161,7 +162,7 @@ const ConflictResolutionManager: React.FC<ConflictResolutionManagerProps> = ({
   /**
    * Gestionnaire de changement de stratégie
    */
-  const handleStrategyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleStrategyChange = (event: SelectChangeEvent<ConflictResolutionStrategy>) => {
     const newStrategy = event.target.value as ConflictResolutionStrategy;
     setStrategy(newStrategy);
     onStrategyChange(newStrategy);
