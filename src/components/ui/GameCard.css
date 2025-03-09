@@ -488,6 +488,27 @@
   animation: none;
 }
 
+/* Désactivation de toutes les animations problématiques pour les cartes banger */
+.card-rarity-banger:hover .card-shine,
+.card-rarity-banger .card-shine {
+  animation: none !important; /* Utiliser !important pour s'assurer que ça surcharge tout */
+  opacity: 0 !important;
+  display: none; /* Cacher complètement l'élément pour être sûr */
+}
+
+.card-rarity-banger:hover .card-legendary-border,
+.card-rarity-banger .card-legendary-border {
+  animation: none !important;
+  opacity: 0 !important;
+  display: none;
+}
+
+.card-rarity-banger:hover .card-image,
+.card-rarity-banger .card-image {
+  transform: none !important; /* Empêcher l'animation de transformation de l'image */
+  transition: none !important;
+}
+
 .card-rarity-interessant .card-glow {
   box-shadow: inset 0 0 20px var(--rarity-interessant);
 }
