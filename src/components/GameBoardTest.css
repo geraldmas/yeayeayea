@@ -66,4 +66,21 @@
     width: 100%;
     margin-right: 0;
   }
+}
+
+.base-controls {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.base-controls h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #3f51b5;
+}
+
+.base-controls button {
+  margin-right: 8px;
+  margin-bottom: 8px;
 } 

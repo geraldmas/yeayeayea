@@ -143,15 +143,15 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
 - [ ] Développer le système de charisme
-  - [ ] 🔥 Acquisition et stockage
+  - [x] 🔥 Acquisition et stockage
   - [ ] 🚀 Utilisation et limitations
 
 ### 5.3 Base et Attaques
-- [ ] Créer le système de base
-  - [ ] 🔥 Points de vie et résistance
+- [x] Créer le système de base
+  - [x] 🔥 Points de vie et résistance
   - [ ] 🚀 Système de guérison
 - [ ] Implémenter le système d'attaques
-  - [ ] 🔥 Conditions d'attaque
+  - [x] 🔥 Conditions d'attaque
   - [ ] 🚀 Modulation des dégâts
 
 ## 6. Intelligence Artificielle

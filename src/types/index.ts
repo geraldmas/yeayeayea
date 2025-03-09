@@ -252,6 +252,3 @@ export interface CharacterCardFrontend extends CardFrontend {
     [key: string]: any;
   };
 }
-
-export type { CharismeModifier };
-export type { Player };

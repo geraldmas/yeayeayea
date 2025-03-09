@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import GameBoard from './GameBoard';
 import { Card, Tag, Spell, Rarity } from '../types';
 import { CardInstance, TagInstance, SpellInstance, ActiveAlteration } from '../types/combat';
+import { PlayerBase } from '../types/player';
+import { createPlayerBase } from '../services/PlayerBaseService';
 import './GameBoardTest.css';
 
 /**
@@ -146,6 +148,10 @@ const GameBoardTest: React.FC = () => {
   const [playerDiscardCount, setPlayerDiscardCount] = useState<number>(5);
   const [opponentDiscardCount, setOpponentDiscardCount] = useState<number>(7);
   
+  // Création des bases de joueurs pour les tests
+  const [playerBaseInstance, setPlayerBaseInstance] = useState<PlayerBase>(createPlayerBase({ maxHealth: 100 }));
+  const [opponentBaseInstance, setOpponentBaseInstance] = useState<PlayerBase>(createPlayerBase({ maxHealth: 150 }));
+  
   // Gestion du glisser-déposer des cartes
   const handleCardDrop = (cardId: number, zone: string, slot?: number) => {
     console.log(`Carte ${cardId} déposée dans la zone ${zone}${slot !== undefined ? ` à l'emplacement ${slot}` : ''}`);
@@ -212,7 +218,13 @@ const GameBoardTest: React.FC = () => {
     
     // Ajouter ici la logique pour les actions sur les cartes (attaques, sorts, etc.)
   };
-  
+
+  // Fonction pour gérer le clic sur une base
+  const handleBaseClick = (isPlayerBase: boolean) => {
+    console.log(`Base ${isPlayerBase ? 'du joueur' : 'adverse'} cliquée`);
+    // Logique supplémentaire pour les actions sur les bases (attaques directes, etc.)
+  };
+
   return (
     <div className="game-board-test-container">
       <h1>Test de la Zone de Jeu</h1>
@@ -223,14 +235,17 @@ const GameBoardTest: React.FC = () => {
           playerObjects={playerObjects}
           playerDeck={playerDeckCount}
           playerDiscard={playerDiscardCount}
+          playerBase={playerBaseInstance}
           opponentHand={opponentHandCount}
           opponentCharacters={opponentCharacters}
           opponentObjects={opponentObjects}
           opponentDeck={opponentDeckCount}
           opponentDiscard={opponentDiscardCount}
+          opponentBase={opponentBaseInstance}
           activeLieu={activeLieu}
           onCardDrop={handleCardDrop}
           onCardClick={handleCardClick}
+          onBaseClick={handleBaseClick}
         />
       </div>
       <div className="test-controls">
@@ -258,6 +273,23 @@ const GameBoardTest: React.FC = () => {
         }}>
           Endommager le 1er personnage
         </button>
+        <div className="base-controls">
+          <h3>Contrôles des Bases</h3>
+          <button onClick={() => {
+            const newBase = { ...playerBaseInstance };
+            newBase.applyDamage(10, 'Test');
+            setPlayerBaseInstance(newBase);
+          }}>
+            Infliger 10 dégâts à la base du joueur
+          </button>
+          <button onClick={() => {
+            const newBase = { ...opponentBaseInstance };
+            newBase.applyDamage(15, 'Test');
+            setOpponentBaseInstance(newBase);
+          }}>
+            Infliger 15 dégâts à la base adverse
+          </button>
+        </div>
       </div>
     </div>
   );

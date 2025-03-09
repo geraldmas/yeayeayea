@@ -1,0 +1,153 @@
+.player-base {
+  background-color: rgba(25, 25, 40, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  margin: 10px;
+  padding: 15px;
+  width: 250px;
+  transition: all 0.3s ease;
+  border: 2px solid #333;
+}
+
+.player-base:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.player-base.current-player {
+  border-color: #4285F4;
+}
+
+.player-base.opponent {
+  border-color: #EA4335;
+}
+
+.player-base-header {
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 5px;
+}
+
+.player-base-header h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.player-base-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-base-health-container {
+  width: 100%;
+}
+
+.player-base-health-bar {
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.player-base-health-fill {
+  height: 100%;
+  width: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.player-base-health-text {
+  text-align: center;
+  margin-top: 5px;
+  color: #ddd;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.player-base-alterations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.player-base-alteration {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.player-base-alteration .stack-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f44336;
+  color: white;
+  font-size: 0.7rem;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Animation pour les dégâts et soins */
+@keyframes damage-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); background-color: rgba(244, 67, 54, 0.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes heal-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); background-color: rgba(76, 175, 80, 0.3); }
+  100% { transform: scale(1); }
+}
+
+.player-base.damage-animation {
+  animation: damage-pulse 0.5s ease;
+}
+
+.player-base.heal-animation {
+  animation: heal-pulse 0.5s ease;
+}
+
+/* Adaptation pour mobile */
+@media (max-width: 768px) {
+  .player-base {
+    width: 200px;
+    padding: 10px;
+  }
+  
+  .player-base-header h3 {
+    font-size: 1rem;
+  }
+  
+  .player-base-health-bar {
+    height: 15px;
+  }
+  
+  .player-base-health-text {
+    font-size: 0.8rem;
+  }
+  
+  .player-base-alteration {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+} 
