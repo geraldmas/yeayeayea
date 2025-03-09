@@ -485,6 +485,7 @@
 
 .card-rarity-banger .card-glow {
   box-shadow: inset 0 0 25px var(--rarity-banger);
+  animation: none;
 }
 
 .card-rarity-interessant .card-glow {

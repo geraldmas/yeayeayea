@@ -399,10 +399,7 @@ const AppContent: React.FC = () => {
             />
             
             {/* Section de progression */}
-            <div className="progress-section">
-              <h2>Progression globale</h2>
-              <TodoProgress />
-            </div>
+            <TodoProgress />
           </div>
         } />
         

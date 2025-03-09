@@ -2,14 +2,19 @@
   display: flex;
   flex-direction: column;
   margin-left: auto;
-  padding: 8px;
-  background-color: #f9f9f9;
+  padding: 12px;
+  background-color: rgba(22, 22, 38, 0.9);
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   overflow: hidden;
-  width: 180px;
+  width: 200px;
   align-self: center;
+  border: 1px solid var(--border-medium);
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 950;
 }
 
 .nav-links li:has(.todo-progress-container) {
@@ -19,7 +24,7 @@
 }
 
 .todo-progress-container.expanded {
-  width: 200px;
+  width: 230px;
 }
 
 .todo-progress-header {
@@ -32,19 +37,19 @@
 
 .todo-progress-text {
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
 .todo-progress-details {
   font-size: 11px;
-  color: #666;
+  color: var(--text-secondary);
   margin-right: 8px;
 }
 
 .expand-button {
   font-size: 10px;
-  color: #999;
+  color: var(--text-dimmed);
   transition: transform 0.3s;
 }
 
@@ -54,7 +59,7 @@
 
 .todo-progress-bar {
   height: 6px;
-  background-color: #e0e0e0;
+  background-color: var(--border-medium);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 3px;
@@ -62,7 +67,7 @@
 
 .todo-progress-completed {
   height: 100%;
-  background-color: #4caf50;
+  background-color: var(--color-primary);
   transition: width 0.5s ease-in-out;
 }
 
@@ -81,10 +86,10 @@
 }
 
 .priority-progress {
-  background-color: white;
+  background-color: rgba(42, 42, 64, 0.7);
   border-radius: 4px;
   padding: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
@@ -103,32 +108,32 @@
 
 .priority-percentage {
   font-size: 10px;
-  color: #666;
+  color: var(--text-secondary);
   min-width: 30px;
   text-align: right;
 }
 
 .priority-details {
   font-size: 10px;
-  color: #666;
+  color: var(--text-secondary);
   text-align: right;
 }
 
 /* Couleurs spécifiques par priorité */
 .todo-progress-completed.critical {
-  background-color: #ff5252; /* Rouge pour CRITIQUE */
+  background-color: var(--color-tertiary); /* Rouge pour CRITIQUE */
 }
 
 .todo-progress-completed.high {
-  background-color: #ffa726; /* Orange pour HAUTE */
+  background-color: var(--state-warning); /* Orange pour HAUTE */
 }
 
 .todo-progress-completed.medium {
-  background-color: #42a5f5; /* Bleu pour MOYENNE */
+  background-color: var(--state-info); /* Bleu pour MOYENNE */
 }
 
 .todo-progress-completed.low {
-  background-color: #66bb6a; /* Vert pour BASSE */
+  background-color: var(--state-success); /* Vert pour BASSE */
 }
 
 @media (max-width: 768px) {
