@@ -2,41 +2,88 @@ import { CardInstance } from '../types/combat';
 import { Spell, SpellEffect } from '../types/index';
 
 /**
+ * @file actionResolutionService.ts
+ * @description Service de résolution des actions pour le système de combat du jeu Yeayeayea
+ * 
+ * Ce service est responsable de la gestion du flux d'actions pendant le combat :
+ * - Planification des actions (attaques, sorts, capacités...)
+ * - Détection et résolution des conflits entre actions
+ * - Exécution des actions avec respect des priorités et des dépendances
+ * 
+ * La particularité de ce système est qu'il permet une résolution "simultanée" des actions
+ * où les joueurs planifient leurs actions, puis celles-ci sont exécutées en tenant compte
+ * des interactions possibles entre elles, plutôt qu'une simple exécution séquentielle.
+ */
+
+/**
  * Types d'actions possibles dans le système de combat
+ * Définit les différentes catégories d'actions que les joueurs peuvent effectuer
  */
 export enum ActionType {
+  /** Attaque de base entre deux cartes */
   ATTACK = 'attack',
+  
+  /** Lancement d'un sort par une carte */
   CAST_SPELL = 'cast_spell',
+  
+  /** Utilisation d'une capacité spéciale */
   USE_ABILITY = 'use_ability',
+  
+  /** Utilisation d'un objet ou item */
   USE_ITEM = 'use_item',
+  
+  /** Activation d'un effet passif ou d'une réaction */
   ACTIVATE_EFFECT = 'activate_effect',
 }
 
 /**
- * Interface représentant une action planifiée
+ * Interface représentant une action planifiée dans le système de combat
+ * Contient toutes les informations nécessaires pour résoudre l'action
  */
 export interface PlannedAction {
-  id: string;                  // Identifiant unique de l'action
-  type: ActionType;            // Type d'action
-  source: CardInstance;        // Carte qui initie l'action
-  targets: CardInstance[];     // Cibles de l'action
-  spell?: Spell;               // Sort utilisé (si applicable)
-  priority: number;            // Priorité de l'action (plus élevé = exécuté en premier en cas de conflit)
-  timestamp: number;           // Horodatage de planification
-  cost: number;                // Coût en motivation
-  additionalData?: any;        // Données supplémentaires spécifiques à l'action
+  /** Identifiant unique de l'action */
+  id: string;                  
+  
+  /** Type d'action (attaque, sort, etc.) */
+  type: ActionType;            
+  
+  /** Carte qui initie l'action */
+  source: CardInstance;        
+  
+  /** Cibles de l'action (peut être multiple) */
+  targets: CardInstance[];     
+  
+  /** Sort utilisé si l'action est de type CAST_SPELL */
+  spell?: Spell;               
+  
+  /** Priorité de l'action (plus élevé = exécuté en premier en cas de conflit) */
+  priority: number;            
+  
+  /** Horodatage de planification pour départager les actions simultanées */
+  timestamp: number;           
+  
+  /** Coût en motivation pour exécuter l'action */
+  cost: number;                
+  
+  /** Données supplémentaires spécifiques à l'action */
+  additionalData?: any;        
 }
 
 /**
  * Service responsable de la gestion des actions et de leur résolution simultanée
+ * Permet de planifier, annuler et résoudre des actions de combat en gérant
+ * les conflits potentiels entre actions concurrentes
  */
 export class ActionResolutionService {
+  /** Liste des actions planifiées en attente d'exécution */
   private plannedActions: PlannedAction[] = [];
   
   /**
    * Planifie une nouvelle action à exécuter
-   * @param action L'action à planifier
-   * @returns L'identifiant de l'action planifiée
+   * L'action est ajoutée à la file d'attente pour être résolue lors de la prochaine étape de résolution
+   * 
+   * @param action - L'action à planifier (sans id ni timestamp qui sont générés automatiquement)
+   * @returns L'identifiant unique de l'action planifiée
    */
   public planAction(action: Omit<PlannedAction, 'id' | 'timestamp'>): string {
     const actionId = `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -52,9 +99,11 @@ export class ActionResolutionService {
   }
   
   /**
-   * Annule une action planifiée
-   * @param actionId L'identifiant de l'action à annuler
-   * @returns true si l'annulation a réussi, false sinon
+   * Annule une action planifiée qui n'a pas encore été exécutée
+   * Permet aux joueurs de reconsidérer leurs décisions ou d'annuler une action en cas d'erreur
+   * 
+   * @param actionId - L'identifiant unique de l'action à annuler
+   * @returns `true` si l'action a été trouvée et annulée, `false` si l'action n'existait pas
    */
   public cancelAction(actionId: string): boolean {
     const initialLength = this.plannedActions.length;
@@ -63,16 +112,24 @@ export class ActionResolutionService {
   }
   
   /**
-   * Obtient toutes les actions planifiées
-   * @returns La liste des actions planifiées
+   * Récupère la liste des actions actuellement planifiées
+   * Utile pour afficher les actions en attente ou pour les analyser avant résolution
+   * 
+   * @returns Une copie de la liste des actions planifiées
    */
   public getPlannedActions(): PlannedAction[] {
     return [...this.plannedActions];
   }
   
   /**
-   * Résout toutes les actions planifiées de manière simultanée
-   * @param executionCallback Fonction appelée pour exécuter chaque action
+   * Résout toutes les actions planifiées selon leur priorité
+   * Cette méthode constitue le cœur du système de résolution d'actions:
+   * 1. Trie les actions par priorité et horodatage
+   * 2. Résout les conflits potentiels
+   * 3. Exécute les actions dans l'ordre approprié
+   * 4. Vide la liste des actions planifiées
+   * 
+   * @param executionCallback - Fonction appelée pour exécuter chaque action
    */
   public resolveActions(
     executionCallback: (action: PlannedAction) => void
@@ -104,8 +161,13 @@ export class ActionResolutionService {
   }
   
   /**
-   * Vérifie les conflits potentiels entre les actions planifiées
-   * @returns Liste des conflits détectés
+   * Détecte les conflits potentiels entre les actions planifiées
+   * Un conflit peut exister lorsque deux actions ciblent la même carte,
+   * lorsqu'une action pourrait empêcher l'autre d'être exécutée,
+   * ou lorsque deux actions ont des effets contradictoires
+   * 
+   * @returns Un tableau des conflits détectés, chaque conflit contenant les deux actions
+   * en conflit et la raison du conflit
    */
   public detectConflicts(): { action1: PlannedAction, action2: PlannedAction, reason: string }[] {
     const conflicts: { action1: PlannedAction, action2: PlannedAction, reason: string }[] = [];
@@ -166,8 +228,15 @@ export class ActionResolutionService {
   }
   
   /**
-   * Résout automatiquement les conflits en appliquant des règles prédéfinies
-   * @returns Liste des conflits qui ont été résolus
+   * Résout automatiquement les conflits entre actions en appliquant des règles prédéfinies
+   * Cette méthode applique une série de règles pour déterminer quelle action
+   * doit être conservée en cas de conflit :
+   * 1. L'action avec la priorité la plus élevée est conservée
+   * 2. En cas d'égalité de priorité, l'action planifiée en premier est conservée
+   * 
+   * Les actions en conflit qui ne sont pas conservées sont automatiquement annulées
+   * 
+   * @returns Un tableau contenant les conflits résolus avec la règle appliquée pour chacun
    */
   public resolveConflictsAutomatically(): { conflict: any, resolution: string }[] {
     const conflicts = this.detectConflicts();
