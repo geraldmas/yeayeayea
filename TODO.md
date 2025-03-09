@@ -118,7 +118,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] 🚀 Gestion des decks
 - [ ] Concevoir l'interface de partie
   - [x] 🔥 Zone de jeu tactile
-  - [ ] 🔥 Affichage des informations de jeu
+  - [x] 🔥 Affichage des informations de jeu
   - [ ] 🚀 Système de tour et actions
 
 ## 5. Mécaniques de Jeu
@@ -136,22 +136,22 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🚀 Ciblage manuel (option tactique)
 - [ ] Créer le système de résolution des actions
   - [x] 🔥 Gestion de la simultanéité
-  - [ ] 🚀 Système de conflits et priorités
+  - [x] 🚀 Système de conflits et priorités
 
 ### 5.2 Gestion des Ressources
 - [ ] Implémenter le système de motivation
   - [x] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
 - [ ] Développer le système de charisme
-  - [ ] 🔥 Acquisition et stockage
+  - [x] 🔥 Acquisition et stockage
   - [ ] 🚀 Utilisation et limitations
 
 ### 5.3 Base et Attaques
-- [ ] Créer le système de base
-  - [ ] 🔥 Points de vie et résistance
+- [x] Créer le système de base
+  - [x] 🔥 Points de vie et résistance
   - [ ] 🚀 Système de guérison
 - [ ] Implémenter le système d'attaques
-  - [ ] 🔥 Conditions d'attaque
+  - [x] 🔥 Conditions d'attaque
   - [ ] 🚀 Modulation des dégâts
 
 ## 6. Intelligence Artificielle
@@ -255,3 +255,11 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 - [x] 🔥 Mettre en place la connexion Supabase
 - [x] 🔥 Implémenter les opérations CRUD de base
 - [x] 🔥 Créer la première migration
+
+### Mécaniques de jeu
+- [x] 🚀 Implémenter le système de résolution des conflits
+  - [x] 🚀 Structure de données pour les conflits et résolutions
+  - [x] 🚀 Différentes stratégies de résolution (FIFO, LIFO, priorité, coût...)
+  - [x] 🚀 Élément aléatoire configurable
+  - [x] 🚀 Interface utilisateur pour la configuration et visualisation
+  - [x] 🚀 Tests complets des différentes stratégies
