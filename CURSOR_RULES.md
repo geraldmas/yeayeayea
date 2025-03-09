@@ -1,6 +1,6 @@
 # CURSOR_RULES
 
-## Règles et Consignes pour le Développement du TCG Card Editor
+## Règles et Consignes pour le Développement du Yeayeayea
 
 Je vais rédiger ce document en français comme demandé pour servir de guide personnel dans le développement de ce jeu de cartes.
 

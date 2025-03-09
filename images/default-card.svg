@@ -1,0 +1,36 @@
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond principal -->
+  <rect width="300" height="200" fill="#1E1E30" />
+  
+  <!-- Motif de grille subtil en arrière-plan -->
+  <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#353550" stroke-width="0.5" opacity="0.3"/>
+  </pattern>
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <rect width="40" height="40" fill="url(#smallGrid)"/>
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#454570" stroke-width="1" opacity="0.2"/>
+  </pattern>
+  <rect width="300" height="200" fill="url(#grid)" opacity="0.3"/>
+  
+  <!-- Cercle lumineux central -->
+  <circle cx="150" cy="100" r="60" fill="url(#glowGradient)" />
+  
+  <!-- Forme de carte stylisée -->
+  <g transform="translate(125, 70) scale(0.5)">
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="#353550" stroke="#7540EE" stroke-width="3" />
+    <rect x="10" y="10" width="80" height="80" fill="#2A2A40" />
+    <rect x="10" y="100" width="80" height="30" fill="#2A2A40" />
+    <circle cx="25" cy="25" r="10" fill="#7540EE" opacity="0.7" />
+  </g>
+  
+  <!-- Texte -->
+  <text x="150" y="160" font-family="Arial, sans-serif" font-size="14" fill="#B0B0C0" text-anchor="middle">Image non disponible</text>
+  
+  <!-- Définitions des gradients -->
+  <defs>
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#7540EE" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#1E1E30" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+</svg> 

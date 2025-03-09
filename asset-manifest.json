@@ -1,13 +1,15 @@
 {
   "files": {
-    "main.css": "/yeayeayea/static/css/main.bdcf450c.css",
-    "main.js": "/yeayeayea/static/js/main.bd775f93.js",
-    "static/js/345.c3127ef4.chunk.js": "/yeayeayea/static/js/345.c3127ef4.chunk.js",
-    "static/js/685.77d37bcf.chunk.js": "/yeayeayea/static/js/685.77d37bcf.chunk.js",
-    "index.html": "/yeayeayea/index.html"
+    "main.css": "/yeayeayea/static/css/main.ed2d9531.css",
+    "main.js": "/yeayeayea/static/js/main.2ce2f5a0.js",
+    "static/js/345.bfbc87c1.chunk.js": "/yeayeayea/static/js/345.bfbc87c1.chunk.js",
+    "static/js/685.1288773f.chunk.js": "/yeayeayea/static/js/685.1288773f.chunk.js",
+    "static/media/default-card.svg": "/yeayeayea/static/media/default-card.496d17e5c6793948acb6ca3db5a2ba0c.svg",
+    "index.html": "/yeayeayea/index.html",
+    "static/media/bg-pattern.svg": "/yeayeayea/static/media/bg-pattern.96a8ba4f9e20c308d3f2347da1cb7f42.svg"
   },
   "entrypoints": [
-    "static/css/main.bdcf450c.css",
-    "static/js/main.bd775f93.js"
+    "static/css/main.ed2d9531.css",
+    "static/js/main.2ce2f5a0.js"
   ]
 }

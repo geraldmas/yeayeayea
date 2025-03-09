@@ -1,6 +1,6 @@
-# TODO Liste - TCG Card Editor
+# TODO Liste - Yeayeayea
 
-Ce document est organisé par niveaux de priorité pour permettre un développement et des tests optimaux du TCG Card Editor, conformément au cahier des charges et aux principes établis dans CURSOR_RULES.md.
+Ce document est organisé par niveaux de priorité pour permettre un développement et des tests optimaux du Yeayeayea, conformément au cahier des charges et aux principes établis dans CURSOR_RULES.md.
 
 ## Légende des priorités
 - 🔥 **CRITIQUE** : Fonctionnalité essentielle pour le fonctionnement de base
