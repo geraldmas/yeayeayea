@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './GameBoard.css';
 import { Card, CardFrontend } from '../types/index';
 import { CardInstance } from '../types/combat';
+import { PlayerBase } from '../types/player';
+import PlayerBaseComponent from './PlayerBase';
 
 interface GameBoardProps {
   // Propriétés du joueur
@@ -10,6 +12,7 @@ interface GameBoardProps {
   playerObjects: CardInstance[];
   playerDeck: number; // Nombre de cartes restantes dans la pioche
   playerDiscard: number; // Nombre de cartes dans la défausse
+  playerBase: PlayerBase; // Base du joueur
   
   // Propriétés de l'adversaire
   opponentHand: number; // Nombre de cartes en main (faces cachées)
@@ -17,6 +20,7 @@ interface GameBoardProps {
   opponentObjects: CardInstance[];
   opponentDeck: number;
   opponentDiscard: number;
+  opponentBase: PlayerBase; // Base de l'adversaire
   
   // Lieu actif
   activeLieu: CardInstance | null;
@@ -24,6 +28,7 @@ interface GameBoardProps {
   // Actions
   onCardDrop?: (cardId: number, zone: string, slot?: number) => void;
   onCardClick?: (card: Card | CardInstance, zone: string) => void;
+  onBaseClick?: (isPlayerBase: boolean) => void;
 }
 
 /**
@@ -43,14 +48,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
   playerObjects,
   playerDeck,
   playerDiscard,
+  playerBase,
   opponentHand,
   opponentCharacters,
   opponentObjects,
   opponentDeck,
   opponentDiscard,
+  opponentBase,
   activeLieu,
   onCardDrop,
-  onCardClick
+  onCardClick,
+  onBaseClick
 }) => {
   // État pour le glisser-déposer
   const [draggedCard, setDraggedCard] = useState<Card | null>(null);
@@ -260,6 +268,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div className="opponent-area">
         {renderOpponentHand()}
         <div className="opponent-battlefield">
+          <div className="opponent-base-container">
+            <PlayerBaseComponent 
+              playerBase={opponentBase}
+              isCurrentPlayer={false}
+              onClick={() => onBaseClick && onBaseClick(false)}
+            />
+          </div>
           <div className="characters-row">
             {renderCharacterSlots(opponentCharacters, false)}
           </div>
@@ -282,6 +297,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
           <div className="characters-row">
             {renderCharacterSlots(playerCharacters, true)}
+          </div>
+          <div className="player-base-container">
+            <PlayerBaseComponent 
+              playerBase={playerBase}
+              isCurrentPlayer={true}
+              onClick={() => onBaseClick && onBaseClick(true)}
+            />
           </div>
         </div>
       </div>

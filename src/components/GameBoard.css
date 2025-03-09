@@ -545,4 +545,37 @@
 
 .hand-card-action:hover, .hand-card.face-down:hover {
   box-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
+}
+
+.opponent-base-container, 
+.player-base-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.opponent-base-container {
+  margin-bottom: 20px;
+}
+
+.player-base-container {
+  margin-top: 20px;
+}
+
+/* Ajustements pour le responsive */
+@media (max-width: 768px) {
+  .opponent-base-container, 
+  .player-base-container {
+    padding: 5px;
+    margin: 5px 0;
+  }
+  
+  .opponent-base-container {
+    margin-bottom: 10px;
+  }
+  
+  .player-base-container {
+    margin-top: 10px;
+  }
 } 
