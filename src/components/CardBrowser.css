@@ -301,7 +301,8 @@
 .card-rarity-badge.banger { 
   background: #e3f2fd;
   color: #1565c0;
-  animation: shine 2s infinite;
+  /* animation: shine 2s infinite; */
+  animation: none !important; /* Désactivation de l'animation */
 }
 .card-rarity-badge.cheate { 
   background: #fff3e0;
@@ -416,7 +417,8 @@
 .filter-button.rarity-banger.active { 
   background: #2196F3; 
   color: white;
-  animation: shine 2s infinite;
+  /* animation: shine 2s infinite; */
+  animation: none !important; /* Désactivation de l'animation */
 }
 .filter-button.rarity-cheate.active { 
   background: #FF5722; 

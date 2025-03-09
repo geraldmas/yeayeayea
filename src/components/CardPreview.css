@@ -61,7 +61,7 @@
 
 .card-preview[data-rarity="banger"] {
   box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
-  animation: shine 3s infinite;
+  animation: none !important;
   border-width: 3px;
   border-style: solid;
   background-blend-mode: overlay;
@@ -76,7 +76,8 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(45deg, transparent 0%, rgba(33, 150, 243, 0.1) 50%, transparent 100%);
-  animation: shine-move 3s infinite;
+  animation: none !important;
+  opacity: 0;
   pointer-events: none;
 }
 
