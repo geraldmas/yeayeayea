@@ -17,7 +17,7 @@
 
 /* Mode admin */
 .admin-mode {
-  background-image: url('/images/bg-pattern.png'), 
+  background-image: url('../../../public/images/bg-pattern.svg'), 
                     radial-gradient(circle at 50% 50%, rgba(238, 64, 64, 0.05), transparent 70%);
 }
 
