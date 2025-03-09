@@ -971,3 +971,230 @@ main {
 .random-menu button:hover {
   display: none;
 }
+
+/* Styles pour la page d'accueil */
+.home-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: var(--space-md);
+}
+
+.welcome-section {
+  background: var(--gradient-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.welcome-section h1 {
+  color: var(--text-primary);
+  font-size: 2.5rem;
+  margin-bottom: var(--space-sm);
+}
+
+.welcome-section .subtitle {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-bottom: var(--space-lg);
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  justify-content: center;
+  margin-top: var(--space-xl);
+}
+
+/* Styles pour l'éditeur de carte */
+.card-editor-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: var(--space-md);
+}
+
+.card-editor-header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.card-editor-header h1 {
+  margin: 0;
+}
+
+.card-editor-actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.random-edit-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  min-width: 180px;
+  padding: var(--space-sm);
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 10;
+}
+
+.random-edit-dropdown:hover .dropdown-menu,
+.dropdown-toggle:focus + .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu button {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: block;
+  font-family: var(--font-body);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.dropdown-menu button:hover {
+  background: var(--bg-admin);
+  color: var(--text-primary);
+}
+
+/* Section de progression */
+.progress-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+}
+
+.progress-section h2 {
+  border-bottom: 2px solid var(--color-primary);
+  color: var(--text-primary);
+  display: inline-block;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-xs);
+}
+
+/* Media queries pour responsive */
+@media (max-width: 768px) {
+  .card-editor-header {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+  
+  .card-editor-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .welcome-section {
+    padding: var(--space-lg);
+  }
+  
+  .welcome-section h1 {
+    font-size: 1.8rem;
+  }
+  
+  .welcome-section .subtitle {
+    font-size: 1rem;
+  }
+  
+  .quick-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .quick-actions button {
+    width: 100%;
+  }
+}
+
+/* Style pour les notifications */
+.notification {
+  align-items: center;
+  animation: slideInRight 0.3s forwards;
+  backdrop-filter: blur(8px);
+  background: rgba(30, 30, 48, 0.9);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-md);
+  position: fixed;
+  right: var(--space-lg);
+  top: var(--space-lg);
+  z-index: 1000;
+}
+
+.notification.success {
+  border-left-color: var(--state-success);
+}
+
+.notification.error {
+  border-left-color: var(--state-error);
+}
+
+.notification.info {
+  border-left-color: var(--state-info);
+}
+
+.notification-close {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-left: var(--space-md);
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Ajout de quelques utilitaires */
+.mb-sm {
+  margin-bottom: var(--space-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--space-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--space-lg);
+}
+
+.text-center {
+  text-align: center;
+}
