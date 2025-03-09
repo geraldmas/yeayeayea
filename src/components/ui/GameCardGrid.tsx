@@ -3,7 +3,7 @@ import GameCard, { CardType, CardRarity } from './GameCard';
 import './GameCardGrid.css';
 
 interface Card {
-  id: string;
+  id: number | string;
   name: string;
   type: CardType;
   rarity: CardRarity;
@@ -64,7 +64,7 @@ const GameCardGrid: React.FC<GameCardGridProps> = ({
           {displayedCards.map(card => (
             <div key={card.id} className="game-card-wrapper">
               <GameCard
-                id={card.id}
+                id={String(card.id)}
                 name={card.name}
                 type={card.type}
                 rarity={card.rarity}

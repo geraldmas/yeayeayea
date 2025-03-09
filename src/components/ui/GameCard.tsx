@@ -8,7 +8,7 @@ export type CardType = 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
 export type CardRarity = 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
 
 export interface GameCardProps {
-  id: string;
+  id: number | string;
   name: string;
   type: CardType;
   rarity: CardRarity;
