@@ -3,7 +3,6 @@ import GameBoard from './GameBoard';
 import { Card, Tag, Spell, Rarity } from '../types';
 import { CardInstance, TagInstance, SpellInstance, ActiveAlteration } from '../types/combat';
 import './GameBoardTest.css';
-import { initializePlayerCharisme } from '../utils/charismeService';
 
 /**
  * Composant de test pour GameBoard
@@ -147,31 +146,6 @@ const GameBoardTest: React.FC = () => {
   const [playerDiscardCount, setPlayerDiscardCount] = useState<number>(5);
   const [opponentDiscardCount, setOpponentDiscardCount] = useState<number>(7);
   
-  // Mise à jour de l'état initial du joueur avec les propriétés de charisme
-  const [playerState, setPlayerState] = useState({
-    hand: playerHand,
-    characters: playerCharacters,
-    objects: playerObjects,
-    deck: 15,
-    discard: 3,
-    charisme: 20,
-    baseCharisme: 0,
-    maxCharisme: 100,
-    charismeModifiers: []
-  });
-  
-  const [opponentState, setOpponentState] = useState({
-    hand: 4,
-    characters: opponentCharacters,
-    objects: opponentObjects,
-    deck: 12,
-    discard: 2,
-    charisme: 15,
-    baseCharisme: 0,
-    maxCharisme: 100,
-    charismeModifiers: []
-  });
-  
   // Gestion du glisser-déposer des cartes
   const handleCardDrop = (cardId: number, zone: string, slot?: number) => {
     console.log(`Carte ${cardId} déposée dans la zone ${zone}${slot !== undefined ? ` à l'emplacement ${slot}` : ''}`);
@@ -243,23 +217,17 @@ const GameBoardTest: React.FC = () => {
     <div className="game-board-test-container">
       <h1>Test de la Zone de Jeu</h1>
       <div className="game-board-container">
-        <GameBoard
+        <GameBoard 
           playerHand={playerHand}
           playerCharacters={playerCharacters}
           playerObjects={playerObjects}
           playerDeck={playerDeckCount}
           playerDiscard={playerDiscardCount}
-          playerCharisme={playerState.charisme}
-          playerMaxCharisme={playerState.maxCharisme}
-          playerCharismeModifiers={playerState.charismeModifiers}
-          opponentHand={opponentState.hand}
+          opponentHand={opponentHandCount}
           opponentCharacters={opponentCharacters}
           opponentObjects={opponentObjects}
           opponentDeck={opponentDeckCount}
           opponentDiscard={opponentDiscardCount}
-          opponentCharisme={opponentState.charisme}
-          opponentMaxCharisme={opponentState.maxCharisme}
-          opponentCharismeModifiers={opponentState.charismeModifiers}
           activeLieu={activeLieu}
           onCardDrop={handleCardDrop}
           onCardClick={handleCardClick}
