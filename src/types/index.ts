@@ -224,14 +224,31 @@ export interface GameEvent {
  */
 export interface CharacterCard extends Card {
   properties: {
+    /** Points de vie actuels du personnage */
     health: number;
+    
+    /** Points de vie de base (utilisés pour calculer les PV max selon le niveau) */
     baseHealth: number;
+    
+    /** Valeur d'attaque de base */
     attack: number;
+    
+    /** Valeur de défense de base */
     defense: number;
+    
+    /** Niveau actuel du personnage (commence à 1) */
     level: number;
+    
+    /** Niveau maximum que le personnage peut atteindre */
     maxLevel: number;
+    
+    /** Points d'expérience actuels */
     xp: number;
+    
+    /** Points d'expérience nécessaires pour passer au niveau suivant */
     xpToNextLevel: number;
+    
+    /** Autres propriétés spécifiques au personnage */
     [key: string]: any;
   };
 }
@@ -241,14 +258,31 @@ export interface CharacterCard extends Card {
  */
 export interface CharacterCardFrontend extends CardFrontend {
   properties: {
+    /** Points de vie actuels du personnage */
     health: number;
+    
+    /** Points de vie de base (utilisés pour calculer les PV max selon le niveau) */
     baseHealth: number;
+    
+    /** Valeur d'attaque de base */
     attack: number;
+    
+    /** Valeur de défense de base */
     defense: number;
+    
+    /** Niveau actuel du personnage (commence à 1) */
     level: number;
+    
+    /** Niveau maximum que le personnage peut atteindre */
     maxLevel: number;
+    
+    /** Points d'expérience actuels */
     xp: number;
+    
+    /** Points d'expérience nécessaires pour passer au niveau suivant */
     xpToNextLevel: number;
+    
+    /** Autres propriétés spécifiques au personnage */
     [key: string]: any;
   };
 }

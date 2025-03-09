@@ -240,6 +240,32 @@ export class CharacterCardService {
 
     return characterCard;
   }
+  
+  /**
+   * Calcule les PV maximums d'une carte personnage en fonction de son niveau
+   * Utilise la même formule que dans l'instance pour garantir la cohérence
+   * 
+   * @param baseHealth - PV de base de la carte
+   * @param level - Niveau pour lequel calculer les PV
+   * @returns Les points de vie maximums calculés
+   */
+  public calculateMaxHealthForLevel(baseHealth: number, level: number): number {
+    const growthFactor = Math.max(5, baseHealth * 0.15); // 15% de la santé de base, minimum 5
+    return Math.floor(baseHealth + (level - 1) * growthFactor);
+  }
+  
+  /**
+   * Calcule l'XP nécessaire pour passer au niveau suivant
+   * Utilise la même formule que dans l'instance pour garantir la cohérence
+   * 
+   * @param level - Niveau actuel
+   * @returns La quantité d'XP nécessaire pour atteindre le niveau suivant
+   */
+  public calculateXPForNextLevel(level: number): number {
+    const baseXP = 100;
+    const factor = 1.5;
+    return Math.floor(baseXP * Math.pow(level * factor, 2));
+  }
 }
 
 // Exporter une instance unique du service

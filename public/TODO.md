@@ -1,6 +1,6 @@
-# TODO Liste - Yeayeayea
+# TODO Liste - TCG Card Editor
 
-Ce document est organisé par niveaux de priorité pour permettre un développement et des tests optimaux du Yeayeayea, conformément au cahier des charges et aux principes établis dans CURSOR_RULES.md.
+Ce document est organisé par niveaux de priorité pour permettre un développement et des tests optimaux du TCG Card Editor, conformément au cahier des charges et aux principes établis dans CURSOR_RULES.md.
 
 ## Légende des priorités
 - 🔥 **CRITIQUE** : Fonctionnalité essentielle pour le fonctionnement de base
@@ -11,76 +11,51 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 ## 1. Système de Base de Données et Backend
 
 ### 1.1 Base de données
-- [x] 🔥 Définir le schéma de base de données pour les cartes et les interactions
-- [x] 🔥 Créer les types et interfaces TypeScript pour les structures de données
-- [x] 🔥 Mettre en place la connexion à la base de données (Supabase)
-- [x] 🔥 Créer la table des utilisateurs et le système d'authentification
 - [ ] Implémenter le système de migrations de base de données
-  - [x] 🔥 Créer la première migration d'initialisation
   - [ ] 🚀 Créer le service de gestion des migrations
   - [ ] ⚡ Implémenter les fonctions de sauvegarde et restauration
 - [ ] Implémenter les tests unitaires pour la couche de données
-  - [x] 🚀 Tests du service d'authentification
   - [ ] 🚀 Tests des opérations CRUD sur les cartes
   - [ ] ⚡ Tests de la migration initiale
 
 ### 1.2 API Backend
-- [x] 🔥 Mettre en place les routes CRUD de base pour les cartes
-- [x] 🔥 Implémenter le système d'authentification
-  - [x] 🔥 Système de login/register
-  - [x] 🔥 Gestion des sessions
-  - [x] 🚀 Vérification d'administration
 - [ ] Développer le système de validation des données
-  - [x] 🔥 Validation des cartes (type, coût, etc.)
+  - [ ] 🔥 Validation des cartes (type, coût, etc.)
   - [ ] 🚀 Validation des relations (sorts, tags)
 - [ ] Créer les endpoints pour la gestion des boosters et collections
-  - [x] 🚀 Création de base pour les boosters
   - [ ] 🚀 Distribution et ouverture de boosters
   - [ ] ⚡ Gestion de l'inventaire des cartes
 
 ## 2. Éditeur de Cartes
 
 ### 2.1 Interface d'édition
-- [x] 🔥 Développer l'interface principale d'édition de cartes
-- [x] 🔥 Implémenter le formulaire d'édition pour tous les types de cartes
-- [x] 🔥 Créer l'interface de gestion des altérations
-- [x] 🔥 Mettre en place la gestion des sorts et leurs effets
-- [x] 🔥 Développer la gestion des tags et synergies
-- [x] 🔥 Créer l'interface de prévisualisation des cartes
 - [ ] Améliorer l'interface avec des fonctionnalités avancées
   - [ ] 🚀 Historique des modifications
   - [ ] ⚡ Mode clone/duplication
   - [ ] ⚡ Suggestions intelligentes
 
 ### 2.2 Gestion des médias
-- [x] 🔥 Implémenter le chargement et l'affichage des images de cartes
 - [ ] 🚀 Optimiser le chargement et le stockage des images
 - [ ] ⚡ Ajouter des outils d'édition d'image basiques (recadrage, redimensionnement)
 
 ## 3. Système de Cartes
 
-### 3🔥.1 Types de Cartes
-- [x] 🔥 Implémenter la structure de base pour les cartes Personnage
-- [x] 🔥 Implémenter la structure de base pour les cartes Lieu
-- [x] 🔥 Implémenter la structure de base pour les cartes Objet
-- [x]  Implémenter la structure de base pour les cartes Action
-- [x] 🔥 Implémenter la structure de base pour les cartes Événement
+### 3.1 Types de Cartes
 - [ ] Développer les mécaniques spécifiques des cartes Personnage
   - [x] 🔥 Système de PV et niveau
   - [ ] 🚀 Système de sorts et d'évolution
   - [ ] 🚀 Gestion avancée des tags
 - [ ] Développer les mécaniques spécifiques des cartes Lieu
-  - [x] 🔥 Système de distribution initiale
+  - [ ] 🔥 Système de distribution initiale
   - [ ] 🚀 Mécanique de sélection active
 - [ ] Développer les mécaniques spécifiques des cartes Objet
-  - [x] 🔥 Système d'emplacements (sur le terrain, pas de système d'équipement !)
+  - [ ] 🔥 Système d'emplacements
   - [ ] 🚀 Effets passifs
   - [ ] 🚀 Système de vente en charisme
 
 ### 3.2 Système de Tags
-- [x] 🔥 Créer l'interface de gestion des tags
 - [ ] Développer le moteur de règles pour les tags
-  - [x] 🔥 Parser de règles pour les effets
+  - [ ] 🔥 Parser de règles pour les effets
   - [ ] 🚀 Système d'évaluation des effets
   - [ ] 🚀 Gestion des priorités d'application
 - [ ] Implémenter les synergies entre tags
@@ -91,11 +66,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 ## 4. Interface Utilisateur
 
 ### 4.1 Interface Administrateur
-- [x] 🚀 Concevoir le layout de base pour l'administration
-  - [x] 🚀 Navigation entre les différentes sections
-  - [x] 🚀 Composants UI réutilisables
 - [ ] Développer le module de gestion des utilisateurs
-  - [x] 🚀 Interface d'édition des utilisateurs
   - [ ] ⚡ Gestion des droits et permissions
 - [ ] Implémenter le module de configuration du jeu
   - [ ] 🚀 Éditeur de paramètres globaux
@@ -113,45 +84,39 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] ⚡ Système de monnaie et ressources
 - [ ] Créer le module de collection/inventaire
   - [ ] 🚀 Visualisation de l'inventaire
-    - [ ] 🚀 Gestion des références aux cartes et leur quantité par niveau
-    - [ ] ⚡ Filtres et recherche de cartes
   - [ ] 🚀 Gestion des decks
 - [ ] Concevoir l'interface de partie
-  - [x] 🔥 Zone de jeu tactile
+  - [ ] 🔥 Zone de jeu tactile
   - [ ] 🔥 Affichage des informations de jeu
   - [ ] 🚀 Système de tour et actions
 
 ## 5. Mécaniques de Jeu
 
 ### 5.1 Système de Combat
-- [ ] Implémenter la gestion des instances de carte en combat
-  - [x] 🔥 Créer la structure CardInstance distincte de CardDefinition
-  - [x] 🚀 Propriétés d'état temporaire (PV actuels, altérations)
-  - [x] 🚀 Méthodes de manipulation d'état (applyDamage, heal, etc.)
-  - [x] 🚀 Système de conversion Card→CardInstance au début du combat
-  - [x] ⚡ Nettoyage des instances à la fin du combat
-  - [x] ⚡ Mécanisme de persistance sélective d'effets entre tours
+- [ ] Implémenter le système de tour
+  - [ ] 🔥 Gestion du budget de motivation
+  - [ ] 🚀 Système de déploiement des actions
 - [ ] Développer le système de ciblage
-  - [x] 🔥 Ciblage aléatoire
-  - [x] 🚀 Ciblage manuel (option tactique)
+  - [ ] 🔥 Ciblage aléatoire
+  - [ ] 🚀 Ciblage manuel (option tactique)
 - [ ] Créer le système de résolution des actions
-  - [x] 🔥 Gestion de la simultanéité
+  - [ ] 🔥 Gestion de la simultanéité
   - [ ] 🚀 Système de conflits et priorités
 
 ### 5.2 Gestion des Ressources
 - [ ] Implémenter le système de motivation
-  - [x] 🔥 Renouvellement par tour
+  - [ ] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
 - [ ] Développer le système de charisme
-  - [x] 🔥 Acquisition et stockage
+  - [ ] 🔥 Acquisition et stockage
   - [ ] 🚀 Utilisation et limitations
 
 ### 5.3 Base et Attaques
-- [x] Créer le système de base
-  - [x] 🔥 Points de vie et résistance
+- [ ] Créer le système de base
+  - [ ] 🔥 Points de vie et résistance
   - [ ] 🚀 Système de guérison
 - [ ] Implémenter le système d'attaques
-  - [x] 🔥 Conditions d'attaque
+  - [ ] 🔥 Conditions d'attaque
   - [ ] 🚀 Modulation des dégâts
 
 ## 6. Intelligence Artificielle
@@ -182,7 +147,6 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
 
 ### 7.1 Tests
 - [ ] Développer les tests unitaires
-  - [x] 🚀 Composants de base
   - [ ] 🚀 Services et utilitaires
   - [ ] ⚡ Logique métier
 - [ ] Mettre en place les tests d'intégration
@@ -195,9 +159,6 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] 🌱 Performance
 
 ### 7.2 Documentation
-- [x] 🚀 Créer la documentation de base du projet
-- [x] 🚀 Documenter les règles et consignes de développement
-- [x] 🚀 Rédiger la documentation technique initiale
 - [ ] 🚀 Développer la documentation complète de l'API
 - [ ] ⚡ Créer des guides utilisateurs détaillés
 - [ ] ⚡ Mettre en place la documentation des mécaniques de jeu
@@ -234,6 +195,50 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
     - [ ] 🌱 Déploiement continu
 
 ## Tâches réalisées
+
+### Base de données et Backend
+- [x] 🔥 Définir le schéma de base de données pour les cartes et les interactions
+- [x] 🔥 Créer les types et interfaces TypeScript pour les structures de données
+- [x] 🔥 Mettre en place la connexion à la base de données (Supabase)
+- [x] 🔥 Créer la table des utilisateurs et le système d'authentification
+- [x] 🔥 Créer la première migration d'initialisation
+- [x] 🚀 Tests du service d'authentification
+- [x] 🔥 Mettre en place les routes CRUD de base pour les cartes
+- [x] 🔥 Implémenter le système d'authentification
+  - [x] 🔥 Système de login/register
+  - [x] 🔥 Gestion des sessions
+  - [x] 🚀 Vérification d'administration
+- [x] 🚀 Création de base pour les boosters
+
+### Éditeur de Cartes
+- [x] 🔥 Développer l'interface principale d'édition de cartes
+- [x] 🔥 Implémenter le formulaire d'édition pour tous les types de cartes
+- [x] 🔥 Créer l'interface de gestion des altérations
+- [x] 🔥 Mettre en place la gestion des sorts et leurs effets
+- [x] 🔥 Développer la gestion des tags et synergies
+- [x] 🔥 Créer l'interface de prévisualisation des cartes
+- [x] 🔥 Implémenter le chargement et l'affichage des images de cartes
+
+### Système de Cartes
+- [x] 🔥 Implémenter la structure de base pour les cartes Personnage
+- [x] 🔥 Implémenter la structure de base pour les cartes Lieu
+- [x] 🔥 Implémenter la structure de base pour les cartes Objet
+- [x] 🔥 Implémenter la structure de base pour les cartes Action
+- [x] 🔥 Implémenter la structure de base pour les cartes Événement
+- [x] 🔥 Créer l'interface de gestion des tags
+- [x] 🔥 Système de PV et niveau pour les cartes Personnage
+
+### Interface Utilisateur
+- [x] 🚀 Concevoir le layout de base pour l'administration
+  - [x] 🚀 Navigation entre les différentes sections
+  - [x] 🚀 Composants UI réutilisables
+- [x] 🚀 Interface d'édition des utilisateurs
+
+### Tests et Documentation
+- [x] 🚀 Créer la documentation de base du projet
+- [x] 🚀 Documenter les règles et consignes de développement
+- [x] 🚀 Rédiger la documentation technique initiale
+- [x] 🚀 Composants de base
 
 ### Environnement de développement
 - [x] 🔥 Configurer le projet React avec TypeScript
