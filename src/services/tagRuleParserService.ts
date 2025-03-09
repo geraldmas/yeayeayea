@@ -10,14 +10,37 @@ import {
 import { CardInstance } from '../types/combat';
 
 /**
+ * @file tagRuleParserService.ts
+ * @description Service de parsing et d'application des règles de tags pour le jeu Yeayeayea
+ * 
+ * Ce service est responsable de l'interprétation et de l'application des règles qui définissent 
+ * comment les tags interagissent entre eux et affectent les cartes en jeu. Il constitue
+ * le cœur du système de synergies du jeu, permettant des interactions complexes entre
+ * les différents éléments.
+ * 
+ * Les règles peuvent inclure :
+ * - Modificateurs de génération de charisme
+ * - Modificateurs de dégâts
+ * - Modificateurs de motivation
+ * - Modificateurs de santé
+ * - Application d'altérations
+ * - Effets de synergie conditionnels
+ */
+
+/**
  * Service responsable de parser et d'appliquer les règles de tags
+ * Implémente un pattern Singleton pour assurer une instance unique dans l'application
  */
 export class TagRuleParserService {
+  /** Map stockant les règles par nom de tag */
   private rules: Map<string, TagRule[]> = new Map();
+  
+  /** Instance unique du service (pattern Singleton) */
   private static instance: TagRuleParserService;
 
   /**
    * Obtenir l'instance singleton du service
+   * @returns L'instance unique du service TagRuleParserService
    */
   public static getInstance(): TagRuleParserService {
     if (!TagRuleParserService.instance) {
@@ -28,7 +51,7 @@ export class TagRuleParserService {
 
   /**
    * Charge les règles à partir d'une définition JSON
-   * @param definitions Définitions des règles de tags
+   * @param definitions - Tableau de définitions de règles de tags
    */
   public loadRules(definitions: TagRuleDefinition[]): void {
     for (const definition of definitions) {
@@ -38,6 +61,7 @@ export class TagRuleParserService {
 
   /**
    * Nettoie toutes les règles chargées
+   * Utile pour réinitialiser l'état ou avant de charger un nouveau jeu de règles
    */
   public clearRules(): void {
     this.rules.clear();
@@ -45,8 +69,8 @@ export class TagRuleParserService {
 
   /**
    * Récupère les règles pour un tag spécifique
-   * @param tagName Nom du tag
-   * @returns Règles associées au tag
+   * @param tagName - Nom du tag dont on veut récupérer les règles
+   * @returns Tableau des règles associées au tag (vide si aucune règle n'existe)
    */
   public getRulesForTag(tagName: string): TagRule[] {
     return this.rules.get(tagName) || [];
@@ -54,8 +78,9 @@ export class TagRuleParserService {
 
   /**
    * Ajoute une nouvelle règle pour un tag
-   * @param tagName Nom du tag
-   * @param rule Règle à ajouter
+   * Si le tag n'existe pas encore, il sera créé avec la règle fournie
+   * @param tagName - Nom du tag auquel ajouter la règle
+   * @param rule - Règle à ajouter
    */
   public addRuleForTag(tagName: string, rule: TagRule): void {
     const existingRules = this.rules.get(tagName) || [];
@@ -64,11 +89,11 @@ export class TagRuleParserService {
   }
 
   /**
-   * Modifie une règle existante
-   * @param tagName Nom du tag
-   * @param ruleId ID de la règle à modifier
-   * @param updatedRule Nouvelle version de la règle
-   * @returns Booléen indiquant si la mise à jour a réussi
+   * Modifie une règle existante pour un tag spécifique
+   * @param tagName - Nom du tag contenant la règle à modifier
+   * @param ruleId - Identifiant unique de la règle à modifier
+   * @param updatedRule - Nouvelle version de la règle avec les modifications
+   * @returns `true` si la règle a été trouvée et mise à jour, `false` sinon
    */
   public updateRule(tagName: string, ruleId: number, updatedRule: TagRule): boolean {
     const existingRules = this.rules.get(tagName) || [];
@@ -82,10 +107,10 @@ export class TagRuleParserService {
   }
 
   /**
-   * Supprime une règle
-   * @param tagName Nom du tag
-   * @param ruleId ID de la règle à supprimer
-   * @returns Booléen indiquant si la suppression a réussi
+   * Supprime une règle existante pour un tag spécifique
+   * @param tagName - Nom du tag contenant la règle à supprimer
+   * @param ruleId - Identifiant unique de la règle à supprimer
+   * @returns `true` si la règle a été trouvée et supprimée, `false` sinon
    */
   public deleteRule(tagName: string, ruleId: number): boolean {
     const existingRules = this.rules.get(tagName) || [];
@@ -99,12 +124,15 @@ export class TagRuleParserService {
   }
 
   /**
-   * Applique les règles d'un tag spécifique
-   * @param tagName Nom du tag
-   * @param sourceCard Carte qui possède le tag
-   * @param allCards Toutes les cartes en jeu
-   * @param gameState État actuel du jeu
-   * @returns Résultats de l'application des règles
+   * Applique toutes les règles associées à un tag spécifique
+   * Cette méthode principale est appelée lorsqu'une carte portant ce tag est en jeu
+   * et que ses effets doivent être appliqués
+   * 
+   * @param tagName - Nom du tag dont les règles doivent être appliquées
+   * @param sourceCard - Carte qui possède le tag et qui est la source des effets
+   * @param allCards - Tableau de toutes les cartes actuellement en jeu
+   * @param gameState - État actuel du jeu contenant les informations nécessaires à l'évaluation des conditions
+   * @returns Tableau des résultats d'application de chaque règle du tag
    */
   public applyTagRules(
     tagName: string, 
@@ -140,13 +168,17 @@ export class TagRuleParserService {
   }
 
   /**
-   * Applique une règle spécifique
-   * @param rule Règle à appliquer
-   * @param tagName Nom du tag source
-   * @param sourceCard Carte qui possède le tag
-   * @param allCards Toutes les cartes en jeu
-   * @param gameState État actuel du jeu
-   * @returns Résultat de l'application de la règle
+   * Applique une règle spécifique à une carte source et ses cibles potentielles
+   * Cette méthode est le cœur de l'application des règles et dispatche vers les méthodes
+   * spécialisées selon le type d'effet (dégâts, charisme, altérations, etc.)
+   * 
+   * @param rule - Règle à appliquer
+   * @param tagName - Nom du tag source de la règle
+   * @param sourceCard - Carte qui possède le tag et déclenche l'effet
+   * @param allCards - Toutes les cartes actuellement en jeu
+   * @param gameState - État du jeu contenant les informations contextuelles
+   * @returns Résultat détaillé de l'application de la règle, incluant les entités affectées et les valeurs modifiées
+   * @private
    */
   private applySingleRule(
     rule: TagRule, 
@@ -213,11 +245,14 @@ export class TagRuleParserService {
   }
 
   /**
-   * Obtient les cibles pour une règle donnée
-   * @param rule Règle en cours d'application
-   * @param sourceCard Carte source
-   * @param allCards Toutes les cartes en jeu
-   * @returns Liste des cartes cibles
+   * Détermine les cartes ciblées par une règle en fonction de son type de ciblage
+   * Les types de ciblage incluent : soi-même, l'adversaire, tous, les cartes avec un tag spécifique, etc.
+   * 
+   * @param rule - Règle dont on veut déterminer les cibles
+   * @param sourceCard - Carte source qui possède le tag déclenchant la règle
+   * @param allCards - Toutes les cartes actuellement en jeu
+   * @returns Tableau des instances de carte ciblées par la règle
+   * @private
    */
   private getTargetsForRule(rule: TagRule, sourceCard: CardInstance, allCards: CardInstance[]): CardInstance[] {
     switch (rule.targetType) {
@@ -665,10 +700,13 @@ export class TagRuleParserService {
   }
 
   /**
-   * Compte le nombre de synergies actives
-   * @param synergyTags Tags de synergie à rechercher
-   * @param allCards Toutes les cartes en jeu
-   * @returns Nombre de synergies trouvées
+   * Compte le nombre d'instances de cartes possédant les tags de synergie spécifiés
+   * Utilisé pour calculer la puissance des effets de synergie qui dépendent du nombre de tags présents
+   * 
+   * @param synergyTags - Tableau des noms de tags à rechercher dans les cartes
+   * @param allCards - Toutes les cartes actuellement en jeu
+   * @returns Le nombre total d'instances de tags trouvées
+   * @private
    */
   private countSynergies(synergyTags: string[], allCards: CardInstance[]): number {
     let count = 0;
@@ -686,9 +724,17 @@ export class TagRuleParserService {
   }
 
   /**
-   * Parse une règle définie en format textuel
-   * @param ruleText Texte de la règle à parser
-   * @returns Règle parsée
+   * Parse une règle définie en format textuel et la convertit en objet TagRule
+   * Cette méthode est cruciale pour la définition de règles en texte par les concepteurs du jeu
+   * 
+   * Format: "TypeEffet:TypeCible:Valeur:Description[:Condition]"
+   * Exemples:
+   * - "damageModifier:tagged(#NUIT):+20%:Augmente les dégâts de 20% sur les cibles ayant le tag #NUIT"
+   * - "charismeGeneration:self:+10%:Augmente la génération de charisme de 10%"
+   * - "healthModifier:self:+5:Augmente les PV de 5:IF(healthPercentage,less,50)"
+   * 
+   * @param ruleText - Texte de la règle à parser au format spécifié
+   * @returns Un objet TagRule structuré ou null si le parsing a échoué
    */
   public parseRuleFromText(ruleText: string): TagRule | null {
     try {
@@ -815,9 +861,18 @@ export class TagRuleParserService {
   }
 
   /**
-   * Parse une condition à partir d'un texte
-   * @param conditionText Texte de la condition
-   * @returns Condition parsée
+   * Parse une condition à partir d'un texte et la convertit en objet TagRuleCondition
+   * Cette méthode est utilisée pour analyser les conditions qui déterminent quand une règle s'applique
+   * 
+   * Format: "type:comparison:value[:args]"
+   * Exemples:
+   * - "healthPercentage:less:50" - S'applique si les PV sont inférieurs à 50%
+   * - "hasTag:equal:NUIT" - S'applique si la carte a le tag NUIT
+   * - "chance:greater:75" - S'applique avec 75% de chance
+   * 
+   * @param conditionText - Texte de la condition à parser
+   * @returns Un objet TagRuleCondition structuré ou undefined si le parsing a échoué
+   * @private
    */
   private parseConditionFromText(conditionText: string): TagRuleCondition | undefined {
     try {
