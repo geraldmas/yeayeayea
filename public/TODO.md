@@ -139,11 +139,11 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [ ] 🚀 Système de conflits et priorités
 
 ### 5.2 Gestion des Ressources
-- [ ] Implémenter le système de motivation
+- [ ] Implémenter le système de motivation:
   - [x] 🔥 Renouvellement par tour
   - [ ] 🚀 Modificateurs et effets
-- [ ] Développer le système de charisme
-  - [ ] 🔥 Acquisition et stockage
+- [ ] Développer le système de charisme:
+  - [x] 🔥 Acquisition et stockage
   - [ ] 🚀 Utilisation et limitations
 
 ### 5.3 Base et Attaques

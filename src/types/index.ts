@@ -161,6 +161,10 @@ export interface Player {
   motivation: number;
   baseMotivation: number;
   motivationModifiers: MotivationModifier[];
+  charisme: number;
+  baseCharisme: number;
+  maxCharisme: number;
+  charismeModifiers: CharismeModifier[];
   movementPoints: number;
   points: number;
   effects: StatusEffect[];
@@ -175,6 +179,18 @@ export interface MotivationModifier {
   isPercentage: boolean;
   source: string;
   duration?: number;
+}
+
+/**
+ * Interface pour les modificateurs de charisme
+ */
+export interface CharismeModifier {
+  id: string;
+  value: number;
+  isPercentage: boolean;
+  source: string;
+  duration?: number;
+  type: 'generation' | 'stockage' | 'cout';
 }
 
 export interface StatusEffect {
@@ -236,3 +252,6 @@ export interface CharacterCardFrontend extends CardFrontend {
     [key: string]: any;
   };
 }
+
+export type { CharismeModifier };
+export type { Player };

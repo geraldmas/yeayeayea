@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './GameBoard.css';
 import { Card, CardFrontend } from '../types/index';
 import { CardInstance } from '../types/combat';
+import MotivationDisplay from './MotivationDisplay';
+import CharismeDisplay from './CharismeDisplay';
 
 interface GameBoardProps {
   // Propriétés du joueur
@@ -10,6 +12,9 @@ interface GameBoardProps {
   playerObjects: CardInstance[];
   playerDeck: number; // Nombre de cartes restantes dans la pioche
   playerDiscard: number; // Nombre de cartes dans la défausse
+  playerCharisme?: number;
+  playerMaxCharisme?: number;
+  playerCharismeModifiers?: any[];
   
   // Propriétés de l'adversaire
   opponentHand: number; // Nombre de cartes en main (faces cachées)
@@ -17,6 +22,9 @@ interface GameBoardProps {
   opponentObjects: CardInstance[];
   opponentDeck: number;
   opponentDiscard: number;
+  opponentCharisme?: number;
+  opponentMaxCharisme?: number;
+  opponentCharismeModifiers?: any[];
   
   // Lieu actif
   activeLieu: CardInstance | null;
@@ -43,11 +51,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
   playerObjects,
   playerDeck,
   playerDiscard,
+  playerCharisme = 0,
+  playerMaxCharisme = 100,
+  playerCharismeModifiers = [],
   opponentHand,
   opponentCharacters,
   opponentObjects,
   opponentDeck,
   opponentDiscard,
+  opponentCharisme = 0,
+  opponentMaxCharisme = 100,
+  opponentCharismeModifiers = [],
   activeLieu,
   onCardDrop,
   onCardClick
@@ -255,40 +269,90 @@ const GameBoard: React.FC<GameBoardProps> = ({
     );
   };
 
+  // Créer des objets Player simplifiés pour les affichages
+  const playerData = {
+    id: 'player',
+    name: 'Joueur',
+    charisme: playerCharisme,
+    baseCharisme: 0,
+    maxCharisme: playerMaxCharisme,
+    charismeModifiers: playerCharismeModifiers,
+    motivation: 10, // Valeurs fictives pour le moment
+    baseMotivation: 10,
+    motivationModifiers: [],
+    // Autres propriétés requises par l'interface Player
+    activeCard: null,
+    benchCards: [],
+    inventory: [],
+    hand: [],
+    movementPoints: 0,
+    points: 0,
+    effects: []
+  };
+  
+  const opponentData = {
+    id: 'opponent',
+    name: 'Adversaire',
+    charisme: opponentCharisme,
+    baseCharisme: 0,
+    maxCharisme: opponentMaxCharisme,
+    charismeModifiers: opponentCharismeModifiers,
+    motivation: 10,
+    baseMotivation: 10,
+    motivationModifiers: [],
+    // Autres propriétés requises par l'interface Player
+    activeCard: null,
+    benchCards: [],
+    inventory: [],
+    hand: [],
+    movementPoints: 0,
+    points: 0,
+    effects: []
+  };
+  
+  // Ajout des composants d'affichage de charisme
+  const renderPlayerInfo = () => {
+    return (
+      <div className="player-info">
+        <MotivationDisplay player={playerData} isActive={true} />
+        <CharismeDisplay player={playerData} isActive={true} />
+      </div>
+    );
+  };
+  
+  const renderOpponentInfo = () => {
+    return (
+      <div className="opponent-info">
+        <MotivationDisplay player={opponentData} isActive={false} />
+        <CharismeDisplay player={opponentData} isActive={false} />
+      </div>
+    );
+  };
+
   return (
     <div className="game-board">
       <div className="opponent-area">
+        {renderOpponentInfo()}
         {renderOpponentHand()}
-        <div className="opponent-battlefield">
-          <div className="characters-row">
-            {renderCharacterSlots(opponentCharacters, false)}
-          </div>
-          <div className="objects-row">
-            {renderObjectSlots(opponentObjects, false)}
-          </div>
+        <div className="opponent-play-area">
+          {renderCharacterSlots(opponentCharacters, false)}
+          {renderObjectSlots(opponentObjects, false)}
         </div>
         {renderDeckAndDiscard(false)}
       </div>
       
-      <div className="center-area">
+      <div className="middle-area">
         {renderActiveLieu()}
       </div>
       
       <div className="player-area">
         {renderDeckAndDiscard(true)}
-        <div className="player-battlefield">
-          <div className="objects-row">
-            {renderObjectSlots(playerObjects, true)}
-          </div>
-          <div className="characters-row">
-            {renderCharacterSlots(playerCharacters, true)}
-          </div>
+        <div className="player-play-area">
+          {renderCharacterSlots(playerCharacters, true)}
+          {renderObjectSlots(playerObjects, true)}
         </div>
-      </div>
-
-      {/* Zone de la main du joueur mise en évidence, séparée du reste */}
-      <div className="main-player-hand-area">
         {renderPlayerHand()}
+        {renderPlayerInfo()}
       </div>
     </div>
   );

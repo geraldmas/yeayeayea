@@ -545,4 +545,49 @@
 
 .hand-card-action:hover, .hand-card.face-down:hover {
   box-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
+}
+
+/* Nouveaux styles pour les zones d'informations des joueurs */
+.player-info,
+.opponent-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 350px;
+}
+
+.player-info {
+  order: 4; /* Pour placer en bas de la zone joueur */
+  align-self: flex-start;
+}
+
+.opponent-info {
+  order: 0; /* Pour placer en haut de la zone adversaire */
+  align-self: flex-end;
+}
+
+.player-play-area,
+.opponent-play-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.player-play-area {
+  flex-direction: column-reverse; /* Objets en haut, personnages en bas */
+}
+
+.middle-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
 } 
