@@ -354,7 +354,19 @@ export const gameConfigService = {
   async getValue<T>(key: string): Promise<T | null> {
     const config = await this.getByKey(key);
     if (!config) return null;
-    return (config.value as { value: T }).value;
+    
+    try {
+      // Vérifie d'abord si la valeur a une structure { value: T }
+      if (config.value && typeof config.value === 'object' && 'value' in config.value) {
+        return (config.value as { value: T }).value;
+      }
+      
+      // Sinon, essaie de retourner la valeur directement
+      return config.value as unknown as T;
+    } catch (error) {
+      console.warn(`Erreur lors de l'accès à la configuration '${key}':`, error);
+      return null;
+    }
   }
 };
 

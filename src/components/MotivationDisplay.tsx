@@ -1,5 +1,5 @@
 import React from 'react';
-import { Player, MotivationModifier } from '../types';
+import type { Player, MotivationModifier } from '../types/index';
 import './MotivationDisplay.css';
 
 interface MotivationDisplayProps {

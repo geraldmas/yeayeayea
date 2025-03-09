@@ -1,4 +1,4 @@
-import { GameState, Player } from '../types';
+import type { GameState, Player } from '../types/index';
 import { MotivationService } from './motivationService';
 
 /**

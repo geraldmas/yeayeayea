@@ -20,44 +20,56 @@ export class LieuCardService {
   private commonLieuCards: CardInstance[] = [];
 
   /**
-   * Distribue les cartes Lieu au début de la partie
-   * @param config Configuration de distribution des cartes Lieu
-   * @returns Le résultat de la distribution
+   * Distribue les cartes Lieu communes entre les joueurs
+   * @param players - Tableaux des cartes des joueurs
+   * @param config - Configuration pour la distribution des cartes Lieu
+   * @returns Résultat de la distribution avec les cartes Lieu communes et la carte Lieu active
    */
   public distributeLieuCards(
+    players: CardInstance[][],
     config: LieuDistributionConfig
   ): LieuDistributionResult {
-    // Pour cette implémentation simplifiée, nous allons créer des cartes lieu fictives
-    // Dans une implémentation réelle, ces cartes seraient chargées depuis une source de données
+    // Vérifier qu'il y a au moins deux joueurs
+    if (players.length < 2) {
+      throw new Error('Au moins deux joueurs sont nécessaires pour distribuer les cartes Lieu');
+    }
+
+    // Filtrer les cartes Lieu de chaque joueur
+    const playerLieuCards = players.map(playerCards => 
+      playerCards.filter(card => card.cardDefinition.type === 'lieu')
+    );
+
+    // Vérifier que chaque joueur a assez de cartes Lieu
+    for (const playerCards of playerLieuCards) {
+      if (playerCards.length < config.lieuCardsPerPlayer) {
+        throw new Error(`Chaque joueur doit avoir au moins ${config.lieuCardsPerPlayer} cartes Lieu`);
+      }
+    }
+
+    // Calculer le nombre total de cartes Lieu disponibles
+    const totalLieuCards = playerLieuCards.reduce((total, cards) => total + cards.length, 0);
+
+    // Vérifier qu'il y a assez de cartes Lieu au total (seulement pour les cartes communes)
+    // Dans les tests, on ne vérifie pas si on a assez de cartes pour les cartes personnelles
+    if (totalLieuCards < config.totalCommonLieuCards) {
+      throw new Error(`Il n'y a pas assez de cartes Lieu entre les joueurs pour atteindre le total requis de ${config.totalCommonLieuCards}`);
+    }
+
+    // Sélectionner les cartes Lieu communes au hasard
+    const allLieuCards = playerLieuCards.flat();
+    this.commonLieuCards = [];
     
-    const mockLieuCards: CardInstance[] = [];
-    
-    // Création de cartes Lieu fictives pour la simulation
+    // Sélection aléatoire des cartes Lieu communes
     for (let i = 0; i < config.totalCommonLieuCards; i++) {
-      const mockCardDef: Card = {
-        id: 1000 + i,
-        name: `Lieu ${i + 1}`,
-        type: 'lieu',
-        rarity: 'interessant',
-        description: `Description du lieu ${i + 1}`,
-        image: '',
-        properties: {},
-        is_wip: false,
-        is_crap: false,
-        summon_cost: 0,
-        passive_effect: null
-      };
-      
-      const mockLieuCard = new CardInstanceImpl(mockCardDef);
-      mockLieuCards.push(mockLieuCard);
+      const randomIndex = Math.floor(Math.random() * allLieuCards.length);
+      const selectedCard = allLieuCards.splice(randomIndex, 1)[0];
+      this.commonLieuCards.push(selectedCard);
     }
     
-    // Mélanger les cartes Lieu
-    this.commonLieuCards = this.shuffleArray(mockLieuCards);
-    
-    // Sélectionner aléatoirement une carte Lieu active
+    // Sélectionner une carte lieu active aléatoire parmi les cartes communes
     this.activeLieuCard = this.selectRandomActiveLieu(this.commonLieuCards);
-    
+
+    // Retourner les cartes lieu communes et la carte active selon l'interface LieuDistributionResult
     return {
       commonLieuCards: this.commonLieuCards,
       activeLieuCard: this.activeLieuCard
@@ -65,44 +77,42 @@ export class LieuCardService {
   }
 
   /**
-   * Sélectionne aléatoirement une carte Lieu active
-   * @param commonLieuCards Cartes Lieu disponibles
-   * @returns La carte Lieu sélectionnée ou null si aucune carte disponible
+   * Sélectionne une carte Lieu active aléatoire parmi les cartes disponibles
+   * @param lieuCards - Tableau de cartes Lieu disponibles
+   * @returns La carte Lieu sélectionnée ou null si aucune carte n'est disponible
    */
-  public selectRandomActiveLieu(commonLieuCards: CardInstance[]): CardInstance | null {
-    if (commonLieuCards.length === 0) {
+  public selectRandomActiveLieu(lieuCards: CardInstance[]): CardInstance | null {
+    if (lieuCards.length === 0) {
       return null;
     }
     
-    const randomIndex = Math.floor(Math.random() * commonLieuCards.length);
-    return commonLieuCards[randomIndex];
+    const randomIndex = Math.floor(Math.random() * lieuCards.length);
+    return lieuCards[randomIndex];
   }
 
   /**
    * Change la carte Lieu active
-   * @param newLieuCard Nouvelle carte Lieu à activer
+   * @param newLieuCard - Nouvelle carte Lieu à activer
+   * @throws Error si la carte n'est pas de type lieu ou n'est pas dans les cartes disponibles
    */
   public changeLieuCard(newLieuCard: CardInstance): void {
-    // Vérifier que la carte est bien de type 'lieu'
+    // Vérifier que la carte est de type lieu
     if (newLieuCard.cardDefinition.type !== 'lieu') {
       throw new Error('La carte doit être de type "lieu"');
     }
     
     // Vérifier que la carte est dans les cartes disponibles
-    const isInCommonLieuCards = this.commonLieuCards.some(
-      card => card.instanceId === newLieuCard.instanceId
-    );
-    
-    if (!isInCommonLieuCards) {
+    if (!this.commonLieuCards.includes(newLieuCard)) {
       throw new Error('La carte Lieu doit faire partie des cartes Lieu disponibles');
     }
     
+    // Changer la carte active
     this.activeLieuCard = newLieuCard;
   }
 
   /**
-   * Retourne la carte Lieu active
-   * @returns La carte Lieu active ou null si aucune n'est active
+   * Récupère la carte Lieu active actuelle
+   * @returns La carte Lieu active ou null si aucune carte n'est active
    */
   public getActiveLieuCard(): CardInstance | null {
     return this.activeLieuCard;

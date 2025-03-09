@@ -1,6 +1,6 @@
 import { TurnService } from '../turnService';
 import { MotivationService } from '../motivationService';
-import { GameState, Player } from '../../types';
+import type { GameState, Player } from '../../types/index';
 
 // Mock du service de motivation
 jest.mock('../motivationService', () => ({
@@ -8,7 +8,16 @@ jest.mock('../motivationService', () => ({
     renewMotivation: jest.fn((player) => ({
       ...player,
       motivation: 10 // Valeur de test
-    }))
+    })),
+    consumeMotivation: jest.fn().mockImplementation((player, amount) => {
+      if (player.motivation < amount) {
+        return null;
+      }
+      return {
+        ...player,
+        motivation: player.motivation - amount
+      };
+    })
   }
 }));
 
@@ -145,24 +154,17 @@ describe('TurnService', () => {
     it('devrait consommer la motivation du joueur', () => {
       const gameState = createTestGameState();
       
-      // Mock pour cette fonction spécifique
-      jest.spyOn(MotivationService, 'consumeMotivation').mockImplementation((player, amount) => ({
-        ...player,
-        motivation: player.motivation - amount
-      }));
-      
       const result = TurnService.consumeMotivation(gameState, 'player1', 3);
       
       expect(result).not.toBeNull();
-      expect(result?.players[0].motivation).toBe(2);
+      expect(result?.players[0].motivation).toBe(2); // 5 - 3 = 2
       expect(MotivationService.consumeMotivation).toHaveBeenCalledWith(gameState.players[0], 3);
     });
 
     it('devrait retourner null si le joueur n\'a pas assez de motivation', () => {
       const gameState = createTestGameState();
       
-      // Mock pour cette fonction spécifique
-      jest.spyOn(MotivationService, 'consumeMotivation').mockImplementation(() => null);
+      // Configure le mock pour retourner null (déjà configuré dans le setup)
       
       const result = TurnService.consumeMotivation(gameState, 'player1', 10);
       

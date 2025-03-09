@@ -1,5 +1,5 @@
 import { MotivationService } from '../motivationService';
-import { Player, MotivationModifier } from '../../types';
+import type { Player, MotivationModifier } from '../../types/index';
 
 // Mock pour gameConfigService
 jest.mock('../../utils/dataService', () => ({

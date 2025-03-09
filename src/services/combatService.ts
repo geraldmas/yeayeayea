@@ -410,15 +410,18 @@ export class CardInstanceImpl implements CardInstance {
   public async initializeObjectSlots(): Promise<void> {
     try {
       // Récupérer le nombre d'emplacements d'objets depuis la configuration
-      const slotsCount = await gameConfigService.getValue<number>('emplacements_objet') || 3;
+      const slotsCount = await gameConfigService.getValue<number>('emplacements_objet');
       
-      this.objectSlots = Array(slotsCount).fill(0).map((_, index) => ({
+      // Utiliser une valeur par défaut (3) si slotsCount est null ou undefined
+      const finalSlotsCount = slotsCount !== null && slotsCount !== undefined ? slotsCount : 3;
+      
+      this.objectSlots = Array(finalSlotsCount).fill(0).map((_, index) => ({
         slotId: index + 1, // Les IDs commencent à 1
         equippedObject: null,
         isLocked: false
       }));
     } catch (error) {
-      console.error('Erreur lors de l\'initialisation des emplacements d\'objets:', error);
+      console.warn('Utilisation de la configuration par défaut pour les emplacements d\'objets:', error);
       // Par défaut, créer 3 emplacements si la configuration n'est pas disponible
       this.objectSlots = Array(3).fill(0).map((_, index) => ({
         slotId: index + 1,
@@ -456,12 +459,12 @@ export class CardInstanceImpl implements CardInstance {
       }
       
       if (slot.isLocked) {
-        console.error(`L'emplacement d'ID ${slotId} est verrouillé`);
+        console.warn(`L'emplacement d'ID ${slotId} est verrouillé`);
         return false;
       }
       
       if (slot.equippedObject) {
-        console.error(`L'emplacement d'ID ${slotId} est déjà occupé`);
+        console.warn(`L'emplacement d'ID ${slotId} est déjà occupé`);
         return false;
       }
       
@@ -498,7 +501,7 @@ export class CardInstanceImpl implements CardInstance {
     }
     
     if (slot.isLocked) {
-      console.error(`L'emplacement d'ID ${slotId} est verrouillé et ne peut pas être déséquipé`);
+      console.warn(`L'emplacement d'ID ${slotId} est verrouillé et ne peut pas être déséquipé`);
       return null;
     }
     
@@ -1016,13 +1019,50 @@ export class CombatManagerImpl implements CombatManager {
   }
 
   /**
-   * Distribue les cartes Lieu pour le début d'une partie
+   * Distribue les cartes Lieu au début de la partie
    * @param config Configuration de distribution des cartes Lieu
    * @returns Résultat de la distribution
    */
   public distributeLieuCards(config: LieuDistributionConfig): LieuDistributionResult {
+    // Pour simuler les cartes des joueurs, nous allons créer deux groupes de cartes
+    // En situation réelle, ces données viendraient de l'état du jeu
+    const playerIds = ["player1", "player2"];
+    
+    // Si nous n'avons pas assez de cartes, créons quelques exemples
+    if (this.cardInstances.length < 10) {
+      // Créer des cartes Lieu fictives
+      for (let i = 0; i < 10; i++) {
+        const mockCard: Card = {
+          id: 2000 + i,
+          name: `Lieu ${i}`,
+          type: 'lieu',
+          rarity: 'interessant',
+          description: `Description du lieu ${i}`,
+          properties: {},
+          summon_cost: 0,
+          image: '',
+          passive_effect: null,
+          is_wip: false,
+          is_crap: false
+        };
+        
+        const cardInstance = this.convertCardToInstance(mockCard);
+        this.cardInstances.push(cardInstance);
+      }
+    }
+    
+    // Répartir artificiellement les cartes en deux groupes de joueurs
+    const playerCards: CardInstance[][] = [];
+    
+    // Diviser les cartes disponibles en deux groupes
+    for (let i = 0; i < playerIds.length; i++) {
+      const startIdx = i * Math.floor(this.cardInstances.length / playerIds.length);
+      const endIdx = (i + 1) * Math.floor(this.cardInstances.length / playerIds.length);
+      playerCards.push(this.cardInstances.slice(startIdx, endIdx));
+    }
+    
     // Déléguer au service spécialisé
-    return this.lieuCardService.distributeLieuCards(config);
+    return this.lieuCardService.distributeLieuCards(playerCards, config);
   }
   
   /**

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Player, MotivationModifier } from '../types';
+import type { Player, MotivationModifier } from '../types/index';
 import { gameConfigService } from '../utils/dataService';
 
 /**
