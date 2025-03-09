@@ -3,17 +3,37 @@ import type { Player, MotivationModifier } from '../types/index';
 import { gameConfigService } from '../utils/dataService';
 
 /**
+ * @file motivationService.ts
+ * @description Service de gestion de la ressource de motivation pour le jeu Yeayeayea
+ * 
+ * Ce service gère la ressource principale du jeu (la motivation) qui permet aux joueurs
+ * d'effectuer des actions pendant leur tour, comme jouer des cartes, lancer des sorts,
+ * ou activer des effets spéciaux. La motivation est renouvelée à chaque tour et peut
+ * être modifiée par divers effets (bonus, malus, altérations).
+ * 
+ * Le système de motivation comprend :
+ * - Une valeur de base (par défaut 10 points par tour)
+ * - Des modificateurs temporaires ou permanents
+ * - Un mécanisme de consommation pour les actions
+ * - Une gestion de la configuration globale des valeurs par défaut
+ */
+
+/**
  * Service de gestion de la motivation
- * La motivation est la ressource principale utilisée pour lancer des sorts et utiliser des actions
+ * Fournit des méthodes pour initialiser, renouveler, modifier et consommer 
+ * la motivation des joueurs durant une partie
  */
 export class MotivationService {
-  // Valeur par défaut de motivation par tour
+  /** Valeur par défaut de motivation attribuée par tour (configurable) */
   private static DEFAULT_MOTIVATION = 10;
   
   /**
    * Initialise la motivation d'un joueur avec les valeurs par défaut
-   * @param player Le joueur à initialiser
-   * @returns Le joueur avec sa motivation initialisée
+   * Cette méthode est appelée lors de la création d'un nouveau joueur
+   * ou la réinitialisation d'une partie
+   * 
+   * @param player - Le joueur à initialiser
+   * @returns Le joueur mis à jour avec sa motivation initialisée
    */
   public static initializePlayerMotivation(player: Player): Player {
     return {
@@ -27,8 +47,10 @@ export class MotivationService {
   /**
    * Renouvelle la motivation d'un joueur au début de son tour
    * Cette méthode calcule la motivation en tenant compte des modificateurs
-   * @param player Le joueur dont la motivation doit être renouvelée
-   * @returns Le joueur avec sa motivation renouvelée
+   * actifs et met à jour la durée des effets temporaires
+   * 
+   * @param player - Le joueur dont la motivation doit être renouvelée
+   * @returns Le joueur avec sa motivation renouvelée et ses modificateurs mis à jour
    */
   public static renewMotivation(player: Player): Player {
     // Récupérer la motivation de base du joueur
@@ -75,12 +97,15 @@ export class MotivationService {
   
   /**
    * Ajoute un modificateur à la motivation d'un joueur
-   * @param player Le joueur à modifier
-   * @param value La valeur du modificateur (absolu ou pourcentage)
-   * @param isPercentage Indique si la valeur est un pourcentage
-   * @param source L'origine du modificateur (carte, effet, etc.)
-   * @param duration La durée en tours (undefined ou -1 = permanent)
-   * @returns Le joueur avec le modificateur ajouté
+   * Ces modificateurs peuvent être utilisés pour représenter des bonus/malus provenant
+   * de cartes, altérations, objets ou effets spéciaux
+   * 
+   * @param player - Le joueur auquel ajouter le modificateur
+   * @param value - La valeur du modificateur (positive pour bonus, négative pour malus)
+   * @param isPercentage - Si true, la valeur est interprétée comme un pourcentage, sinon comme valeur absolue
+   * @param source - L'origine du modificateur (nom de carte, effet, etc.) pour le suivi et l'affichage
+   * @param duration - La durée en tours (undefined ou -1 pour un effet permanent)
+   * @returns Le joueur mis à jour avec le nouveau modificateur ajouté
    */
   public static addMotivationModifier(
     player: Player,
@@ -104,10 +129,13 @@ export class MotivationService {
   }
   
   /**
-   * Supprime un modificateur de motivation par son ID
-   * @param player Le joueur à modifier
-   * @param modifierId L'ID du modificateur à supprimer
-   * @returns Le joueur avec le modificateur supprimé
+   * Supprime un modificateur de motivation spécifique par son identifiant
+   * Utile pour annuler des effets, dissiper des altérations ou nettoyer 
+   * des modificateurs qui ne sont plus pertinents
+   * 
+   * @param player - Le joueur dont on veut supprimer un modificateur
+   * @param modifierId - L'identifiant unique du modificateur à supprimer
+   * @returns Le joueur mis à jour avec le modificateur supprimé
    */
   public static removeMotivationModifier(player: Player, modifierId: string): Player {
     return {
@@ -118,9 +146,12 @@ export class MotivationService {
   
   /**
    * Consomme de la motivation pour une action
-   * @param player Le joueur qui consomme la motivation
-   * @param amount La quantité de motivation à consommer
-   * @returns Le joueur avec sa motivation mise à jour, ou null si la motivation est insuffisante
+   * Vérifie d'abord si le joueur a suffisamment de motivation avant de la consommer
+   * Cette méthode est utilisée lors de l'exécution d'actions qui nécessitent de la motivation
+   * 
+   * @param player - Le joueur qui souhaite effectuer l'action
+   * @param amount - La quantité de motivation nécessaire pour l'action
+   * @returns Le joueur avec sa motivation réduite, ou `null` si la motivation est insuffisante
    */
   public static consumeMotivation(player: Player, amount: number): Player | null {
     if (player.motivation < amount) {
@@ -135,8 +166,10 @@ export class MotivationService {
   
   /**
    * Charge la valeur de motivation par défaut depuis la configuration du jeu
-   * Si la valeur n'est pas définie, utilise la valeur par défaut (10)
-   * @returns La valeur de motivation par défaut
+   * Cette méthode permet de récupérer la valeur configurée dans les paramètres globaux
+   * Si la valeur n'existe pas dans la configuration, la valeur par défaut est utilisée
+   * 
+   * @returns La valeur de motivation par défaut configurée ou la valeur par défaut (10)
    */
   public static async loadDefaultMotivation(): Promise<number> {
     try {

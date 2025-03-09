@@ -2,13 +2,31 @@ import type { GameState, Player } from '../types/index';
 import { MotivationService } from './motivationService';
 
 /**
+ * @file turnService.ts
+ * @description Service de gestion du cycle des tours pour le jeu Yeayeayea
+ * 
+ * Ce service gère le déroulement d'une partie en contrôlant :
+ * - L'initialisation de l'état du jeu
+ * - La progression des tours entre les joueurs
+ * - Les changements de phase au sein d'un tour
+ * - La gestion des ressources (motivation) entre les tours
+ * 
+ * Le cycle de jeu typique se déroule avec une alternance de tours entre les joueurs,
+ * chaque tour étant divisé en plusieurs phases (pioche, principale, combat, fin).
+ * Ce service coordonne ces transitions et assure le maintien d'un état de jeu cohérent.
+ */
+
+/**
  * Service pour la gestion des tours de jeu
+ * Fournit des méthodes statiques pour manipuler l'état du jeu à chaque étape
  */
 export class TurnService {
   /**
    * Initialise un nouvel état de jeu
-   * @param players Les joueurs de la partie
-   * @returns Un nouvel état de jeu
+   * Crée l'état initial d'une partie avec tous les joueurs et paramètres de départ
+   * 
+   * @param players - Les joueurs participant à la partie
+   * @returns Un nouvel état de jeu prêt pour commencer la partie
    */
   public static initializeGameState(players: Player[]): GameState {
     // Initialiser l'état de jeu
@@ -23,8 +41,11 @@ export class TurnService {
   
   /**
    * Passe au tour suivant et renouvelle les ressources
-   * @param gameState L'état de jeu actuel
-   * @returns L'état de jeu mis à jour
+   * Cette méthode termine le tour du joueur actif et prépare le suivant 
+   * en réinitialisant la motivation et les ressources
+   * 
+   * @param gameState - L'état de jeu actuel
+   * @returns L'état de jeu mis à jour avec le nouveau joueur actif
    */
   public static nextTurn(gameState: GameState): GameState {
     // Déterminer le prochain joueur actif
@@ -59,9 +80,12 @@ export class TurnService {
   
   /**
    * Change la phase du tour actuel
-   * @param gameState L'état de jeu actuel
-   * @param newPhase La nouvelle phase
-   * @returns L'état de jeu mis à jour
+   * Les phases peuvent inclure : pioche (draw), principale (main), combat, fin (end)
+   * Chaque phase peut avoir des règles et restrictions spécifiques
+   * 
+   * @param gameState - L'état de jeu actuel
+   * @param newPhase - La nouvelle phase vers laquelle transitionner
+   * @returns L'état de jeu mis à jour avec la nouvelle phase
    */
   public static changePhase(
     gameState: GameState, 
@@ -74,11 +98,13 @@ export class TurnService {
   }
   
   /**
-   * Vérifie si un joueur a suffisamment de motivation pour une action
-   * @param gameState L'état de jeu actuel
-   * @param playerId L'identifiant du joueur
-   * @param cost Le coût en motivation
-   * @returns true si le joueur a suffisamment de motivation, false sinon
+   * Vérifie si un joueur a suffisamment de motivation pour exécuter une action
+   * Cette vérification est utilisée avant d'autoriser des actions coûteuses
+   * 
+   * @param gameState - L'état de jeu actuel
+   * @param playerId - L'identifiant unique du joueur à vérifier
+   * @param cost - Le coût en motivation de l'action envisagée
+   * @returns `true` si le joueur a suffisamment de motivation, `false` sinon
    */
   public static hasEnoughMotivation(
     gameState: GameState,
@@ -93,10 +119,13 @@ export class TurnService {
   
   /**
    * Consomme de la motivation pour une action
-   * @param gameState L'état de jeu actuel
-   * @param playerId L'identifiant du joueur
-   * @param cost Le coût en motivation
-   * @returns L'état de jeu mis à jour, ou null si la motivation est insuffisante
+   * Utilise le MotivationService pour déduire le coût et mettre à jour l'état du joueur
+   * Cette méthode est appelée lors de l'exécution d'actions comme jouer des cartes ou activer des effets
+   * 
+   * @param gameState - L'état de jeu actuel
+   * @param playerId - L'identifiant unique du joueur qui effectue l'action
+   * @param cost - Le coût en motivation de l'action à exécuter
+   * @returns L'état de jeu mis à jour avec la motivation réduite, ou `null` si la motivation est insuffisante
    */
   public static consumeMotivation(
     gameState: GameState,
