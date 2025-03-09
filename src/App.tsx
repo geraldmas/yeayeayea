@@ -106,10 +106,17 @@ const AppContent: React.FC = () => {
   // Sauvegarder une carte
   const handleCardSave = async (card: Card) => {
     try {
-      const { data, error } = await saveCard(card);
-      if (error) throw error;
+      const result = await saveCard(card);
+      if (result.error) {
+        throw result.error;
+      }
       
       showNotification('Carte sauvegardée avec succès', 'success');
+      
+      // Si c'est une nouvelle carte, réinitialiser le formulaire
+      if (!card.id) {
+        resetCard();
+      }
       
       // Actualiser la liste des cartes
       fetchAllCards();
@@ -120,31 +127,38 @@ const AppContent: React.FC = () => {
   };
 
   // Supprimer une carte
-  const handleDeleteCard = async (cardId: number) => {
-    try {
-      const { error } = await deleteCard(cardId);
-      if (error) throw error;
-      
-      showNotification('Carte supprimée avec succès', 'success');
-      resetCard();
-      
-      // Actualiser la liste des cartes
-      fetchAllCards();
-    } catch (error) {
-      console.error('Erreur lors de la suppression de la carte :', error);
-      showNotification('Erreur lors de la suppression de la carte', 'error');
+  const handleDeleteCard = async (card: Card) => {
+    if (!card || !card.id) {
+      showNotification('Erreur : impossible de supprimer une carte sans identifiant', 'error');
+      return;
+    }
+    
+    // Confirmer la suppression
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette carte ? Cette action est irréversible.')) {
+      try {
+        // La fonction deleteCard ne retourne rien en cas de succès, mais peut lancer une erreur
+        await deleteCard(card.id);
+        showNotification('Carte supprimée avec succès', 'success');
+        resetCard();
+        
+        // Actualiser la liste des cartes
+        fetchAllCards();
+      } catch (error) {
+        console.error('Erreur lors de la suppression de la carte :', error);
+        showNotification('Erreur lors de la suppression de la carte', 'error');
+      }
     }
   };
 
   // Récupérer toutes les cartes
   const fetchAllCards = async () => {
     try {
-      const { data, error } = await getAllCards();
-      if (error) throw error;
-      
-      setAllCards(data || []);
+      // getAllCards retourne directement un tableau de cartes
+      const cards = await getAllCards();
+      setAllCards(cards);
     } catch (error) {
       console.error('Erreur lors de la récupération des cartes :', error);
+      showNotification('Erreur lors du chargement des cartes', 'error');
     }
   };
 
@@ -278,6 +292,32 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
+  // Effet pour charger les données initiales
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        // Afficher un message de chargement
+        showNotification('Chargement des données...', 'info');
+        
+        // Charger les cartes
+        await fetchAllCards();
+        
+        // Charger d'autres données si nécessaire...
+        
+        // Supprimer le message de chargement
+        setNotification(null);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données initiales :', error);
+        showNotification('Erreur lors du chargement des données', 'error');
+      }
+    };
+    
+    // Charger les données si l'utilisateur est authentifié
+    if (isAuthenticated) {
+      loadInitialData();
+    }
+  }, [isAuthenticated]); // S'exécute uniquement lors de l'authentification
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -325,10 +365,27 @@ const AppContent: React.FC = () => {
               title="Cartes récentes"
               subtitle="Les dernières cartes ajoutées ou modifiées"
               cards={allCards.slice(0, 6)}
-              onCardClick={(card) => {
-                setCardData(card);
-                setSpellIds(loadedSpellsMap[card.id]?.map(spell => spell.id) || []);
-                setTagIds(card.tags?.map((tag: { id: number }) => tag.id) || []);
+              onCardClick={(card: any) => {
+                // Créer une copie complète de la carte en s'assurant que toutes les propriétés requises sont présentes
+                const completeCard: Card = {
+                  id: card.id,
+                  name: card.name,
+                  type: card.type,
+                  rarity: card.rarity,
+                  description: card.description || '',
+                  image: card.image || '',
+                  passive_effect: card.passive_effect || '',
+                  properties: card.properties || {},
+                  is_wip: card.is_wip !== undefined ? card.is_wip : true,
+                  is_crap: card.is_crap !== undefined ? card.is_crap : false,
+                  summon_cost: card.summon_cost || 0
+                };
+                
+                setCardData(completeCard);
+                
+                // Gérer les spells et tags
+                setSpellIds(loadedSpellsMap[card.id]?.map((spell: any) => spell.id) || []);
+                setTagIds((card.tags || []).map((tag: any) => tag.id) || []);
                 navigate('/cards');
               }}
               maxCards={6}
@@ -380,7 +437,7 @@ const AppContent: React.FC = () => {
             <CardForm
               card={cardData}
               onSave={handleCardSave}
-              onDelete={handleDeleteCard}
+              onDelete={(card: Card) => handleDeleteCard(card)}
               spellIds={spellIds}
               tagIds={tagIds}
               onSpellIdsChange={setSpellIds}
