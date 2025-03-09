@@ -120,7 +120,11 @@ export class CardInstanceImpl implements CardInstance {
     }
   }
 
-  // Méthodes pour manipuler l'état
+  /**
+   * Applique des dégâts à cette instance de carte
+   * @param amount - Quantité de dégâts à infliger (avant modificateurs)
+   * @param source - Source des dégâts (pour l'historique et le débogage)
+   */
   public applyDamage(amount: number, source?: string): void {
     // Appliquer les modificateurs de dégâts des altérations
     const modifiedAmount = this.applyDamageModifiers(amount);
@@ -139,6 +143,11 @@ export class CardInstanceImpl implements CardInstance {
     this.triggerOnDamageEffects(modifiedAmount);
   }
 
+  /**
+   * Soigne cette instance de carte
+   * @param amount - Quantité de soin à appliquer (avant modificateurs)
+   * @param source - Source du soin (pour l'historique et le débogage)
+   */
   public heal(amount: number, source?: string): void {
     // Appliquer les modificateurs de soin des altérations
     const modifiedAmount = this.applyHealModifiers(amount);
@@ -157,6 +166,11 @@ export class CardInstanceImpl implements CardInstance {
     this.triggerOnHealEffects(modifiedAmount);
   }
 
+  /**
+   * Ajoute une altération à cette instance de carte
+   * @param alteration - L'altération à appliquer
+   * @param source - La carte source qui applique l'altération
+   */
   public addAlteration(alteration: Alteration, source: CardInstance): void {
     // Vérifier si l'altération existe déjà
     const existingAlteration = this.activeAlterations.find(
@@ -182,6 +196,10 @@ export class CardInstanceImpl implements CardInstance {
     this.recalculateTemporaryStats();
   }
 
+  /**
+   * Supprime une altération active sur cette instance de carte
+   * @param alterationId - Identifiant de l'altération à supprimer
+   */
   public removeAlteration(alterationId: number): void {
     this.activeAlterations = this.activeAlterations.filter(
       a => a.alteration.id !== alterationId
@@ -191,6 +209,12 @@ export class CardInstanceImpl implements CardInstance {
     this.recalculateTemporaryStats();
   }
 
+  /**
+   * Ajoute un tag à cette instance de carte
+   * @param tag - Le tag à ajouter
+   * @param isTemporary - Indique si le tag est temporaire (défaut: false)
+   * @param duration - Durée en tours pour les tags temporaires (optionnel)
+   */
   public addTag(tag: Tag, isTemporary: boolean = false, duration?: number): void {
     // Vérifier si le tag existe déjà
     const existingTag = this.activeTags.find(t => t.tag.id === tag.id);
@@ -209,6 +233,10 @@ export class CardInstanceImpl implements CardInstance {
     }
   }
 
+  /**
+   * Supprime un tag de cette instance de carte
+   * @param tagId - Identifiant du tag à supprimer
+   */
   public removeTag(tagId: number): void {
     const removedTag = this.activeTags.find(t => t.tag.id === tagId);
     this.activeTags = this.activeTags.filter(t => t.tag.id !== tagId);
@@ -219,20 +247,38 @@ export class CardInstanceImpl implements CardInstance {
     }
   }
 
-  // Méthodes pour vérifier l'état
+  /**
+   * Vérifie si cette instance de carte possède un tag spécifique
+   * @param tagId - Identifiant du tag à vérifier
+   * @returns Vrai si la carte possède le tag, faux sinon
+   */
   public hasTag(tagId: number): boolean {
     return this.activeTags.some(t => t.tag.id === tagId);
   }
 
+  /**
+   * Vérifie si cette instance de carte possède une altération spécifique
+   * @param alterationId - Identifiant de l'altération à vérifier
+   * @returns Vrai si la carte possède l'altération, faux sinon
+   */
   public hasAlteration(alterationId: number): boolean {
     return this.activeAlterations.some(a => a.alteration.id === alterationId);
   }
 
+  /**
+   * Vérifie si cette instance de carte peut utiliser un sort spécifique
+   * @param spellId - Identifiant du sort à vérifier
+   * @returns Vrai si le sort est disponible et n'est pas en temps de recharge, faux sinon
+   */
   public canUseSpell(spellId: number): boolean {
     const spell = this.availableSpells.find(s => s.spell.id === spellId);
     return spell ? spell.isAvailable && spell.cooldown === 0 : false;
   }
 
+  /**
+   * Vérifie si cette instance de carte peut attaquer
+   * @returns Vrai si la carte peut attaquer, faux sinon
+   */
   public canAttack(): boolean {
     return !this.isExhausted && !this.isTapped && this.currentHealth > 0;
   }
@@ -255,6 +301,10 @@ export class CardInstanceImpl implements CardInstance {
     });
   }
 
+  /**
+   * Réinitialise l'état de la carte pour le début du prochain tour
+   * Réduit la durée des altérations temporaires, actualise les sorts, etc.
+   */
   public resetForNextTurn(): void {
     // Réinitialiser l'état d'épuisement
     this.isExhausted = false;
@@ -305,7 +355,9 @@ export class CardInstanceImpl implements CardInstance {
   }
   
   /**
-   * Recalcule toutes les statistiques temporaires en fonction des altérations actives
+   * Recalcule toutes les statistiques temporaires en fonction des altérations et tags actifs
+   * Cette méthode est appelée après chaque modification des altérations ou tags,
+   * et actualise les statistiques d'attaque, défense et autres attributs modifiables.
    */
   public recalculateTemporaryStats(): void {
     // Réinitialiser les statistiques aux valeurs de base
@@ -340,7 +392,12 @@ export class CardInstanceImpl implements CardInstance {
     });
   }
 
-  // Méthodes privées d'aide
+  /**
+   * Applique les modificateurs de dégâts provenant des altérations et tags actifs
+   * @param amount - Montant initial des dégâts
+   * @returns Montant modifié des dégâts après application des modificateurs
+   * @private
+   */
   private applyDamageModifiers(amount: number): number {
     let modifiedAmount = amount;
 
@@ -645,21 +702,44 @@ export class CardInstanceImpl implements CardInstance {
 }
 
 /**
- * Implémentation du gestionnaire de combat
+ * @class CombatManagerImpl
+ * @implements {CombatManager}
+ * @description Implémentation du gestionnaire de combat principal
+ * Cette classe est responsable de la gestion globale du combat, incluant
+ * la conversion des cartes en instances, l'exécution des attaques et sorts,
+ * la résolution des actions, et la gestion des cartes lieu.
  */
 export class CombatManagerImpl implements CombatManager {
+  /** Liste des instances de cartes en jeu */
   public cardInstances: CardInstance[] = [];
+  
+  /** Service de conversion des cartes en instances de combat */
   private cardConversionService: CardConversionService;
+  
+  /** Service de gestion des cartes lieu */
   private lieuCardService: LieuCardService;
+  
+  /** Service de résolution des actions */
   private actionResolutionService: ActionResolutionService;
+  
+  /** Carte lieu actuellement active dans la partie */
   private activeLieuCard: CardInstance | null = null;
 
+  /**
+   * Crée une nouvelle instance du gestionnaire de combat
+   * Initialise les services nécessaires pour le fonctionnement du combat
+   */
   constructor() {
     this.cardConversionService = new CardConversionService();
     this.lieuCardService = new LieuCardService();
     this.actionResolutionService = new ActionResolutionService();
   }
 
+  /**
+   * Initialise une instance de carte à partir d'une définition de carte
+   * @param card - La définition de carte à convertir en instance
+   * @returns L'instance de carte initialisée
+   */
   public initializeCardInstance(card: Card): CardInstance {
     // Utiliser le service de conversion pour créer une instance
     const cardInstance = this.cardConversionService.convertCardToInstance(card);
@@ -667,6 +747,12 @@ export class CombatManagerImpl implements CombatManager {
     return cardInstance;
   }
 
+  /**
+   * Planifie une attaque entre un attaquant et une cible
+   * L'attaque sera résolue lors de la prochaine résolution des actions
+   * @param attacker - La carte qui attaque
+   * @param target - La carte ciblée par l'attaque
+   */
   public executeAttack(attacker: CardInstance, target: CardInstance): void {
     if (!attacker.canAttack()) {
       console.log("L'attaquant ne peut pas attaquer");
