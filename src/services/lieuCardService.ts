@@ -8,22 +8,45 @@ import {
 import { CardInstanceImpl } from './combatService';
 
 /**
+ * @file lieuCardService.ts
+ * @description Service de gestion des cartes Lieu pour le jeu Yeayeayea
+ * 
+ * Les cartes Lieu représentent l'environnement dans lequel se déroule le combat.
+ * Ces cartes ont un impact significatif sur le jeu en appliquant des effets passifs
+ * qui peuvent modifier les statistiques des personnages, altérer les mécaniques de jeu
+ * ou créer des synergies avec certains types de cartes.
+ * 
+ * Le système de Lieu fonctionne ainsi :
+ * - Chaque joueur apporte un certain nombre de cartes Lieu dans son deck
+ * - Au début de la partie, ces cartes sont mises en commun dans un pool
+ * - Une carte Lieu est tirée au hasard et devient le lieu actif pour le combat
+ * - Des cartes action peuvent permettre de changer le lieu actif pendant la partie
+ */
+
+/**
  * Service de gestion des cartes Lieu
- * Implémente la logique de distribution des cartes Lieu au début de la partie
- * et la gestion du lieu actif pendant une partie
+ * Implémente la logique de distribution des cartes Lieu au début de la partie,
+ * la sélection aléatoire d'un lieu actif, et les mécanismes de changement de lieu
+ * pendant le déroulement d'une partie
  */
 export class LieuCardService {
-  // La carte Lieu active actuellement
+  /** La carte Lieu active actuellement en jeu */
   private activeLieuCard: CardInstance | null = null;
   
-  // Les cartes Lieu disponibles mises en commun
+  /** Les cartes Lieu disponibles mises en commun et pouvant être activées */
   private commonLieuCards: CardInstance[] = [];
 
   /**
    * Distribue les cartes Lieu communes entre les joueurs
-   * @param players - Tableaux des cartes des joueurs
+   * Cette méthode est appelée au début d'une partie pour :
+   * 1. Collecter les cartes Lieu de chaque joueur
+   * 2. Les mettre en commun dans un pool
+   * 3. Sélectionner aléatoirement une carte Lieu active initiale
+   * 
+   * @param players - Tableaux des cartes des joueurs (un tableau par joueur)
    * @param config - Configuration pour la distribution des cartes Lieu
    * @returns Résultat de la distribution avec les cartes Lieu communes et la carte Lieu active
+   * @throws Erreur si le nombre de joueurs ou de cartes est insuffisant
    */
   public distributeLieuCards(
     players: CardInstance[][],
@@ -78,8 +101,11 @@ export class LieuCardService {
 
   /**
    * Sélectionne une carte Lieu active aléatoire parmi les cartes disponibles
-   * @param lieuCards - Tableau de cartes Lieu disponibles
-   * @returns La carte Lieu sélectionnée ou null si aucune carte n'est disponible
+   * Cette méthode est utilisée pour déterminer le lieu initial lors du début de partie
+   * ou lorsqu'un effet de jeu demande un changement aléatoire de lieu
+   * 
+   * @param lieuCards - Tableau de cartes Lieu disponibles dans le pool commun
+   * @returns La carte Lieu sélectionnée aléatoirement ou null si aucune carte n'est disponible
    */
   public selectRandomActiveLieu(lieuCards: CardInstance[]): CardInstance | null {
     if (lieuCards.length === 0) {
@@ -91,8 +117,11 @@ export class LieuCardService {
   }
 
   /**
-   * Change la carte Lieu active
-   * @param newLieuCard - Nouvelle carte Lieu à activer
+   * Change la carte Lieu active pendant une partie
+   * Cette méthode est appelée lorsqu'un joueur joue une carte action ou active un effet
+   * qui permet de modifier l'environnement du combat
+   * 
+   * @param newLieuCard - Nouvelle carte Lieu à définir comme lieu actif
    * @throws Error si la carte n'est pas de type lieu ou n'est pas dans les cartes disponibles
    */
   public changeLieuCard(newLieuCard: CardInstance): void {
@@ -111,17 +140,23 @@ export class LieuCardService {
   }
 
   /**
-   * Récupère la carte Lieu active actuelle
-   * @returns La carte Lieu active ou null si aucune carte n'est active
+   * Récupère la carte Lieu active actuellement en jeu
+   * Cette méthode est utilisée par d'autres services et composants pour accéder
+   * au lieu actif et appliquer ses effets passifs aux cartes en jeu
+   * 
+   * @returns La carte Lieu active ou null si aucune carte lieu n'est active
    */
   public getActiveLieuCard(): CardInstance | null {
     return this.activeLieuCard;
   }
   
   /**
-   * Utilitaire pour mélanger un tableau (algorithme de Fisher-Yates)
-   * @param array Tableau à mélanger
-   * @returns Tableau mélangé (modifie également le tableau original)
+   * Utilitaire pour mélanger aléatoirement un tableau (algorithme de Fisher-Yates)
+   * Utilisé pour randomiser les cartes lieu avant sélection
+   * 
+   * @param array - Tableau à mélanger
+   * @returns Une copie du tableau mélangée de façon aléatoire
+   * @private
    */
   private shuffleArray<T>(array: T[]): T[] {
     // Copie du tableau pour ne pas modifier l'original
