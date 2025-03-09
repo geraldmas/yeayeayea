@@ -151,7 +151,7 @@ Ce document est organisé par niveaux de priorité pour permettre un développem
   - [x] 🔥 Points de vie et résistance
   - [ ] 🚀 Système de guérison
 - [ ] Implémenter le système d'attaques
-  - [ ] 🔥 Conditions d'attaque
+  - [x] 🔥 Conditions d'attaque
   - [ ] 🚀 Modulation des dégâts
 
 ## 6. Intelligence Artificielle

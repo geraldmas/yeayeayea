@@ -16,6 +16,8 @@ import { CardConversionService } from './cardConversionService';
 import { LieuCardService } from './lieuCardService';
 import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
+import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
+import { Player } from '../types/player';
 
 /**
  * @file combatService.ts
@@ -1226,5 +1228,90 @@ export class CombatManagerImpl implements CombatManager {
    */
   public convertCardToInstance(card: Card, tags?: Tag[], spells?: Spell[]): CardInstance {
     return this.cardConversionService.convertCardToInstance(card, tags, spells);
+  }
+
+  /**
+   * Vérifie si un joueur peut attaquer directement la base adverse
+   * @param attacker - La carte qui effectue l'attaque
+   * @param sourcePlayer - Le joueur qui possède l'attaquant
+   * @param targetPlayer - Le joueur dont la base est ciblée
+   * @param ignoreConditions - Option pour ignorer certaines conditions (capacités spéciales)
+   * @returns Objet contenant le résultat de la vérification et un message explicatif
+   */
+  public canAttackBase(
+    attacker: CardInstance,
+    sourcePlayer: Player,
+    targetPlayer: Player,
+    ignoreConditions: boolean = false
+  ): { canAttack: boolean; reason?: string } {
+    return AttackConditionsService.canAttack({
+      attacker,
+      sourcePlayer,
+      targetPlayer,
+      targetType: AttackTargetType.BASE,
+      ignoreConditions
+    });
+  }
+
+  /**
+   * Exécute une attaque sur la base d'un joueur
+   * @param attacker - La carte qui effectue l'attaque
+   * @param sourcePlayer - Le joueur qui possède l'attaquant
+   * @param targetPlayer - Le joueur dont la base est ciblée
+   * @param ignoreConditions - Option pour ignorer certaines conditions (capacités spéciales)
+   * @returns Le montant de dégâts infligés, ou -1 si l'attaque n'est pas possible
+   */
+  public attackBase(
+    attacker: CardInstance,
+    sourcePlayer: Player,
+    targetPlayer: Player,
+    ignoreConditions: boolean = false
+  ): number {
+    // Vérifier si l'attaque est possible
+    const attackCheck = this.canAttackBase(attacker, sourcePlayer, targetPlayer, ignoreConditions);
+    
+    if (!attackCheck.canAttack) {
+      return -1; // Attaque impossible
+    }
+    
+    // Calculer les dégâts de base (à adapter selon les mécaniques du jeu)
+    const baseDamage = attacker.temporaryStats.attack || 0;
+    
+    // Appliquer les modificateurs spécifiques aux attaques sur la base
+    const modifiedDamage = AttackConditionsService.applyBaseAttackModifiers(
+      baseDamage,
+      attacker,
+      targetPlayer
+    );
+    
+    // Appliquer les dégâts à la base
+    const damageDealt = targetPlayer.base.applyDamage(modifiedDamage, attacker.cardDefinition.name);
+    
+    // Marquer l'attaquant comme ayant agi
+    attacker.isExhausted = true;
+    
+    return damageDealt;
+  }
+
+  /**
+   * Vérifie si une entité peut attaquer une autre entité
+   * @param attacker - L'entité qui attaque
+   * @param target - L'entité ciblée
+   * @param sourcePlayer - Le joueur qui possède l'attaquant
+   * @param targetPlayer - Le joueur qui possède la cible
+   * @returns Objet contenant le résultat de la vérification et un message explicatif
+   */
+  public canAttackEntity(
+    attacker: CardInstance,
+    target: CardInstance,
+    sourcePlayer: Player,
+    targetPlayer: Player
+  ): { canAttack: boolean; reason?: string } {
+    return AttackConditionsService.canAttack({
+      attacker,
+      sourcePlayer,
+      targetPlayer,
+      targetType: AttackTargetType.ENTITY
+    });
   }
 } 
