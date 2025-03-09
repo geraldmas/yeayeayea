@@ -36,7 +36,7 @@
 .game-card-grid {
   display: grid;
   gap: var(--space-xl);
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   place-items: center;
   width: 100%;
 }
@@ -128,7 +128,7 @@
 @media (max-width: 768px) {
   .game-card-grid {
     gap: var(--space-lg);
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
   
   .game-card-grid-title {
@@ -142,6 +142,6 @@
 
 @media (max-width: 480px) {
   .game-card-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
   }
 } 

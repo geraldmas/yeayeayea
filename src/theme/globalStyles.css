@@ -90,6 +90,14 @@
   --gradient-error: linear-gradient(45deg, #AA2020, #EE4040);
   --gradient-card: linear-gradient(135deg, #1E1E30, #2A2A40);
   --gradient-admin: linear-gradient(135deg, #201E30, #302840);
+  
+  /* Effets de carte avancés */
+  --card-shine-opacity: 0.1;
+  --card-shine-speed: 1.2s;
+  --card-hover-translate: -15px;
+  --card-hover-scale: 1.03;
+  --card-hover-brightness: 1.1;
+  --card-hover-shadow-blur: 25px;
 }
 
 /* Reset et styles de base */

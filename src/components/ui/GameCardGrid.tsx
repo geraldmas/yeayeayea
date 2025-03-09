@@ -1,12 +1,12 @@
 import React from 'react';
-import GameCard from './GameCard';
+import GameCard, { CardType, CardRarity } from './GameCard';
 import './GameCardGrid.css';
 
 interface Card {
-  id: number;
+  id: string;
   name: string;
-  type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
-  rarity: 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
+  type: CardType;
+  rarity: CardRarity;
   description?: string;
   image?: string;
   summon_cost?: number;

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FaStar, FaHeart, FaMoneyBillWave } from 'react-icons/fa';
+import { IoIosPerson, IoMdPricetag, IoMdPin, IoIosFlash, IoMdCalendar } from 'react-icons/io';
 import './GameCard.css';
 import { defaultCard } from '../../assets/images';
 
-interface GameCardProps {
-  id: number;
+// Types d'objets pour les cartes
+export type CardType = 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
+export type CardRarity = 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
+
+export interface GameCardProps {
+  id: string;
   name: string;
-  type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
-  rarity: 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
+  type: CardType;
+  rarity: CardRarity;
   image?: string;
   description?: string;
   summonCost?: number;
@@ -15,6 +21,24 @@ interface GameCardProps {
   isCrap?: boolean;
   onClick?: () => void;
 }
+
+// Mapping des icônes pour les types de cartes
+const typeToIcon = {
+  personnage: <IoIosPerson />,
+  objet: <IoMdPricetag />,
+  evenement: <IoMdCalendar />,
+  lieu: <IoMdPin />,
+  action: <IoIosFlash />
+};
+
+// Mapping des couleurs pour les types de cartes
+const typeToColor = {
+  personnage: '#7540ee',
+  objet: '#2feea3',
+  evenement: '#ee4040',
+  lieu: '#40aaee',
+  action: '#eeaa40'
+};
 
 const GameCard: React.FC<GameCardProps> = ({
   id,
@@ -29,104 +53,152 @@ const GameCard: React.FC<GameCardProps> = ({
   isCrap = false,
   onClick
 }) => {
-  // Mappings des types vers des icônes et des couleurs
-  const typeIcons = {
-    personnage: '👤',
-    objet: '🔮',
-    evenement: '⚡',
-    lieu: '🏙️',
-    action: '⚔️'
-  };
+  // État pour gérer l'effet de survol
+  const [isHovered, setIsHovered] = useState(false);
   
-  // Fonction pour formater la rareté en texte lisible
-  const formatRarity = (rarity: string) => {
-    switch(rarity) {
-      case 'gros_bodycount':
-        return 'Commune';
-      case 'interessant':
-        return 'Peu Commune';
-      case 'banger':
-        return 'Rare';
-      case 'cheate':
-        return 'Légendaire';
-      default:
-        return rarity;
+  // Formatage de la rareté pour affichage
+  const formatRarity = (rarity: CardRarity): string => {
+    switch (rarity) {
+      case 'gros_bodycount': return 'Standard';
+      case 'interessant': return 'Rare';
+      case 'banger': return 'Épique';
+      case 'cheate': return 'Légendaire';
+      default: return 'Standard';
     }
   };
-  
-  // Calculer les classes CSS en fonction des propriétés
+
+  // Génération des étoiles selon la rareté
+  const getRarityStars = () => {
+    switch (rarity) {
+      case 'gros_bodycount': return '★';
+      case 'interessant': return '★★';
+      case 'banger': return '★★★';
+      case 'cheate': return '★★★★★';
+      default: return '★';
+    }
+  };
+
+  // Génération des classes CSS
   const cardClasses = [
     'game-card',
     `card-type-${type}`,
     `card-rarity-${rarity}`,
     isWip ? 'card-wip' : '',
     isCrap ? 'card-crap' : '',
+    isHovered ? 'hovered' : ''
   ].filter(Boolean).join(' ');
-  
+
+  // Fonction pour tronquer la description
+  const truncateDescription = (text?: string, maxLength = 120) => {
+    if (!text) return '';
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+  };
+
   return (
-    <div className={cardClasses} onClick={onClick}>
+    <div 
+      className={cardClasses}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Bordure supérieure colorée */}
+      <div 
+        className="card-top-border" 
+        style={{ color: typeToColor[type] }}
+      />
+      
+      {/* En-tête de la carte */}
       <div className="card-header">
-        <div className="card-name">{name}</div>
-        <div className="card-cost">{summonCost}</div>
-      </div>
-      
-      <div className="card-image-container">
-        {image ? (
-          <img 
-            src={image} 
-            alt={name} 
-            className="card-image" 
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = defaultCard;
-            }}
-          />
-        ) : (
-          <div className="card-image-placeholder">
-            <span className="card-type-icon">{typeIcons[type]}</span>
-          </div>
-        )}
-        
-        <div className="card-type-badge">
-          <span className="card-type-icon">{typeIcons[type]}</span>
-          <span className="card-type-text">{type}</span>
+        <div className="card-name-container">
+          <div className="card-name">{name}</div>
+          <div className="card-id">{id}</div>
         </div>
-        
-        {(isWip || isCrap) && (
-          <div className={`card-status-badge ${isWip ? 'wip' : ''} ${isCrap ? 'crap' : ''}`}>
-            {isWip ? 'En cours' : ''}
-            {isWip && isCrap ? ' / ' : ''}
-            {isCrap ? 'À retravailler' : ''}
+        {summonCost !== undefined && (
+          <div className="card-cost">
+            {summonCost}
+            <span className="cost-icon"><FaMoneyBillWave /></span>
           </div>
         )}
       </div>
       
-      <div className="card-body">
-        <div className="card-description" title={description}>
-          {description ? (
-            description.length > 100 ? `${description.slice(0, 100)}...` : description
+      {/* Wrapper d'image avec effets */}
+      <div className="card-image-wrapper">
+        <div className="card-image-container">
+          {image ? (
+            <>
+              <img 
+                src={image} 
+                alt={name} 
+                className="card-image" 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = defaultCard;
+                }}
+              />
+              <div className="card-image-overlay" />
+            </>
           ) : (
-            <span className="card-no-description">Pas de description</span>
+            <div className="card-image-placeholder">
+              <span className="card-type-icon">{typeToIcon[type]}</span>
+            </div>
+          )}
+          
+          {/* Badge de type */}
+          <div 
+            className="card-type-badge" 
+            style={{ background: `${typeToColor[type]}dd` }}
+          >
+            <span className="card-type-icon">{typeToIcon[type]}</span>
+            <span className="card-type-text">{type}</span>
+          </div>
+          
+          {/* Badge de statut (si applicable) */}
+          {(isWip || isCrap) && (
+            <div className={`card-status-badge ${isWip ? 'wip' : ''} ${isCrap ? 'crap' : ''}`}>
+              {isWip && isCrap ? 'WIP - CRAP' : isWip ? 'WIP' : 'CRAP'}
+            </div>
           )}
         </div>
       </div>
       
-      <div className="card-footer">
-        <div className="card-rarity">
-          <span className="rarity-dot"></span>
-          <span className="rarity-text">{formatRarity(rarity)}</span>
-        </div>
-        
+      {/* Corps de la carte */}
+      <div className="card-body">
+        {/* Stats pour personnages */}
         {type === 'personnage' && health !== undefined && (
-          <div className="card-health">
-            {health} PV
+          <div className="card-stats">
+            <div className="card-health">
+              <span className="stat-icon"><FaHeart /></span>
+              <span className="stat-value">{health}</span>
+            </div>
           </div>
         )}
         
-        <div className="card-id">#{id}</div>
+        {/* Description */}
+        <div className="card-description-container">
+          {description ? (
+            <div className={`card-description ${isHovered ? 'scrolling' : ''}`}>
+              {description}
+            </div>
+          ) : (
+            <div className="card-description card-no-description">
+              Aucune description disponible
+            </div>
+          )}
+        </div>
       </div>
       
-      <div className="card-glow"></div>
+      {/* Pied de carte */}
+      <div className="card-footer">
+        <div className="card-rarity">
+          <div className={`rarity-stars rarity-${rarity}`}>{getRarityStars()}</div>
+          <div className="rarity-text">{formatRarity(rarity)}</div>
+        </div>
+      </div>
+      
+      {/* Effets visuels */}
+      <div className="card-glow" />
+      <div className="card-shine" />
+      {rarity === 'cheate' && <div className="card-legendary-border" />}
     </div>
   );
 };
