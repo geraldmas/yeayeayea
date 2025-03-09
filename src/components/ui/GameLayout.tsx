@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import GameNav from './GameNav';
 import './GameLayout.css';
+import { bgPattern } from '../../assets/images';
 
 interface GameLayoutProps {
   children: ReactNode;
@@ -17,8 +18,21 @@ const GameLayout: React.FC<GameLayoutProps> = ({
   onLogout,
   isAdminView = false
 }) => {
+  // Style dynamique pour l'arrière-plan
+  const containerStyle = {
+    backgroundImage: `url(${bgPattern}), radial-gradient(circle at 50% 50%, rgba(117, 64, 238, 0.1), transparent 70%)`,
+  };
+
+  // Style pour le mode admin
+  const adminContainerStyle = {
+    backgroundImage: `url(${bgPattern}), radial-gradient(circle at 50% 50%, rgba(238, 64, 64, 0.05), transparent 70%)`,
+  };
+
   return (
-    <div className={`app-container ${isAdminView ? 'admin-mode' : ''}`}>
+    <div 
+      className={`app-container ${isAdminView ? 'admin-mode' : ''}`}
+      style={isAdminView ? adminContainerStyle : containerStyle}
+    >
       <GameNav 
         user={user} 
         isAdmin={isAdmin} 
@@ -41,7 +55,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
           <div className="footer-section">
             <h4 className="footer-title">TCG Card Editor</h4>
             <p className="footer-description">
-              Créez, modifiez et testez des cartes pour votre propre jeu de cartes à collectionner.
+              Créez, modifiez et testez vos cartes pour votre propre jeu de cartes à collectionner.
             </p>
           </div>
           

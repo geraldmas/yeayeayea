@@ -1,5 +1,6 @@
 import React from 'react';
 import './GameCard.css';
+import { defaultCard } from '../../assets/images';
 
 interface GameCardProps {
   id: number;
@@ -77,7 +78,7 @@ const GameCard: React.FC<GameCardProps> = ({
             className="card-image" 
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = process.env.PUBLIC_URL + '/images/default-card.svg';
+              target.src = defaultCard;
             }}
           />
         ) : (
