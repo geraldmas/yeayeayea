@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { FaStar, FaHeart, FaMoneyBillWave } from 'react-icons/fa';
-import { IoIosPerson, IoMdPricetag, IoMdPin, IoIosFlash, IoMdCalendar } from 'react-icons/io';
+import { FaStar, FaHeart, FaMoneyBillWave, FaUser, FaTag, FaMapMarkerAlt, FaBolt, FaCalendarAlt } from 'react-icons/fa';
 import './GameCard.css';
 import { defaultCard } from '../../assets/images';
 
@@ -24,11 +23,11 @@ export interface GameCardProps {
 
 // Mapping des icônes pour les types de cartes
 const typeToIcon = {
-  personnage: <IoIosPerson />,
-  objet: <IoMdPricetag />,
-  evenement: <IoMdCalendar />,
-  lieu: <IoMdPin />,
-  action: <IoIosFlash />
+  personnage: <FaUser />,
+  objet: <FaTag />,
+  evenement: <FaCalendarAlt />,
+  lieu: <FaMapMarkerAlt />,
+  action: <FaBolt />
 };
 
 // Mapping des couleurs pour les types de cartes

@@ -146,3 +146,6 @@ Author: geraldmas <geraldmasjesse@gmail.com>
 Date:   Sun Mar 9 00:28:11 2025 +0100
 
     Implémentation de la zone de jeu tactile
+[33m6ecc6485[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mui-redesign[m[33m)[m Amélioration visuelle des cartes avec effets avancés et styles modernes
+[33m63c8a29b[m Ajustement de la position des notifications et création d'un composant Notification stylisé
+[33m93b89417[m Amélioration de la gestion des images avec importation depuis src/assets
