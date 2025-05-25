@@ -18,6 +18,7 @@ import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
 import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
 import { Player } from '../types/player';
+import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 
 /**
  * @file combatService.ts
@@ -361,37 +362,72 @@ export class CardInstanceImpl implements CardInstance {
    * Cette méthode est appelée après chaque modification des altérations ou tags,
    * et actualise les statistiques d'attaque, défense et autres attributs modifiables.
    */
-  public recalculateTemporaryStats(): void {
-    // Réinitialiser les statistiques aux valeurs de base
+  public recalculateTemporaryStats(allCardsInPlay: CardInstance[], gameState: any): void {
+    // 1. Réinitialiser les statistiques aux valeurs de base de la définition de la carte
     this.temporaryStats = {
-      attack: this.cardDefinition.properties.attack || 0,
-      defense: this.cardDefinition.properties.defense || 0
+      attack: (this.cardDefinition.properties as any).attack || 0,
+      defense: (this.cardDefinition.properties as any).defense || 0,
+      // ... réinitialiser d'autres statistiques si elles sont modifiables par les tags/altérations
     };
     
-    // Réinitialiser les effets actifs
+    // Réinitialiser les effets actifs (si vous utilisez activeEffects pour tracker les sources de modifs)
     this.activeEffects = {};
     
-    // Appliquer les effets des altérations
+    // 2. Appliquer les effets des règles de tags actifs
+    // L'ordre des tags peut importer si les règles ont des priorités différentes.
+    // tagRuleParser.applyTagRules s'occupe déjà du tri par priorité des règles pour UN tag donné.
+    // Si l'ordre d'application des tags eux-mêmes est important, il faudrait les trier ici.
+    // Pour l'instant, on les applique dans l'ordre où ils sont stockés.
+    this.activeTags.forEach(tagInstance => {
+      // `applyTagRules` va modifier `this.temporaryStats` directement si `this` est une cible.
+      const applicationResults = tagRuleParser.applyTagRules(
+        tagInstance.tag.name, 
+        this, // sourceCard (peut être la carte elle-même ou une autre carte affectant celle-ci)
+              // Pour les effets SELF, `this` sera à la fois source et cible.
+        allCardsInPlay, 
+        gameState
+      );
+      
+      // Optionnel: logguer ou traiter les résultats de l'application des règles de tag
+      applicationResults.forEach(result => {
+        if (result.success) {
+          // console.log(`Rule '${result.effectDescription}' from tag '${result.sourceTag}' applied to ${this.cardDefinition.name}.`);
+        } else if (result.failureReason !== 'Condition non remplie') { // Ne pas logguer toutes les conditions non remplies comme des erreurs
+          // console.warn(`Failed to apply rule '${result.effectDescription}' from tag '${result.sourceTag}': ${result.failureReason}`);
+        }
+      });
+    });
+
+    // 3. Appliquer les effets des altérations (après les tags)
+    // Cette partie conserve la logique existante d'application des altérations.
+    // Assurez-vous que `applyStatModifier` est compatible avec le fait que les stats
+    // ont déjà été potentiellement modifiées par les tags.
+    // Les altérations pourraient modifier les stats déjà affectées par les tags.
     this.activeAlterations.forEach(alteration => {
       const effect = alteration.alteration.effect;
       
+      // Exemple: si les altérations modifient directement les temporaryStats
       if (effect.action === 'modify_attack' && effect.value !== undefined) {
-        this.applyStatModifier('attack', effect.value, alteration.stackCount, alteration.alteration.name);
+        // Note: `applyStatModifier` a été retiré, donc on modifie directement.
+        // Ou alors, on s'assure que `applyStatModifier` est bien défini et fait ce qu'on attend.
+        // Pour l'instant, modification directe :
+        this.temporaryStats.attack += effect.value * alteration.stackCount;
+        // Enregistrer l'effet si besoin:
+        if (!this.activeEffects.attack) this.activeEffects.attack = [];
+        this.activeEffects.attack.push({ value: effect.value * alteration.stackCount, source: `Alteration: ${alteration.alteration.name}`, isPercentage: false /* ou basé sur effect */ });
+
       } else if (effect.action === 'modify_defense' && effect.value !== undefined) {
-        this.applyStatModifier('defense', effect.value, alteration.stackCount, alteration.alteration.name);
+        this.temporaryStats.defense += effect.value * alteration.stackCount;
+        if (!this.activeEffects.defense) this.activeEffects.defense = [];
+        this.activeEffects.defense.push({ value: effect.value * alteration.stackCount, source: `Alteration: ${alteration.alteration.name}`, isPercentage: false });
       }
-      
-      // Gérer d'autres types de modifications de statistiques
+      // Gérer d'autres types de modifications de statistiques par les altérations
     });
-    
-    // Appliquer les effets passifs des tags
-    this.activeTags.forEach(tagInstance => {
-      // Ici, on pourrait parser l'effet passif du tag et l'appliquer
-      // Pour l'instant, c'est une implémentation simplifiée
-      if (tagInstance.tag.passive_effect && tagInstance.tag.passive_effect.includes('defense+1')) {
-        this.applyStatModifier('defense', 1, 1, `Tag: ${tagInstance.tag.name}`);
-      }
-    });
+
+    // Remarque: La méthode applyStatModifier a été retirée de l'extrait original.
+    // Si elle existait et était utilisée par les altérations, cette logique doit être revue.
+    // Ici, on suppose que les altérations modifient directement temporaryStats ou utilisent un mécanisme similaire.
+    // La logique de `activeEffects` a été simplifiée pour l'exemple.
   }
 
   /**

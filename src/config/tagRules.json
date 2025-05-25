@@ -1,0 +1,65 @@
+[
+  {
+    "tagName": "GUERRIER",
+    "rules": [
+      {
+        "id": 1,
+        "name": "Bonus Attaque Guerrier",
+        "description": "Augmente l'attaque de 10.",
+        "effectType": "ATTACK_MODIFIER",
+        "value": 10,
+        "isPercentage": false,
+        "targetType": "SELF",
+        "conditions": [],
+        "priority": 10,
+        "sourceTag": "GUERRIER"
+      }
+    ]
+  },
+  {
+    "tagName": "PROTECTEUR",
+    "rules": [
+      {
+        "id": 1,
+        "name": "Bonus Défense Protecteur",
+        "description": "Augmente la défense de 5.",
+        "effectType": "DEFENSE_MODIFIER",
+        "value": 5,
+        "isPercentage": false,
+        "targetType": "SELF",
+        "conditions": [],
+        "priority": 10,
+        "sourceTag": "PROTECTEUR"
+      }
+    ]
+  },
+  {
+    "tagName": "BERSERKER",
+    "rules": [
+      {
+        "id": 1,
+        "name": "Boost Attaque Berserker",
+        "description": "Augmente l'attaque de 15.",
+        "effectType": "ATTACK_MODIFIER",
+        "value": 15,
+        "isPercentage": false,
+        "targetType": "SELF",
+        "conditions": [],
+        "priority": 12,
+        "sourceTag": "BERSERKER"
+      },
+      {
+        "id": 2,
+        "name": "Malus Défense Berserker",
+        "description": "Diminue la défense de 5.",
+        "effectType": "DEFENSE_MODIFIER",
+        "value": -5,
+        "isPercentage": false,
+        "targetType": "SELF",
+        "conditions": [],
+        "priority": 10,
+        "sourceTag": "BERSERKER"
+      }
+    ]
+  }
+]
