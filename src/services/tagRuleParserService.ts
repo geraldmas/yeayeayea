@@ -1,3 +1,5 @@
+import * as fs from 'fs'; // For loading JSON file
+import * as path from 'path'; // For constructing path to JSON file
 import { 
   TagRule, 
   TagRuleEffectType, 
@@ -54,8 +56,33 @@ export class TagRuleParserService {
    * @param definitions - Tableau de définitions de règles de tags
    */
   public loadRules(definitions: TagRuleDefinition[]): void {
+    this.rules.clear(); // Clear existing rules before loading new ones
     for (const definition of definitions) {
       this.rules.set(definition.tagName, definition.rules);
+    }
+  }
+
+  /**
+   * Loads rules from a JSON file at the given path.
+   * @param filePath - The path to the JSON file containing TagRuleDefinition[]
+   */
+  public loadRulesFromConfig(filePath: string): void {
+    try {
+      // Construct an absolute path if filePath is relative, assuming it's relative to project root or a known base
+      // For this example, let's assume filePath could be relative to where the script is run or an absolute path.
+      // If running in a context where __dirname is reliable (e.g. Node.js module):
+      // const absolutePath = path.resolve(__dirname, filePath); 
+      // However, __dirname might behave differently based on execution context (e.g. bundled code).
+      // For simplicity, if filePath is like "src/config/tagRules.json", we might need to ensure it's correctly resolved.
+      // Let's assume for now that the path will be correctly provided to this service.
+      const rawData = fs.readFileSync(filePath, 'utf-8');
+      const definitions: TagRuleDefinition[] = JSON.parse(rawData);
+      this.loadRules(definitions);
+      console.log(`Successfully loaded tag rules from ${filePath}`);
+    } catch (error) {
+      console.error(`Error loading tag rules from ${filePath}:`, error);
+      // Decide if this should throw or if the service can operate without rules.
+      // For now, it logs error and continues, meaning no rules will be loaded.
     }
   }
 
@@ -237,6 +264,14 @@ export class TagRuleParserService {
       case TagRuleEffectType.SYNERGY_EFFECT:
         return this.applySynergyEffect(rule, sourceCard, targets, result, allCards, gameState);
       
+      // --- Add new effect types here ---
+      case TagRuleEffectType.ATTACK_MODIFIER:
+        return this.applyAttackModifierEffect(rule, sourceCard, targets, result, gameState);
+
+      case TagRuleEffectType.DEFENSE_MODIFIER:
+        return this.applyDefenseModifierEffect(rule, sourceCard, targets, result, gameState);
+      // --- End new effect types ---
+      
       default:
         result.success = false;
         result.failureReason = `Type d'effet non supporté: ${rule.effectType}`;
@@ -400,7 +435,99 @@ export class TagRuleParserService {
   private isInSameTeam(card1: CardInstance, card2: CardInstance): boolean {
     // À adapter selon la structure réelle du jeu
     // Par exemple, on pourrait comparer l'appartenance au joueur
-    return card1.instanceId.split('_')[0] === card2.instanceId.split('_')[0];
+    return card1.instanceId.split('_')[0] === card2.instanceId.split('_')[0]; // Simplified team check
+  }
+
+  /**
+   * Applique un effet de modification de la statistique d'attaque.
+   */
+  private applyAttackModifierEffect(
+    rule: TagRule,
+    sourceCard: CardInstance,
+    targets: CardInstance[],
+    result: TagRuleApplicationResult,
+    gameState: any
+  ): TagRuleApplicationResult {
+    for (const target of targets) {
+      if (!target.temporaryStats) { // Should be initialized by CardInstanceImpl
+        target.temporaryStats = { attack: 0, defense: 0 }; // Fallback, though ideally already set
+      }
+      
+      const originalAttack = target.temporaryStats.attack;
+      if (targets.indexOf(target) === 0) { // Capture original value from the first target
+        result.originalValue = originalAttack;
+      }
+
+      let modification = 0;
+      if (rule.isPercentage) {
+        // Percentage based on the card's base attack from definition, not current temporary attack to avoid compounding issues
+        const baseAttack = (target.cardDefinition.properties as any).attack || 0; 
+        modification = Math.floor(baseAttack * (rule.value / 100));
+      } else {
+        modification = rule.value;
+      }
+      target.temporaryStats.attack += modification;
+      
+      if (targets.indexOf(target) === 0) { // Capture new value from the first target
+        result.newValue = target.temporaryStats.attack;
+      }
+
+      // Optional: record the specific effect application on the target if needed for complex scenarios or UI
+      if (!target.activeEffects) target.activeEffects = {};
+      if (!target.activeEffects.attackModifier) target.activeEffects.attackModifier = [];
+      target.activeEffects.attackModifier.push({
+        value: rule.value, // Could store `modification` if more granular tracking is needed
+        source: `Tag: ${result.sourceTag} (Rule: ${rule.name})`,
+        isPercentage: rule.isPercentage,
+      });
+    }
+    result.success = true;
+    return result;
+  }
+
+  /**
+   * Applique un effet de modification de la statistique de défense.
+   */
+  private applyDefenseModifierEffect(
+    rule: TagRule,
+    sourceCard: CardInstance,
+    targets: CardInstance[],
+    result: TagRuleApplicationResult,
+    gameState: any
+  ): TagRuleApplicationResult {
+    for (const target of targets) {
+      if (!target.temporaryStats) {
+        target.temporaryStats = { attack: 0, defense: 0 };
+      }
+
+      const originalDefense = target.temporaryStats.defense;
+      if (targets.indexOf(target) === 0) {
+        result.originalValue = originalDefense;
+      }
+
+      let modification = 0;
+      if (rule.isPercentage) {
+        const baseDefense = (target.cardDefinition.properties as any).defense || 0;
+        modification = Math.floor(baseDefense * (rule.value / 100));
+      } else {
+        modification = rule.value;
+      }
+      target.temporaryStats.defense += modification;
+
+      if (targets.indexOf(target) === 0) {
+        result.newValue = target.temporaryStats.defense;
+      }
+
+      if (!target.activeEffects) target.activeEffects = {};
+      if (!target.activeEffects.defenseModifier) target.activeEffects.defenseModifier = [];
+      target.activeEffects.defenseModifier.push({
+        value: rule.value,
+        source: `Tag: ${result.sourceTag} (Rule: ${rule.name})`,
+        isPercentage: rule.isPercentage,
+      });
+    }
+    result.success = true;
+    return result;
   }
 
   /**
@@ -924,4 +1051,11 @@ export class TagRuleParserService {
 }
 
 // Export de l'instance pour un accès facile
-export const tagRuleParser = TagRuleParserService.getInstance(); 
+// Auto-load rules when the singleton instance is first created.
+// This path assumes the config file is at `src/config/tagRules.json` relative to the project root.
+// Adjust the path as necessary depending on your project structure and where the built service runs.
+const defaultRulesPath = path.join(process.cwd(), 'src', 'config', 'tagRules.json');
+const tagRuleParser = TagRuleParserService.getInstance();
+tagRuleParser.loadRulesFromConfig(defaultRulesPath);
+
+export { tagRuleParser }; // Export the initialized instance

@@ -247,10 +247,24 @@ export interface CharacterCard extends Card {
     
     /** Points d'expérience nécessaires pour passer au niveau suivant */
     xpToNextLevel: number;
+
+    /** Table d'apprentissage des sorts, définissant quel sort est appris à quel niveau */
+    spell_learning_table?: SpellLearningEntry[];
+
+    /** Sorts initiaux avec lesquels le personnage commence (optionnel, peut être dérivé de spell_learning_table au niveau 1) */
+    initial_spells?: number[]; // Array of spell_ids
     
     /** Autres propriétés spécifiques au personnage */
     [key: string]: any;
   };
+}
+
+/**
+ * Entrée dans la table d'apprentissage des sorts.
+ */
+export interface SpellLearningEntry {
+  level_learned: number;
+  spell_id: number;
 }
 
 /**
@@ -281,6 +295,12 @@ export interface CharacterCardFrontend extends CardFrontend {
     
     /** Points d'expérience nécessaires pour passer au niveau suivant */
     xpToNextLevel: number;
+
+    /** Table d'apprentissage des sorts, définissant quel sort est appris à quel niveau */
+    spell_learning_table?: SpellLearningEntry[];
+
+    /** Sorts initiaux avec lesquels le personnage commence (optionnel, peut être dérivé de spell_learning_table au niveau 1) */
+    initial_spells?: number[]; // Array of spell_ids
     
     /** Autres propriétés spécifiques au personnage */
     [key: string]: any;

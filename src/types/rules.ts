@@ -10,6 +10,8 @@ export enum TagRuleEffectType {
   DAMAGE_MODIFIER = 'damageModifier',         // Modifie les dégâts infligés ou reçus
   MOTIVATION_MODIFIER = 'motivationModifier', // Modifie la motivation générée ou consommée
   HEALTH_MODIFIER = 'healthModifier',         // Modifie les PV max ou actuels
+  ATTACK_MODIFIER = 'attackModifier',         // Modifie la statistique d'attaque de base
+  DEFENSE_MODIFIER = 'defenseModifier',       // Modifie la statistique de défense de base
   APPLY_ALTERATION = 'applyAlteration',       // Applique une altération
   CONDITIONAL_EFFECT = 'conditionalEffect',   // Effet qui s'applique sous condition
   SYNERGY_EFFECT = 'synergyEffect',           // Effet qui s'applique en fonction d'autres tags
@@ -56,6 +58,7 @@ export interface TagRule {
   condition?: TagRuleCondition; // Condition optionnelle
   synergyTags?: string[];      // Tags qui interagissent pour un effet de synergie
   priority?: number;           // Priorité de la règle (plus élevé = appliqué en premier)
+  subEffect?: Omit<TagRule, 'id' | 'name' | 'description' | 'condition' | 'synergyTags' | 'subEffect' | 'priority' | 'sourceTag'>; // The actual effect to scale/apply, sourceTag is also excluded as it's implicit to the parent rule
 }
 
 /**

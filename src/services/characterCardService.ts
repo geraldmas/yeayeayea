@@ -1,7 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CharacterCard, Alteration } from '../types/index';
+import { CharacterCard, Alteration, Spell, SpellEffect, SpellLearningEntry } from '../types/index';
 import { CardInstanceImpl } from './combatService';
-import { CardInstance } from '../types/combat';
+import { CardInstance, SpellInstance } from '../types/combat';
+
+// --- Mock Spell Data & Service (Placeholder) ---
+// In a real scenario, this would come from a dedicated spell service and data store.
+const mockSpellsDatabase: Map<number, Spell> = new Map([
+  [101, { id: 101, name: 'Petite Frappe', description: 'Inflige de faibles dégâts.', power: 5, cost: 1, range_min: 1, range_max: 1, effects: [{ type: 'damage', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [102, { id: 102, name: 'Mini Soin', description: 'Soigne légèrement.', power: 3, cost: 2, range_min: 0, range_max: 0, effects: [{ type: 'heal', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [105, { id: 105, name: 'Boule de Feu Basique', description: 'Une boule de feu.', power: 10, cost: 3, range_min: 1, range_max: 2, effects: [{ type: 'damage', value: 10 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [201, { id: 201, name: 'Grande Guérison', description: 'Soigne une quantité modérée de PV.', power: 15, cost: 5, range_min: 0, range_max: 0, effects: [{ type: 'heal', value: 20 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [202, { id: 202, name: 'Frappe Puissante', description: 'Une frappe plus conséquente.', power: 12, cost: 4, range_min: 1, range_max: 1, effects: [{ type: 'damage', value: 15 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+]);
+
+const mockSpellService = {
+  getSpellById: (id: number): Spell | undefined => {
+    return mockSpellsDatabase.get(id);
+  }
+};
+// --- End Mock Spell Data & Service ---
 
 /**
  * @file characterCardService.ts
@@ -57,6 +74,74 @@ export class CharacterCardInstance extends CardInstanceImpl {
     
     // Initialiser les statistiques temporaires
     this.updateStatsForLevel();
+
+    // Initialiser les sorts disponibles en fonction du niveau et de la table d'apprentissage
+    this._initializeSpells();
+  }
+
+  /**
+   * Initialise les sorts disponibles pour le personnage en fonction de son niveau actuel
+   * et de la table d'apprentissage des sorts définie dans ses propriétés.
+   * @private
+   */
+  private _initializeSpells(): void {
+    this.availableSpells = []; // Assure que la liste est vide avant de commencer
+    const characterDefinition = this.cardDefinition as CharacterCard;
+    const learningTable = characterDefinition.properties.spell_learning_table;
+
+    if (learningTable && learningTable.length > 0) {
+      learningTable.forEach(entry => {
+        if (entry.level_learned <= this.level) {
+          this._addSpellById(entry.spell_id);
+        }
+      });
+    } else if (characterDefinition.properties.initial_spells) {
+      // Fallback to initial_spells if spell_learning_table is not defined (legacy or simpler setup)
+      characterDefinition.properties.initial_spells.forEach(spellId => {
+        this._addSpellById(spellId);
+      });
+    }
+  }
+
+  /**
+   * Ajoute un sort à la liste des sorts disponibles si pas déjà présent.
+   * @param spellId L'ID du sort à ajouter.
+   * @private
+   */
+  private _addSpellById(spellId: number): void {
+    if (this.availableSpells.some(s => s.spell.id === spellId)) {
+      // console.log(`Spell ${spellId} already learned.`);
+      return; // Sort déjà appris
+    }
+
+    const spellDefinition = mockSpellService.getSpellById(spellId);
+    if (spellDefinition) {
+      this.availableSpells.push({
+        spell: spellDefinition,
+        cooldown: 0,
+        isAvailable: true,
+      });
+      // console.log(`Spell ${spellDefinition.name} (ID: ${spellId}) added to available spells.`);
+    } else {
+      console.warn(`Spell definition not found for ID: ${spellId}`);
+    }
+  }
+
+  /**
+   * Vérifie et ajoute les nouveaux sorts appris au niveau actuel du personnage.
+   * @private
+   */
+  private _learnSpellsForCurrentLevel(): void {
+    const characterDefinition = this.cardDefinition as CharacterCard;
+    const learningTable = characterDefinition.properties.spell_learning_table;
+
+    if (learningTable && learningTable.length > 0) {
+      learningTable.forEach(entry => {
+        if (entry.level_learned === this.level) { // Seulement les sorts appris à CE niveau exact
+          this._addSpellById(entry.spell_id);
+        }
+      });
+    }
   }
 
   /**
@@ -140,6 +225,9 @@ export class CharacterCardInstance extends CardInstanceImpl {
     
     // Re-calcule toutes les statistiques temporaires basées sur les altérations
     this.recalculateTemporaryStats();
+
+    // Vérifier et ajouter les nouveaux sorts appris à ce niveau
+    this._learnSpellsForCurrentLevel();
   }
 
   /**
