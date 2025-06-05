@@ -9,8 +9,14 @@ const port = process.env.SERVER_PORT || 3000;
 app.use(express.json());
 
 // Configuration de la session
+const sessionSecret = process.env.SESSION_SECRET;
+
+if (!sessionSecret && process.env.NODE_ENV === 'production') {
+  throw new Error('SESSION_SECRET environment variable must be defined in production');
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: sessionSecret || '',
   resave: false,
   saveUninitialized: false,
   cookie: {
