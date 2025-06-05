@@ -21,7 +21,7 @@ export enum AttackTargetType {
 /**
  * Interface définissant les options d'attaque
  */
-export interface AttackOptions {
+interface AttackOptions {
   /** Entité qui effectue l'attaque */
   attacker: CardInstance;
   

@@ -182,19 +182,3 @@ export class MigrationService {
     }
   }
 }
-
-// Example Usage (Illustrative - typically you'd get supabase from your app's context)
-// async function main() {
-//   // const supabaseUrl = process.env.SUPABASE_URL;
-//   // const supabaseKey = process.env.SUPABASE_KEY;
-//   // if (!supabaseUrl || !supabaseKey) {
-//   //   throw new Error('Supabase URL and Key must be provided.');
-//   // }
-//   // const supabaseInstance = createClient(supabaseUrl, supabaseKey);
-//   // const migrationService = new MigrationService(supabaseInstance);
-//   // await migrationService.applyMigrations();
-//   // await migrationService.rollbackMigration(); // Rolls back the last one
-//   // await migrationService.rollbackMigration('001_initial_schema.ts'); // Rolls back a specific one
-// }
-
-// main().catch(console.error);
