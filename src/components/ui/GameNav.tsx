@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface GameNavProps {
   user: any;
@@ -11,6 +12,7 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const isMobile = useMediaQuery('(max-width:480px)');
 
   // Effet pour détecter le défilement de la page
   useEffect(() => {
@@ -51,6 +53,7 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
           </Link>
         </div>
         
+        {!isMobile && (
         <div className="game-nav-links">
           <Link 
             to="/cards" 
@@ -127,13 +130,17 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
             </Link>
           )}
         </div>
-        
-        <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
-          {isMobileMenuOpen ? '✕' : '☰'}
-        </button>
+        )}
+
+        {isMobile && (
+          <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? '✕' : '☰'}
+          </button>
+        )}
       </nav>
-      
+
       {/* Menu mobile */}
+      {isMobile && (
       <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-links">
           <Link 
@@ -212,6 +219,7 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
           )}
         </div>
       </div>
+      )}
     </>
   );
 };

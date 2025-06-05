@@ -150,4 +150,25 @@
     height: 24px;
     font-size: 0.7rem;
   }
-} 
+}
+
+@media (max-width: 480px) {
+  .player-base {
+    width: 150px;
+    padding: 8px;
+  }
+
+  .player-base-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .player-base-health-bar {
+    height: 12px;
+  }
+
+  .player-base-alteration {
+    width: 20px;
+    height: 20px;
+    font-size: 0.6rem;
+  }
+}
