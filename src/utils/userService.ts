@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import bcrypt from 'bcryptjs';
 import type {
     User,
     CardInventoryItem,
@@ -26,13 +27,15 @@ export const userService = {
      * @throws Erreur en cas d'échec de la création
      */
     async signUp(username: string, password: string) {
-        // Créer le profil utilisateur
+        // Hasher le mot de passe avant de l'enregistrer
+        const passwordHash = await bcrypt.hash(password, 10);
+
         const { data: userData, error: userError } = await supabase
             .from('users')
             .insert([
                 {
                     username,
-                    password_hash: password, // Note: Dans une vraie application, le mot de passe devrait être hashé
+                    password_hash: passwordHash,
                     level: 1,
                     experience_points: 0,
                     currency: 0
@@ -57,10 +60,15 @@ export const userService = {
             .from('users')
             .select()
             .eq('username', username)
-            .eq('password_hash', password) // Note: Dans une vraie application, on comparerait avec le hash
             .single();
 
         if (error) throw error;
+
+        // Vérifier le mot de passe fourni avec le hash stocké
+        const match = await bcrypt.compare(password, data.password_hash);
+        if (!match) {
+            throw new Error('Identifiants incorrects');
+        }
 
         // Mettre à jour last_login
         await supabase
@@ -251,4 +259,4 @@ export const userService = {
         if (error) throw error;
         return data;
     }
-}; 
+};

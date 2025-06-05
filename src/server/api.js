@@ -1,6 +1,7 @@
 // API endpoints for the Yeayeayea
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
+const { authenticateToken } = require('./auth');
 require('dotenv').config();
 
 // Create Supabase client
@@ -286,12 +287,11 @@ router.post('/users/:userId/grant-booster', async (req, res) => {
 
 
 // POST /api/me/open-booster (User Opens Booster Pack)
-// Assumption: req.user.id is populated by auth middleware.
-router.post('/me/open-booster', async (req, res) => {
-  // const userId = req.user.id; // Uncomment when auth middleware is in place
-  const userId = req.body.userId_TEMP; // TEMPORARY: for testing without auth. Replace with req.user.id
-  if (!userId) { // Remove this block when req.user.id is available
-      return res.status(401).json({ error: 'User not authenticated (userId_TEMP missing from body for testing)' });
+// Requires authentication
+router.post('/me/open-booster', authenticateToken, async (req, res) => {
+  const userId = req.user && req.user.id;
+  if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
   }
 
   const { booster_type } = req.body;
