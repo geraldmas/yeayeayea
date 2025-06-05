@@ -130,6 +130,12 @@ export async function getAutocompleteValues() {
   }
 }
 
+/**
+ * Met à jour une carte existante dans la base de données.
+ * Si l'identifiant est manquant ou vaut 0, la carte est insérée à la place.
+ * @param card Carte à mettre à jour ou à insérer
+ * @returns La carte enregistrée
+ */
 export const updateCard = async (card: Card) => {
   try {
     // Vérifier et nettoyer les données avant l'envoi
@@ -183,8 +189,13 @@ export const updateCard = async (card: Card) => {
   }
 };
 
+/**
+ * Insère une nouvelle carte dans la base de données.
+ * @param card Objet carte à insérer
+ * @returns La carte insérée avec son identifiant
+ */
 export const insertCard = async (card: Card) => {
-  // Supprimer la propriété tags qui n'existe pas dans la table cards
+  // Supprimer la propriété tags qui n'existe pas dans la table "cards"
   const { id, tags, ...cardWithoutIdAndTags } = card;
   
   const { data, error } = await supabase
@@ -202,7 +213,11 @@ export const insertCard = async (card: Card) => {
 };
 
 /**
- * Updates the spells associated with a card
+ * Met à jour la liste des sorts associés à une carte.
+ * La fonction supprime d'abord toutes les relations existantes puis insère les
+ * nouvelles associations fournies.
+ * @param cardId Identifiant de la carte
+ * @param spellIds Identifiants des sorts à lier
  */
 export const updateCardSpells = async (cardId: number, spellIds: number[]) => {
   const { error: deleteError } = await supabase
@@ -230,7 +245,11 @@ export const updateCardSpells = async (cardId: number, spellIds: number[]) => {
 };
 
 /**
- * Updates the tags associated with a card
+ * Met à jour les tags associés à une carte de la même manière que pour les
+ * sorts. Toutes les anciennes relations sont supprimées avant l'insertion des
+ * nouvelles.
+ * @param cardId Identifiant de la carte
+ * @param tagIds Identifiants des tags à lier
  */
 export const updateCardTags = async (cardId: number, tagIds: number[]) => {
   const { error: deleteError } = await supabase

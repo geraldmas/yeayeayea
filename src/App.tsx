@@ -1,3 +1,6 @@
+// Composant principal de l'application. Il gère la logique d'authentification,
+// la récupération des données et la configuration des routes. La majorité de la
+// logique métier côté client est centralisée ici.
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import CardForm from './components/CardForm';

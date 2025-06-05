@@ -465,6 +465,11 @@ export class CardInstanceImpl implements CardInstance {
     return Math.max(0, modifiedAmount);
   }
 
+  /**
+   * Applique les modificateurs de soins provenant des altérations actives.
+   * @param amount Montant initial de soins
+   * @returns Montant de soins après modifications
+   */
   private applyHealModifiers(amount: number): number {
     let modifiedAmount = amount;
 
@@ -489,6 +494,10 @@ export class CardInstanceImpl implements CardInstance {
     return Math.max(0, modifiedAmount);
   }
 
+  /**
+   * Déclenche les effets liés à la prise de dégâts.
+   * Permet par exemple d'activer des altérations lorsque la carte est blessée.
+   */
   private triggerOnDamageEffects(damageAmount: number): void {
     // Déclencher des effets lorsque des dégâts sont subis
     this.activeAlterations.forEach(alteration => {
@@ -501,6 +510,9 @@ export class CardInstanceImpl implements CardInstance {
     });
   }
 
+  /**
+   * Déclenche les effets liés aux soins reçus.
+   */
   private triggerOnHealEffects(healAmount: number): void {
     // Déclencher des effets lorsque des soins sont reçus
     this.activeAlterations.forEach(alteration => {
@@ -514,11 +526,19 @@ export class CardInstanceImpl implements CardInstance {
   }
   
   /**
-   * Applique un modificateur à une statistique
+   * Applique un modificateur (additif ou en pourcentage) à une statistique
+   * temporaire de la carte. Les effets sont stockés afin de pouvoir être
+   * recalculés ou retirés plus tard si nécessaire.
+   *
+   * @param statName Nom de la statistique à modifier (attack, defense, ...)
+   * @param value Valeur du modificateur
+   * @param stackCount Nombre de fois où ce modificateur est appliqué
+   * @param sourceName Source textuelle de l'effet (pour le log/debug)
+   * @param isPercentage Indique si le modificateur est multiplicatif
    */
   private applyStatModifier(
-    statName: string, 
-    value: number, 
+    statName: string,
+    value: number,
     stackCount: number = 1,
     sourceName: string = 'unknown',
     isPercentage: boolean = false
