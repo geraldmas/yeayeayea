@@ -172,4 +172,11 @@ export interface PlayerBaseConfig {
    * @default 100
    */
   maxHealth?: number;
-} 
+
+  /**
+   * Facteur de réduction des dégâts reçus
+   * Les dégâts subis sont divisés par ce facteur
+   * @default 0.5
+   */
+  damageReductionFactor?: number;
+}
