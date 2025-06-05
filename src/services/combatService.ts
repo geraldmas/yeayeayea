@@ -19,6 +19,7 @@ import { gameConfigService } from '../utils/dataService';
 import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
 import { Player } from '../types/player';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
+import { combatLogService } from './combatLogService';
 
 /**
  * @file combatService.ts
@@ -388,12 +389,10 @@ export class CardInstanceImpl implements CardInstance {
         gameState
       );
       
-      // Optionnel: logguer ou traiter les résultats de l'application des règles de tag
+      // Collecter un événement de log pour chaque règle appliquée
       applicationResults.forEach(result => {
         if (result.success) {
-          // console.log(`Rule '${result.effectDescription}' from tag '${result.sourceTag}' applied to ${this.cardDefinition.name}.`);
-        } else if (result.failureReason !== 'Condition non remplie') { // Ne pas logguer toutes les conditions non remplies comme des erreurs
-          // console.warn(`Failed to apply rule '${result.effectDescription}' from tag '${result.sourceTag}': ${result.failureReason}`);
+          combatLogService.logTagRule(result, this);
         }
       });
     });
