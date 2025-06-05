@@ -362,7 +362,7 @@ export class CardInstanceImpl implements CardInstance {
    * Cette méthode est appelée après chaque modification des altérations ou tags,
    * et actualise les statistiques d'attaque, défense et autres attributs modifiables.
    */
-  public recalculateTemporaryStats(allCardsInPlay: CardInstance[], gameState: any): void {
+  public recalculateTemporaryStats(allCardsInPlay: CardInstance[] = [], gameState: any = {}): void {
     // 1. Réinitialiser les statistiques aux valeurs de base de la définition de la carte
     this.temporaryStats = {
       attack: (this.cardDefinition.properties as any).attack || 0,

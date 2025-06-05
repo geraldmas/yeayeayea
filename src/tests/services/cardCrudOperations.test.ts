@@ -106,10 +106,13 @@ describe('Card CRUD Operations', () => {
     const newCardData: CardInsert = {
       name: 'New Test Card',
       description: 'A new card for testing',
-      type: 'sort',
+      // Utiliser un type valide afin d'éviter une erreur de compilation
+      type: 'action',
       rarity: 'rare',
       properties: { mana_cost: 4 },
       summon_cost: 0, // Assuming 0 for sort type or if not applicable
+      image: null,
+      passive_effect: null,
       is_wip: true,
       is_crap: false,
     };

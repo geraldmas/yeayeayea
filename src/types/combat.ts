@@ -122,7 +122,9 @@ export interface CardInstance {
   resetForNextTurn: () => void;
   
   // Recalcule les statistiques temporaires basées sur les altérations actives
-  recalculateTemporaryStats: () => void;
+  // Les paramètres sont optionnels pour permettre d'utiliser la méthode sans
+  // contexte supplémentaire dans les tests ou les appels simples.
+  recalculateTemporaryStats: (allCardsInPlay?: CardInstance[], gameState?: any) => void;
 }
 
 /**
