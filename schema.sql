@@ -72,12 +72,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+-- Utility RPC used by migrations
+CREATE OR REPLACE FUNCTION public.exec_sql(sql text)
+RETURNS void AS $$
+BEGIN
+  EXECUTE sql;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Suppression des triggers existants s'ils existent
 DROP TRIGGER IF EXISTS set_updated_at ON cards;
 DROP TRIGGER IF EXISTS set_updated_at ON alterations;
 DROP TRIGGER IF EXISTS set_updated_at ON spells;
 DROP TRIGGER IF EXISTS set_updated_at ON tags;
-DROP TRIGGER IF EXISTS update_decks_updated_at ON decks;
 DROP TRIGGER IF EXISTS check_spell_references_trigger ON card_spells;
 DROP TRIGGER IF EXISTS check_tag_references_trigger ON card_tags;
 
@@ -153,6 +161,7 @@ CREATE TABLE IF NOT EXISTS decks (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+DROP TRIGGER IF EXISTS update_decks_updated_at ON decks;
 
 -- Table de composition des decks
 CREATE TABLE IF NOT EXISTS deck_cards (

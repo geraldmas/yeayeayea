@@ -56,6 +56,13 @@ For continuous integration environments, use:
 npm run test:ci
 ```
 
+## Database Migrations
+
+The database schema is managed via SQL migrations. A helper RPC
+`exec_sql(sql text)` is defined in `schema.sql` and executed with definer
+privileges. Migrations rely on this function to run dynamic statements, so
+ensure it is present before applying new migrations.
+
 ## License
 
 This project is released under the MIT License. See [LICENSE](LICENSE) for details.
