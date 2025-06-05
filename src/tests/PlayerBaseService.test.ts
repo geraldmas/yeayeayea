@@ -25,7 +25,7 @@ describe('PlayerBaseService', () => {
   let playerBase: PlayerBase;
   
   beforeEach(() => {
-    // Réinitialiser la base du joueur avant chaque test
+    // Réinitialiser la base du joueur avant chaque test avec la configuration par défaut
     playerBase = createPlayerBase({ maxHealth: 100 });
   });
   
@@ -39,24 +39,33 @@ describe('PlayerBaseService', () => {
   test('devrait créer une base avec une configuration personnalisée', () => {
     const config: PlayerBaseConfig = { maxHealth: 200 };
     const customBase = createPlayerBase(config);
-    
+
     expect(customBase.maxHealth).toBe(200);
     expect(customBase.currentHealth).toBe(200);
+  });
+
+  test('devrait appliquer la réduction de dégâts configurée', () => {
+    const baseWithReduction = createPlayerBase({ maxHealth: 100, damageReductionFactor: 0.5 });
+    const result = baseWithReduction.applyDamage(20);
+
+    // 20 * 0.5 = 10 de dégâts subis
+    expect(result).toBe(10);
+    expect(baseWithReduction.currentHealth).toBe(90);
   });
   
   test('devrait appliquer des dégâts correctement', () => {
     const damage = 30;
     const result = playerBase.applyDamage(damage, 'Test source');
-    
-    expect(result).toBe(30);
-    expect(playerBase.currentHealth).toBe(70);
+
+    expect(result).toBe(15);
+    expect(playerBase.currentHealth).toBe(85);
   });
-  
+
   test('devrait limiter les dégâts à la santé actuelle', () => {
-    // Infliger 120 points de dégâts à une base avec 100 PV
-    const damage = 120;
+    // Infliger une très grosse quantité de dégâts
+    const damage = 400;
     const result = playerBase.applyDamage(damage, 'Test source');
-    
+
     expect(result).toBe(100); // Seulement 100 dégâts appliqués
     expect(playerBase.currentHealth).toBe(0);
   });
@@ -64,33 +73,33 @@ describe('PlayerBaseService', () => {
   test('devrait soigner correctement', () => {
     // D'abord infliger des dégâts
     playerBase.applyDamage(50);
-    expect(playerBase.currentHealth).toBe(50);
+    expect(playerBase.currentHealth).toBe(75);
     
     // Puis soigner
     const healAmount = 20;
     const result = playerBase.heal(healAmount, 'Test heal');
     
     expect(result).toBe(20);
-    expect(playerBase.currentHealth).toBe(70);
+    expect(playerBase.currentHealth).toBe(95);
   });
   
   test('devrait limiter les soins aux PV manquants', () => {
     // D'abord infliger des dégâts
     playerBase.applyDamage(30);
-    expect(playerBase.currentHealth).toBe(70);
+    expect(playerBase.currentHealth).toBe(85);
     
     // Puis tenter de soigner plus que nécessaire
     const healAmount = 50;
     const result = playerBase.heal(healAmount, 'Test heal');
     
-    expect(result).toBe(30); // Seulement 30 soins appliqués
+    expect(result).toBe(15); // Seulement 15 soins appliqués
     expect(playerBase.currentHealth).toBe(100);
   });
   
   test('devrait détecter correctement la destruction de la base', () => {
     expect(playerBase.isDestroyed()).toBe(false);
-    
-    playerBase.applyDamage(100);
+
+    playerBase.applyDamage(200);
     
     expect(playerBase.currentHealth).toBe(0);
     expect(playerBase.isDestroyed()).toBe(true);

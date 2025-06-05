@@ -17,6 +17,10 @@ export class PlayerBaseImpl implements PlayerBase {
   id: string;
   currentHealth: number;
   maxHealth: number;
+  /**
+   * Facteur de réduction des dégâts reçus
+   */
+  private damageReductionFactor: number;
   activeAlterations: {
     alteration: Alteration;
     remainingDuration: number | null;
@@ -43,6 +47,7 @@ export class PlayerBaseImpl implements PlayerBase {
     this.id = uuidv4();
     this.maxHealth = config?.maxHealth || 100;
     this.currentHealth = this.maxHealth;
+    this.damageReductionFactor = config?.damageReductionFactor ?? 0.5;
     this.activeAlterations = [];
   }
   
@@ -54,9 +59,9 @@ export class PlayerBaseImpl implements PlayerBase {
    */
   applyDamage(amount: number, source?: string): number {
     if (amount <= 0) return 0;
-    
-    // Pour l'instant pas de système de résistance
-    const actualDamage = Math.min(this.currentHealth, amount);
+
+    const reducedAmount = amount * this.damageReductionFactor;
+    const actualDamage = Math.min(this.currentHealth, reducedAmount);
     this.currentHealth -= actualDamage;
     
     // Enregistre l'historique de dégâts pour le débogage
