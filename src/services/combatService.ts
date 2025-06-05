@@ -23,6 +23,7 @@ import {
   spendCharisme,
   calculateCharismeFromDefeat,
   Player as CharismePlayer,
+  Card as CharismeCard,
 } from '../utils/charismeService';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 import { combatLogService } from './combatLogService';
@@ -1303,7 +1304,6 @@ export class CombatManagerImpl implements CombatManager {
     }
     Object.assign(player, updated);
     const instance = this.initializeCardInstance(card);
-    this.cardInstances.push(instance);
     return instance;
   }
 
@@ -1311,7 +1311,7 @@ export class CombatManagerImpl implements CombatManager {
    * Gère le gain de charisme lorsqu'une carte est vaincue.
    */
   public handleCardDefeat(defeated: CardInstance, winner: CharismePlayer): void {
-    const gain = calculateCharismeFromDefeat(defeated.cardDefinition as any);
+    const gain = calculateCharismeFromDefeat(defeated.cardDefinition as CharismeCard);
     const updated = addCharisme(winner, gain);
     Object.assign(winner, updated);
   }
