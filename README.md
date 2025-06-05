@@ -8,7 +8,7 @@ Yeayeayea is a web application for building and managing trading card game data.
 - Node.js 18 or later
 - npm
 
-Environment variables are read from a `.env` file. Example configuration is provided in the repository. Adjust the Supabase keys and other values to match your setup.
+Copy `.env.example` to `.env` and fill in the required values locally. The `.env` file should **not** be committed to version control.
 
 ## Installation
 
