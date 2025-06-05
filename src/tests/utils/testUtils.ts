@@ -115,4 +115,4 @@ export function setupMockRpc() {
       mockRejectedValue
     }
   };
-} 
+}
