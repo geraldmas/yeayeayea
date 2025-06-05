@@ -58,6 +58,26 @@ const mockSpell: Spell = {
   is_value_percentage: false
 };
 
+// Helper pour créer un joueur de test avec du charisme
+const createTestPlayer = () => ({
+  id: 'player1',
+  name: 'Test Player',
+  activeCard: null,
+  benchCards: [],
+  inventory: [],
+  hand: [],
+  motivation: 0,
+  baseMotivation: 0,
+  motivationModifiers: [],
+  charisme: 10,
+  baseCharisme: 0,
+  maxCharisme: 100,
+  charismeModifiers: [],
+  movementPoints: 0,
+  points: 0,
+  effects: []
+});
+
 describe('CardInstance', () => {
   let cardInstance: CardInstanceImpl;
 
@@ -511,4 +531,28 @@ describe('Résolution simultanée des actions', () => {
     // Restaurer la méthode originale
     (combatManager as any).actionResolutionService.resolveConflictsAutomatically = originalResolveConflicts;
   });
-}); 
+});
+
+describe('Intégration du charisme', () => {
+  test('summonCardForPlayer dépense le charisme requis', () => {
+    const combatManager = new CombatManagerImpl();
+    const player = createTestPlayer();
+
+    const instance = combatManager.summonCardForPlayer(mockCard, player);
+
+    expect(instance).not.toBeNull();
+    expect(player.charisme).toBe(7); // 10 - cost 3
+    expect(combatManager.cardInstances.includes(instance!)).toBe(true);
+  });
+
+  test('handleCardDefeat ajoute le charisme au vainqueur', () => {
+    const combatManager = new CombatManagerImpl();
+    const player = createTestPlayer();
+    const defeated = new CardInstanceImpl({ ...mockCard, rarity: 'cheate' });
+
+    combatManager.handleCardDefeat(defeated, player);
+
+    // cheate rarity gives 40 charisma
+    expect(player.charisme).toBe(50); // 10 + 40
+  });
+});
