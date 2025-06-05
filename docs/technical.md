@@ -129,6 +129,55 @@ L'application utilise React hooks pour la gestion des états :
 ### supabaseClient
 Client Supabase pour les interactions avec la base de données.
 
+## Moteur de règles
+
+Le `TagRuleParserService` joue le rôle de moteur de règles. Il charge les
+définitions de synergies à partir de fichiers JSON ou de chaînes de texte puis
+applique ces règles pendant les combats.
+
+Les règles sont regroupées par nom de tag via l'interface
+`TagRuleDefinition` :
+
+```typescript
+interface TagRuleDefinition {
+  tagName: string;
+  rules: TagRule[];
+}
+```
+
+Chaque objet `TagRule` décrit l'effet à appliquer :
+
+```typescript
+interface TagRule {
+  id?: number;
+  name: string;
+  description: string;
+  effectType: TagRuleEffectType;
+  value: number;
+  isPercentage: boolean;
+  targetType: TagRuleTargetType;
+  targetTag?: string;
+  alterationId?: number;
+  condition?: TagRuleCondition;
+  synergyTags?: string[];
+  priority?: number;
+}
+```
+
+Exemple de règle textuelle :
+`damageModifier:self:+15%:Augmente les dégâts de 15%`.
+
+Le service gère la priorité d'application et permet de tester facilement de
+nouvelles synergies.
+
+## Interface de débug
+
+Une interface de débug (voir tâche 3) permet de modifier en temps réel les
+paramètres stockés dans la table `game_config` à l'aide du
+`gameConfigService`. Ce panneau facilite l'équilibrage en ajustant immédiatement
+les valeurs de génération de charisme, de coûts ou de limitations sans devoir
+redémarrer l'application.
+
 ## Styles
 
 L'application utilise :
