@@ -17,6 +17,9 @@ import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
 import { GameLayout, GameCardGrid, AdminPanel, Notification } from './components/ui';
+import ManualTargetSelector from './components/ManualTargetSelector';
+import { TargetingService, TargetingResult } from './services/targetingService';
+import { CardInstance } from './types/combat';
 
 interface LoadedTagsMap {
   [cardId: number]: { id: number; name: string; passive_effect: string | null }[];
@@ -38,6 +41,8 @@ interface CardTag {
 interface CardSpell {
   spell_id: number;
 }
+
+const targetingService = new TargetingService();
 
 // Composant conteneur pour les routes
 const AppContent: React.FC = () => {
@@ -66,9 +71,28 @@ const AppContent: React.FC = () => {
   const [spellIds, setSpellIds] = useState<number[]>([]);
   const [tagIds, setTagIds] = useState<number[]>([]);
   const [loadedSpellsMap, setLoadedSpellsMap] = useState<LoadedSpellsMap>({});
+  const [manualTargeting, setManualTargeting] = useState<{
+    possibleTargets: CardInstance[];
+    minTargets?: number;
+    maxTargets?: number;
+    onComplete: (result: TargetingResult) => void;
+    onCancel: () => void;
+  } | null>(null);
   
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    targetingService.registerManualTargetingCallback((options) => {
+      setManualTargeting({
+        possibleTargets: options.possibleTargets,
+        minTargets: options.minTargets,
+        maxTargets: options.maxTargets,
+        onComplete: options.onComplete,
+        onCancel: options.onCancel,
+      });
+    });
+  }, []);
 
   // Déterminer si l'utilisateur est dans une section admin
   const isAdminView = location.pathname === '/users' || location.pathname === '/admin';
@@ -334,6 +358,22 @@ const AppContent: React.FC = () => {
           message={notification.message}
           type={notification.type}
           onClose={() => setNotification(null)}
+        />
+      )}
+
+      {manualTargeting && (
+        <ManualTargetSelector
+          targets={manualTargeting.possibleTargets}
+          minTargets={manualTargeting.minTargets}
+          maxTargets={manualTargeting.maxTargets}
+          onConfirm={(targets) => {
+            manualTargeting.onComplete({ id: 'manual', targets, success: true });
+            setManualTargeting(null);
+          }}
+          onCancel={() => {
+            manualTargeting.onCancel();
+            setManualTargeting(null);
+          }}
         />
       )}
 
