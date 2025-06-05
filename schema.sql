@@ -1,3 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Création des tables principales
 CREATE TABLE IF NOT EXISTS public.cards (
   id bigserial PRIMARY KEY,
@@ -111,12 +115,6 @@ CREATE TRIGGER set_updated_at
   EXECUTE PROCEDURE update_updated_at_column();
 
 
--- Trigger pour mettre à jour le timestamp des decks
-CREATE TRIGGER update_decks_updated_at
-    BEFORE UPDATE ON decks
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
 -- Table des utilisateurs
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -152,6 +150,16 @@ CREATE TABLE IF NOT EXISTS decks (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 DROP TRIGGER IF EXISTS update_decks_updated_at ON decks;
+
+
+
+-- Trigger pour mettre à jour le timestamp des decks
+CREATE TRIGGER update_decks_updated_at
+    BEFORE UPDATE ON decks
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
 
 -- Table de composition des decks
 CREATE TABLE IF NOT EXISTS deck_cards (
