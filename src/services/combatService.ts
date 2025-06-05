@@ -18,6 +18,12 @@ import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
 import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
 import { Player } from '../types/player';
+import {
+  addCharisme,
+  spendCharisme,
+  calculateCharismeFromDefeat,
+  Player as CharismePlayer,
+} from '../utils/charismeService';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 import { combatLogService } from './combatLogService';
 
@@ -1263,6 +1269,31 @@ export class CombatManagerImpl implements CombatManager {
    */
   public convertCardToInstance(card: Card, tags?: Tag[], spells?: Spell[]): CardInstance {
     return this.cardConversionService.convertCardToInstance(card, tags, spells);
+  }
+
+  /**
+   * Invoque une carte pour un joueur en dépensant son charisme.
+   * Retourne l'instance invoquée ou null si le joueur n'a pas assez de ressources.
+   */
+  public summonCardForPlayer(card: Card, player: CharismePlayer): CardInstance | null {
+    const cost = card.summon_cost || 0;
+    const updated = spendCharisme(player, cost);
+    if (!updated) {
+      return null;
+    }
+    Object.assign(player, updated);
+    const instance = this.initializeCardInstance(card);
+    this.cardInstances.push(instance);
+    return instance;
+  }
+
+  /**
+   * Gère le gain de charisme lorsqu'une carte est vaincue.
+   */
+  public handleCardDefeat(defeated: CardInstance, winner: CharismePlayer): void {
+    const gain = calculateCharismeFromDefeat(defeated.cardDefinition as any);
+    const updated = addCharisme(winner, gain);
+    Object.assign(winner, updated);
   }
 
   /**

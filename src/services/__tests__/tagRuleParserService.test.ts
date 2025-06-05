@@ -368,5 +368,46 @@ describe('TagRuleParserService', () => {
       expect(targetCard.activeEffects.damageModifier[0].value).toBe(20);
       expect(targetCard.activeEffects.damageModifier[0].isPercentage).toBe(true);
     });
+
+    test('Devrait appliquer un bonus d\'attaque', () => {
+      const rule: TagRule = {
+        name: 'Bonus d\'attaque',
+        description: 'Augmente l\'attaque de 5',
+        effectType: TagRuleEffectType.ATTACK_MODIFIER,
+        value: 5,
+        isPercentage: false,
+        targetType: TagRuleTargetType.SELF
+      };
+
+      parserService.addRuleForTag('NUIT', rule);
+
+      const sourceCard = mockCardInstances[0];
+      const results = parserService.applyTagRules('NUIT', sourceCard, mockCardInstances, mockGameState);
+
+      expect(results[0].success).toBe(true);
+      expect(sourceCard.temporaryStats.attack).toBe(15); // base 10 + 5
+    });
+
+    test('Devrait appliquer un bonus de défense en pourcentage', () => {
+      const rule: TagRule = {
+        name: 'Bonus de défense',
+        description: 'Augmente la défense de 50%',
+        effectType: TagRuleEffectType.DEFENSE_MODIFIER,
+        value: 50,
+        isPercentage: true,
+        targetType: TagRuleTargetType.SELF
+      };
+
+      parserService.addRuleForTag('JOUR', rule);
+
+      const sourceCard = mockCardInstances[1]; // player1_2 avec tag JOUR
+      sourceCard.temporaryStats.defense = 4;
+      (sourceCard.cardDefinition.properties as any).defense = 4;
+
+      const results = parserService.applyTagRules('JOUR', sourceCard, mockCardInstances, mockGameState);
+
+      expect(results[0].success).toBe(true);
+      expect(sourceCard.temporaryStats.defense).toBe(6); // 4 + 50% of base (4) => +2
+    });
   });
-}); 
+});
