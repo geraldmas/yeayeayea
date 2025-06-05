@@ -18,6 +18,7 @@ import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
 import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
 import { Player } from '../types/player';
+import { MotivationService } from './motivationService';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 
 /**
@@ -791,10 +792,26 @@ export class CombatManagerImpl implements CombatManager {
    * @param attacker - La carte qui attaque
    * @param target - La carte ciblée par l'attaque
    */
-  public executeAttack(attacker: CardInstance, target: CardInstance): void {
+  public executeAttack(
+    attacker: CardInstance,
+    target: CardInstance,
+    actingPlayer?: Player
+  ): void {
     if (!attacker.canAttack()) {
       console.log("L'attaquant ne peut pas attaquer");
       return;
+    }
+
+    if (actingPlayer) {
+      const updated = MotivationService.consumeMotivation(
+        actingPlayer as unknown as import('../types/index').Player,
+        1
+      );
+      if (!updated) {
+        console.log("Motivation insuffisante pour attaquer");
+        return;
+      }
+      Object.assign(actingPlayer, updated);
     }
 
     // Plutôt que d'exécuter directement l'attaque, on la planifie pour résolution simultanée
@@ -826,11 +843,29 @@ export class CombatManagerImpl implements CombatManager {
     console.log(`${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} pour ${damage} dégâts`);
   }
 
-  public castSpell(caster: CardInstance, spell: Spell, targets: CardInstance[]): void {
+  public castSpell(
+    caster: CardInstance,
+    spell: Spell,
+    targets: CardInstance[],
+    actingPlayer?: Player
+  ): void {
     // Vérifier si le sort peut être lancé
     if (!caster.canUseSpell(spell.id)) {
       console.log("Le sort ne peut pas être lancé");
       return;
+    }
+
+    if (actingPlayer) {
+      const cost = spell.cost || 0;
+      const updated = MotivationService.consumeMotivation(
+        actingPlayer as unknown as import('../types/index').Player,
+        cost
+      );
+      if (!updated) {
+        console.log("Motivation insuffisante pour lancer le sort");
+        return;
+      }
+      Object.assign(actingPlayer, updated);
     }
 
     // Plutôt que d'exécuter directement le sort, on le planifie pour résolution simultanée
@@ -1305,10 +1340,20 @@ export class CombatManagerImpl implements CombatManager {
   ): number {
     // Vérifier si l'attaque est possible
     const attackCheck = this.canAttackBase(attacker, sourcePlayer, targetPlayer, ignoreConditions);
-    
+
     if (!attackCheck.canAttack) {
       return -1; // Attaque impossible
     }
+
+    const motivationCheck = MotivationService.consumeMotivation(
+      sourcePlayer as unknown as import('../types/index').Player,
+      1
+    );
+    if (!motivationCheck) {
+      console.log("Motivation insuffisante pour attaquer la base");
+      return -1;
+    }
+    Object.assign(sourcePlayer, motivationCheck);
     
     // Calculer les dégâts de base (à adapter selon les mécaniques du jeu)
     const baseDamage = attacker.temporaryStats.attack || 0;

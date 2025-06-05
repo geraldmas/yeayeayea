@@ -1,6 +1,20 @@
 import { CardInstanceImpl, CombatManagerImpl } from '../combatService';
 import { Card, Alteration, Tag, Spell, SpellEffect } from '../../types/index';
 import { TargetType, CardInstance } from '../../types/combat';
+import { Player } from '../../types/player';
+import { createPlayerBase } from '../PlayerBaseService';
+import { MotivationService } from '../motivationService';
+
+jest.mock('../motivationService', () => ({
+  MotivationService: {
+    consumeMotivation: jest.fn().mockImplementation((player: Player, amount: number) => {
+      if (player.motivation < amount) {
+        return null;
+      }
+      return { ...player, motivation: player.motivation - amount };
+    })
+  }
+}));
 
 // Mocks pour les tests
 const mockCard: Card = {
@@ -57,6 +71,21 @@ const mockSpell: Spell = {
   ],
   is_value_percentage: false
 };
+
+const createMockPlayer = (id: string): Player => ({
+  id,
+  name: `Player ${id}`,
+  base: createPlayerBase({ maxHealth: 20 }),
+  characters: [],
+  objects: [],
+  hand: [],
+  deck: [],
+  discard: [],
+  motivation: 5,
+  charisme: 0,
+  getAllEntities: () => [],
+  hasLost: () => false
+});
 
 describe('CardInstance', () => {
   let cardInstance: CardInstanceImpl;
@@ -162,8 +191,10 @@ describe('CombatManager', () => {
   let combatManager: CombatManagerImpl;
   let attacker: CardInstanceImpl;
   let target: CardInstanceImpl;
+  let player: Player;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     combatManager = new CombatManagerImpl();
     attacker = new CardInstanceImpl(mockCard);
     target = new CardInstanceImpl({
@@ -171,7 +202,9 @@ describe('CombatManager', () => {
       id: 2,
       name: 'Cible'
     });
-    
+
+    player = createMockPlayer('1');
+
     combatManager.cardInstances = [attacker, target];
   });
 
@@ -190,32 +223,46 @@ describe('CombatManager', () => {
 
   test('doit exécuter une attaque correctement', () => {
     const initialHealth = target.currentHealth;
-    
-    combatManager.executeAttack(attacker, target);
-    
+
+    combatManager.executeAttack(attacker, target, player);
+
     // Résoudre les actions planifiées
     combatManager.resolveAllActions();
-    
+
     expect(target.currentHealth).toBe(initialHealth - 1);
     expect(attacker.isExhausted).toBe(true);
+    expect(MotivationService.consumeMotivation).toHaveBeenCalledWith(player, 1);
   });
 
   test('ne doit pas permettre d\'attaquer si la carte est épuisée', () => {
     attacker.isExhausted = true;
     const initialHealth = target.currentHealth;
-    
-    combatManager.executeAttack(attacker, target);
-    
+
+    combatManager.executeAttack(attacker, target, player);
+
     expect(target.currentHealth).toBe(initialHealth);
+    expect(MotivationService.consumeMotivation).not.toHaveBeenCalled();
   });
 
   test('doit identifier correctement les cartes vaincues', () => {
     target.applyDamage(target.currentHealth);
-    
+
     const defeated = combatManager.checkForDefeated();
-    
+
     expect(defeated.length).toBe(1);
     expect(defeated[0]).toBe(target);
+  });
+
+  test('attackBase devrait consommer la motivation et infliger des dégâts', () => {
+    const targetPlayer = createMockPlayer('target');
+    const sourcePlayer = player;
+    attacker.temporaryStats.attack = 4;
+
+    const damage = combatManager.attackBase(attacker, sourcePlayer, targetPlayer);
+
+    expect(damage).toBe(2); // damage divided by 2 by AttackConditionsService
+    expect(targetPlayer.base.currentHealth).toBe(18);
+    expect(MotivationService.consumeMotivation).toHaveBeenCalledWith(sourcePlayer, 1);
   });
 
   test('doit sélectionner correctement les cibles valides', () => {
@@ -421,6 +468,7 @@ describe('Résolution simultanée des actions', () => {
   let target1: CardInstanceImpl;
   let target2: CardInstanceImpl;
   let mockSpell: Spell;
+  let player: Player;
 
   beforeEach(() => {
     combatManager = new CombatManagerImpl();
@@ -462,12 +510,14 @@ describe('Résolution simultanée des actions', () => {
       cooldown: 0,
       isAvailable: true
     }];
+
+    player = createMockPlayer('2');
   });
 
   test('doit planifier et résoudre les actions simultanément', () => {
     // Planifier plusieurs actions
-    combatManager.executeAttack(attacker, target1);
-    combatManager.castSpell(attacker, mockSpell, [target2]);
+    combatManager.executeAttack(attacker, target1, player);
+    combatManager.castSpell(attacker, mockSpell, [target2], player);
     
     // Vérifier que l'attaquant n'est pas encore épuisé (les actions sont seulement planifiées)
     expect(attacker.isExhausted).toBe(false);
@@ -485,6 +535,8 @@ describe('Résolution simultanée des actions', () => {
     // Les cibles devraient avoir reçu des dégâts
     expect(target1.currentHealth).toBe(9); // 10 - 1 de l'attaque
     expect(target2.currentHealth).toBe(7); // 10 - 3 du sort
+    expect(MotivationService.consumeMotivation).toHaveBeenNthCalledWith(1, player, 1);
+    expect(MotivationService.consumeMotivation).toHaveBeenNthCalledWith(2, player, 2);
   });
 
   test('doit résoudre correctement les conflits de ressources', () => {
@@ -499,14 +551,15 @@ describe('Résolution simultanée des actions', () => {
     (combatManager as any).actionResolutionService.resolveConflictsAutomatically = spyResolveConflicts;
     
     // Planifier des actions
-    combatManager.executeAttack(attacker, target1);
-    combatManager.castSpell(attacker, mockSpell, [target2]);
+    combatManager.executeAttack(attacker, target1, player);
+    combatManager.castSpell(attacker, mockSpell, [target2], player);
     
     // Résoudre les actions
     combatManager.resolveAllActions();
     
     // Vérifier que la méthode de résolution des conflits a été appelée
     expect(spyResolveConflicts).toHaveBeenCalled();
+    expect(MotivationService.consumeMotivation).toHaveBeenCalledTimes(2);
     
     // Restaurer la méthode originale
     (combatManager as any).actionResolutionService.resolveConflictsAutomatically = originalResolveConflicts;
