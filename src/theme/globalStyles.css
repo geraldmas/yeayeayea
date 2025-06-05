@@ -512,6 +512,20 @@ a:hover {
   }
 }
 
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  .main-content {
+    padding: var(--space-sm);
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
 /* Style pour élément admin */
 .admin-element {
   background: var(--bg-admin);
@@ -631,9 +645,19 @@ a:hover {
   .mobile-menu-btn {
     display: block;
   }
-  
+
   .game-nav-links {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-menu-btn {
+    font-size: 1.2rem;
+  }
+
+  .mobile-menu-links {
+    padding: var(--space-md);
   }
 }
 
