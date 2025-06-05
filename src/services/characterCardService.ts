@@ -355,6 +355,3 @@ export class CharacterCardService {
     return Math.floor(baseXP * Math.pow(level * factor, 2));
   }
 }
-
-// Exporter une instance unique du service
-export const characterCardService = new CharacterCardService(); 
