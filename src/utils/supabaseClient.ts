@@ -130,6 +130,12 @@ export async function getAutocompleteValues() {
   }
 }
 
+/**
+ * Met à jour une carte existante dans la base de données.
+ * Si l'identifiant est manquant ou vaut 0, la carte est insérée à la place.
+ * @param card Carte à mettre à jour ou à insérer
+ * @returns La carte enregistrée
+ */
 export const updateCard = async (card: Card) => {
   try {
     // Vérifier et nettoyer les données avant l'envoi
@@ -183,8 +189,13 @@ export const updateCard = async (card: Card) => {
   }
 };
 
+/**
+ * Insère une nouvelle carte dans la base de données.
+ * @param card Objet carte à insérer
+ * @returns La carte insérée avec son identifiant
+ */
 export const insertCard = async (card: Card) => {
-  // Supprimer la propriété tags qui n'existe pas dans la table cards
+  // Supprimer la propriété tags qui n'existe pas dans la table "cards"
   const { id, tags, ...cardWithoutIdAndTags } = card;
   
   const { data, error } = await supabase
@@ -200,3 +211,4 @@ export const insertCard = async (card: Card) => {
   
   return data;
 };
+

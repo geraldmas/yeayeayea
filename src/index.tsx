@@ -1,3 +1,6 @@
+// Point d'entrée de l'application React. Ce fichier monte le composant App
+// dans l'élément DOM "root" et initialise éventuellement la mesure des
+// performances.
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

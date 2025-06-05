@@ -1,3 +1,7 @@
+// Configuration de l'environnement de test Jest.
+// Ce fichier charge les variables d'environnement dédiées aux tests et met en
+// place des mocks globaux (ici pour Supabase) afin d'isoler les tests du code
+// externe.
 import dotenv from 'dotenv';
 
 // Charger les variables d'environnement de test
