@@ -201,16 +201,11 @@ describe('TargetingService', () => {
   });
   
   test('devrait gérer le ciblage manuel avec callback', async () => {
-    // Mock du callback pour la sélection manuelle de cibles
     const mockCallback: ManualTargetingCallback = jest.fn((options) => {
-      // Simuler une sélection utilisateur après un court délai
+      expect(options.possibleTargets).toContain(targetCard1);
       setTimeout(() => {
-        options.onComplete({
-          id: 'test',
-          targets: [targetCard2],
-          success: true
-        });
-      }, 100);
+        options.onComplete({ id: 'test', targets: [targetCard2], success: true });
+      }, 10);
     });
     
     // Enregistrer le callback
@@ -244,11 +239,11 @@ describe('TargetingService', () => {
   });
   
   test('devrait échouer proprement si le callback annule le ciblage', async () => {
-    // Mock du callback pour simuler une annulation
     const mockCallback: ManualTargetingCallback = jest.fn((options) => {
+      expect(options.possibleTargets).toContain(targetCard1);
       setTimeout(() => {
         options.onCancel();
-      }, 100);
+      }, 10);
     });
     
     // Enregistrer le callback

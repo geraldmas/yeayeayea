@@ -30,6 +30,8 @@ export interface TargetingResult {
 export type ManualTargetingCallback = (options: {
   /** Carte source qui effectue l'action */
   source: CardInstance;
+  /** Cibles pouvant être affichées à l'utilisateur */
+  possibleTargets: CardInstance[];
   /** Critères optionnels pour filtrer les cibles disponibles */
   criteria?: TargetingCriteria;
   /** Nombre minimum de cibles à sélectionner */
@@ -181,6 +183,7 @@ export class TargetingService {
           if (this.manualTargetingCallback) {
             this.manualTargetingCallback({
               source,
+              possibleTargets: filteredTargets,
               criteria,
               minTargets: 1,
               maxTargets: count,
