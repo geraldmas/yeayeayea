@@ -1,6 +1,6 @@
 import { Card, Spell, Tag } from '../types';
 import { Json } from '../types/database.types';
-import { spellService, tagService, joinTableService } from './dataService';
+import { spellService, tagService } from './dataService';
 import { supabase } from './supabaseClient';
 
 /**
