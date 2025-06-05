@@ -101,4 +101,4 @@ export const mockSupabase = mockSupabaseClient;
 
 jest.mock('../../utils/supabaseClient', () => ({
   supabase: mockSupabase,
-})); 
+}));

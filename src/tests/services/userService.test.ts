@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { userService } from '../../utils/userService';
 import { mockSupabase } from '../mocks/supabase';
+import bcrypt from 'bcryptjs';
 import { setupMockFrom, setupMockRpc, mockSuccessResponse, mockErrorResponse } from '../utils/testUtils';
 
 // Mock typé pour supabase
@@ -70,10 +71,11 @@ describe('userService', () => {
       // Préparer les données et les mocks
       const username = 'testuser';
       const password = 'password123';
-      const mockUser: User = { 
-        id: '123', 
-        username, 
-        password_hash: password,
+      const hashed = await bcrypt.hash(password, 10);
+      const mockUser: User = {
+        id: '123',
+        username,
+        password_hash: hashed,
         is_admin: false
       };
 
@@ -163,8 +165,9 @@ describe('userService', () => {
       // Vérifier que l'objet inséré contient password_hash et pas password
       expect(helpers.insert).toHaveBeenCalled();
       const insertArgs = helpers.insert.mock.calls[0][0] as any[];
-      expect(insertArgs[0]).toHaveProperty('password_hash', password);
+      expect(insertArgs[0]).toHaveProperty('password_hash');
+      expect(insertArgs[0].password_hash).not.toBe(password);
       expect(insertArgs[0]).not.toHaveProperty('password');
     });
   });
-}); 
+});

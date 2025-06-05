@@ -130,4 +130,4 @@ describe('Tests d\'intégration - Gestion du mot de passe utilisateur', () => {
       expect(selectMock).toHaveBeenCalled();
     });
   });
-}); 
+});
