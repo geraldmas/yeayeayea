@@ -1,5 +1,6 @@
 # Yeayeayea
 
+
 Yeayeayea is a web application for building and managing trading card game data. The project is written in **TypeScript** using **React** for the UI and a small **Express** server for authentication APIs.
 
 ## Prerequisites
