@@ -110,16 +110,6 @@ CREATE TRIGGER set_updated_at
   FOR EACH ROW
   EXECUTE PROCEDURE update_updated_at_column();
 
--- Create new triggers on the junction tables
-CREATE TRIGGER check_spell_references_trigger
-  BEFORE INSERT OR UPDATE ON card_spells
-  FOR EACH ROW
-  EXECUTE FUNCTION check_spell_references();
-
-CREATE TRIGGER check_tag_references_trigger
-  BEFORE INSERT OR UPDATE ON card_tags
-  FOR EACH ROW
-  EXECUTE FUNCTION check_tag_references();
 
 -- Trigger pour mettre à jour le timestamp des decks
 CREATE TRIGGER update_decks_updated_at
