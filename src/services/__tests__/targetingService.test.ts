@@ -265,4 +265,16 @@ describe('TargetingService', () => {
     expect(result.error).toBeDefined();
     expect(result.targets).toHaveLength(0);
   });
-}); 
+
+  test('devrait échouer si le ciblage manuel n\'est pas configuré', async () => {
+    const result = await targetingService.getTargets(
+      sourceCard,
+      'manual',
+      allCards
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.targets).toHaveLength(0);
+    expect(result.error).toBeDefined();
+  });
+});
