@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import GameNav from './GameNav';
 import './GameLayout.css';
 import { bgPattern } from '../../assets/images';
+import CombatLogViewer from '../CombatLogViewer';
 
 interface GameLayoutProps {
   children: ReactNode;
@@ -94,6 +95,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
           </div>
         </div>
       </footer>
+      <CombatLogViewer />
     </div>
   );
 };
