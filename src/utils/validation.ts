@@ -46,10 +46,18 @@ export const validateCard = async (card: Card): Promise<string[]> => {
       }
       break;
     case 'action':
-    case 'evenement':
-      // Validation pour les cartes action et événement
       if (card.summon_cost <= 0) {
-        errors.push(`Le coût d'invocation doit être positif pour les cartes ${card.type}`);
+        errors.push("Le coût d'invocation doit être positif pour les cartes action");
+      }
+      break;
+    case 'evenement':
+      if (!card.eventDuration) {
+        errors.push("La durée d'\u00E9vénement est requise pour les cartes Evenement");
+      } else if (!['instantanee', 'temporaire', 'permanente'].includes(card.eventDuration)) {
+        errors.push("La durée d'\u00E9vénement doit être 'instantanee', 'temporaire' ou 'permanente'");
+      }
+      if (card.summon_cost <= 0) {
+        errors.push("Le coût d'invocation doit être positif pour les cartes evenement");
       }
       break;
     default:
@@ -159,10 +167,18 @@ export const validateCardSync = (card: Card): string[] => {
       }
       break;
     case 'action':
-    case 'evenement':
-      // Validation pour les cartes action et événement
       if (card.summon_cost <= 0) {
-        errors.push(`Le coût d'invocation doit être positif pour les cartes ${card.type}`);
+        errors.push("Le coût d'invocation doit être positif pour les cartes action");
+      }
+      break;
+    case 'evenement':
+      if (!card.eventDuration) {
+        errors.push("La durée d'\u00E9vénement est requise pour les cartes Evenement");
+      } else if (!['instantanee', 'temporaire', 'permanente'].includes(card.eventDuration)) {
+        errors.push("La durée d'\u00E9vénement doit être 'instantanee', 'temporaire' ou 'permanente'");
+      }
+      if (card.summon_cost <= 0) {
+        errors.push("Le coût d'invocation doit être positif pour les cartes evenement");
       }
       break;
     default:

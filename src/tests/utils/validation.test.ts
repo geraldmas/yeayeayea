@@ -194,6 +194,65 @@ describe('validateCardSync', () => {
       expect(errors.length).toBeGreaterThan(0);
       expect(errors).toContain('Le coût d\'invocation doit être positif pour les cartes action');
     });
+
+    it("devrait exiger eventDuration pour un événement", () => {
+      const invalidEvent: Card = {
+        id: 1,
+        name: 'Event Test',
+        type: 'evenement',
+        rarity: 'interessant',
+        description: '',
+        image: 'event.jpg',
+        passive_effect: '',
+        properties: {},
+        is_wip: false,
+        is_crap: false,
+        summon_cost: 2
+      };
+
+      const errors = validateCardSync(invalidEvent);
+      expect(errors).toContain("La durée d'\u00E9vénement est requise pour les cartes Evenement");
+    });
+
+    it("devrait détecter une valeur eventDuration invalide", () => {
+      const invalidEvent: Card = {
+        id: 1,
+        name: 'Event Test',
+        type: 'evenement',
+        rarity: 'interessant',
+        description: '',
+        image: 'event.jpg',
+        passive_effect: '',
+        properties: {},
+        is_wip: false,
+        is_crap: false,
+        summon_cost: 2,
+        eventDuration: 'inconnue' as any
+      };
+
+      const errors = validateCardSync(invalidEvent);
+      expect(errors).toContain("La durée d'\u00E9vénement doit être 'instantanee', 'temporaire' ou 'permanente'");
+    });
+
+    it("devrait valider un événement avec eventDuration", () => {
+      const validEvent: Card = {
+        id: 1,
+        name: 'Event Test',
+        type: 'evenement',
+        rarity: 'interessant',
+        description: '',
+        image: 'event.jpg',
+        passive_effect: '',
+        properties: {},
+        is_wip: false,
+        is_crap: false,
+        summon_cost: 2,
+        eventDuration: 'temporaire'
+      };
+
+      const errors = validateCardSync(validEvent);
+      expect(errors.length).toBe(0);
+    });
   });
 
   // Tests pour la validation de coût par rareté
@@ -218,7 +277,8 @@ describe('validateCardSync', () => {
           properties: {},
           is_wip: false,
           is_crap: false,
-          summon_cost: cost
+          summon_cost: cost,
+          eventDuration: 'instantanee'
         };
         
         const errors = validateCardSync(card);
@@ -245,7 +305,8 @@ describe('validateCardSync', () => {
           properties: {},
           is_wip: false,
           is_crap: false,
-          summon_cost: cost
+          summon_cost: cost,
+          eventDuration: 'instantanee'
         };
         
         const errors = validateCardSync(card);

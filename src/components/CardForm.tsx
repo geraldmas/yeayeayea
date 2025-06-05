@@ -28,6 +28,8 @@ interface CardFormProps {
 
 type CardInputEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 
+const EVENT_DURATIONS = ['instantanee', 'temporaire', 'permanente'] as const;
+
 const defaultCard: Card = {
   id: 0,
   name: '',
@@ -206,9 +208,19 @@ const CardForm: React.FC<CardFormProps> = ({
     }
 
     if (name === 'type') {
+      const newType = value as Card['type'];
       setLocalCard((prev: Card): Card => ({
         ...prev,
-        type: value as Card['type']
+        type: newType,
+        eventDuration: newType === 'evenement' ? (prev.eventDuration || 'instantanee') : undefined
+      }));
+      return;
+    }
+
+    if (name === 'eventDuration') {
+      setLocalCard((prev: Card): Card => ({
+        ...prev,
+        eventDuration: value as Card['eventDuration']
       }));
       return;
     }
@@ -460,6 +472,24 @@ const CardForm: React.FC<CardFormProps> = ({
                     </select>
                   </div>
                 </div>
+
+                {localCard.type === 'evenement' && (
+                  <div className="form-group">
+                    <label htmlFor="eventDuration" className="required-field">Durée de l'événement</label>
+                    <select
+                      id="eventDuration"
+                      name="eventDuration"
+                      value={localCard.eventDuration || 'instantanee'}
+                      onChange={handleChange}
+                      required
+                      className="form-input"
+                    >
+                      {EVENT_DURATIONS.map(d => (
+                        <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label htmlFor="description">Description</label>

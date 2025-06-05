@@ -6,6 +6,7 @@ export interface Card {
   description: string;
   image: string;
   passive_effect: string;
+  eventDuration?: 'instantanee' | 'temporaire' | 'permanente';
   properties: {
     health?: number;
     [key: string]: any;

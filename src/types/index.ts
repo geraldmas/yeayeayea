@@ -113,6 +113,13 @@ export interface Card {
   description: string | null;
   type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
   rarity: Rarity | string;
+  /**
+   * Pour les cartes "evenement", indique la durée de l’effet
+   * - "instantanee" : effet appliqué une seule fois
+   * - "temporaire" : effet qui dure quelques tours
+   * - "permanente" : effet qui reste jusqu'à la fin de la partie
+   */
+  eventDuration?: 'instantanee' | 'temporaire' | 'permanente';
   properties: {
     health?: number;
     [key: string]: any;
