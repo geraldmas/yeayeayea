@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/yeayeayea/static/css/main.8dd5206b.css",
-    "main.js": "/yeayeayea/static/js/main.95f5bb9a.js",
-    "static/js/345.bfbc87c1.chunk.js": "/yeayeayea/static/js/345.bfbc87c1.chunk.js",
-    "static/js/685.bd46bb57.chunk.js": "/yeayeayea/static/js/685.bd46bb57.chunk.js",
+    "main.css": "/yeayeayea/static/css/main.8b2fceb7.css",
+    "main.js": "/yeayeayea/static/js/main.4d8b26dd.js",
+    "static/js/488.06781737.chunk.js": "/yeayeayea/static/js/488.06781737.chunk.js",
     "static/media/default-card.svg": "/yeayeayea/static/media/default-card.496d17e5c6793948acb6ca3db5a2ba0c.svg",
     "index.html": "/yeayeayea/index.html",
-    "static/media/bg-pattern.svg": "/yeayeayea/static/media/bg-pattern.96a8ba4f9e20c308d3f2347da1cb7f42.svg"
+    "static/media/bg-pattern.svg": "/yeayeayea/static/media/bg-pattern.96a8ba4f9e20c308d3f2347da1cb7f42.svg",
+    "main.8b2fceb7.css.map": "/yeayeayea/static/css/main.8b2fceb7.css.map",
+    "main.4d8b26dd.js.map": "/yeayeayea/static/js/main.4d8b26dd.js.map",
+    "488.06781737.chunk.js.map": "/yeayeayea/static/js/488.06781737.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.8dd5206b.css",
-    "static/js/main.95f5bb9a.js"
+    "static/css/main.8b2fceb7.css",
+    "static/js/main.4d8b26dd.js"
   ]
 }
