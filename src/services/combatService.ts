@@ -18,6 +18,7 @@ import { ActionResolutionService, ActionType } from './actionResolutionService';
 import { gameConfigService } from '../utils/dataService';
 import { AttackConditionsService, AttackTargetType } from './attackConditionsService';
 import { Player } from '../types/player';
+import { spendCharisme, handleCharismeFromDefeat } from '../utils/charismeService';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 
 /**
@@ -783,6 +784,63 @@ export class CombatManagerImpl implements CombatManager {
     const cardInstance = this.cardConversionService.convertCardToInstance(card);
     this.cardInstances.push(cardInstance);
     return cardInstance;
+  }
+
+  /**
+   * Invoque une carte pour un joueur en dépensant le charisme nécessaire
+   * @param card - La carte à invoquer
+   * @param player - Le joueur qui invoque la carte
+   * @returns L'instance créée ou null si le joueur n'a pas assez de charisme
+   */
+  public summonCard(card: Card, player: Player): CardInstance | null {
+    const updatedPlayer = spendCharisme(player as any, card.summon_cost || 0);
+    if (!updatedPlayer) {
+      return null;
+    }
+
+    Object.assign(player, updatedPlayer);
+
+    const cardInstance = this.cardConversionService.convertCardToInstance(card);
+    this.cardInstances.push(cardInstance);
+
+    if (card.type === 'personnage') {
+      player.characters.push(cardInstance);
+    } else if (card.type === 'objet') {
+      player.objects.push(cardInstance);
+    }
+
+    return cardInstance;
+  }
+
+  /**
+   * Détruit une carte en jeu et applique les effets de charisme si nécessaire
+   * @param cardInstance - L'instance à détruire
+   * @param owner - Le joueur possédant la carte
+   * @param opponent - Le joueur qui a vaincu la carte (optionnel)
+   */
+  public destroyCard(
+    cardInstance: CardInstance,
+    owner: Player,
+    opponent?: Player
+  ): void {
+    this.cardInstances = this.cardInstances.filter(
+      c => c.instanceId !== cardInstance.instanceId
+    );
+
+    owner.characters = owner.characters.filter(
+      c => c.instanceId !== cardInstance.instanceId
+    );
+    owner.objects = owner.objects.filter(
+      o => o.instanceId !== cardInstance.instanceId
+    );
+
+    if (opponent && cardInstance.cardDefinition.type === 'personnage') {
+      const updatedOpponent = handleCharismeFromDefeat(
+        opponent as any,
+        cardInstance.cardDefinition
+      );
+      Object.assign(opponent, updatedOpponent);
+    }
   }
 
   /**

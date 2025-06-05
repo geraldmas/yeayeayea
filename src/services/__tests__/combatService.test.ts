@@ -1,6 +1,8 @@
 import { CardInstanceImpl, CombatManagerImpl } from '../combatService';
 import { Card, Alteration, Tag, Spell, SpellEffect } from '../../types/index';
 import { TargetType, CardInstance } from '../../types/combat';
+import { Player } from '../../types/player';
+import { createPlayerBase } from '../PlayerBaseService';
 
 // Mocks pour les tests
 const mockCard: Card = {
@@ -511,4 +513,51 @@ describe('Résolution simultanée des actions', () => {
     // Restaurer la méthode originale
     (combatManager as any).actionResolutionService.resolveConflictsAutomatically = originalResolveConflicts;
   });
-}); 
+});
+
+describe('Gestion du charisme lors des invocations et défaites', () => {
+  const createTestPlayer = (id: string): Player => ({
+    id,
+    name: `Player ${id}`,
+    base: createPlayerBase({ maxHealth: 100 }),
+    characters: [],
+    objects: [],
+    hand: [],
+    deck: [],
+    discard: [],
+    motivation: 0,
+    charisme: 10,
+    getAllEntities() {
+      return [...this.characters, ...this.objects];
+    },
+    hasLost() {
+      return this.base.isDestroyed();
+    }
+  });
+
+  test('summonCard dépense le charisme requis', () => {
+    const combatManager = new CombatManagerImpl();
+    const player = createTestPlayer('p1');
+
+    const instance = combatManager.summonCard(mockCard, player);
+
+    expect(instance).not.toBeNull();
+    expect(player.charisme).toBe(7);
+    expect(player.characters.length).toBe(1);
+  });
+
+  test('destroyCard crédite le charisme de l\'adversaire', () => {
+    const combatManager = new CombatManagerImpl();
+    const owner = createTestPlayer('owner');
+    const opponent = createTestPlayer('op');
+    opponent.charisme = 0;
+
+    const instance = combatManager.summonCard(mockCard, owner)!;
+
+    combatManager.destroyCard(instance, owner, opponent);
+
+    expect(owner.characters.length).toBe(0);
+    expect(combatManager.cardInstances.includes(instance)).toBe(false);
+    expect(opponent.charisme).toBe(20);
+  });
+});
