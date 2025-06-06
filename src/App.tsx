@@ -22,6 +22,7 @@ import { supabase } from './utils/supabaseClient';
 // Import de nos nouveaux composants UI
 import { GameLayout, GameCardGrid, AdminPanel, Notification } from './components/ui';
 import ManualTargetSelector from './components/ManualTargetSelector';
+import SimulationPanel from './components/SimulationPanel';
 import { TargetingService, TargetingResult } from './services/targetingService';
 import { CardInstance } from './types/combat';
 
@@ -400,6 +401,9 @@ const AppContent: React.FC = () => {
                 <button className="btn btn-secondary btn-lg" onClick={() => navigate('/gameboard')}>
                   Tester le jeu
                 </button>
+                <button className="btn btn-primary btn-lg" onClick={() => navigate('/simulation')}>
+                  Simulations
+                </button>
               </div>
             </div>
             
@@ -562,7 +566,12 @@ const AppContent: React.FC = () => {
         <Route path="/gameboard" element={
           <GameBoardTest />
         } />
-        
+
+        {/* Panneau de simulation */}
+        <Route path="/simulation" element={
+          <SimulationPanel user={user} />
+        } />
+
         {/* Redirection par défaut */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
