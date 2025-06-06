@@ -797,6 +797,12 @@ export class CombatManagerImpl implements CombatManager {
     this.cardConversionService = new CardConversionService();
     this.lieuCardService = new LieuCardService();
     this.actionResolutionService = new ActionResolutionService();
+    ActionResolutionService.loadConfig().then(cfg => {
+      this.actionResolutionService.setConflictStrategy(cfg.strategy);
+      this.actionResolutionService.setRandomResolutionChance(cfg.randomChance);
+    }).catch(err => {
+      console.warn('Impossible de charger la configuration de résolution des conflits', err);
+    });
   }
 
   /**

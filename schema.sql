@@ -249,7 +249,9 @@ INSERT INTO public.game_config (key, value, description) VALUES
     ('max_personnages', '{"value": 5}', 'Nombre maximum de personnages sur le terrain'),
     ('emplacements_objet', '{"value": 3}', 'Nombre d''emplacements d''objets par personnage'),
     ('budget_motivation_initial', '{"value": 10}', 'Budget de motivation initial par tour'),
-    ('pv_base_initial', '{"value": 100}', 'Points de vie initiaux de la base')
+    ('pv_base_initial', '{"value": 100}', 'Points de vie initiaux de la base'),
+    ('conflict_strategy', '{"value": "fifo"}', 'Stratégie de résolution des conflits'),
+    ('conflict_random_chance', '{"value": 0}', 'Probabilité de résolution aléatoire des conflits')
 ON CONFLICT (key) DO NOTHING;
 
 -- Table des résultats de simulation

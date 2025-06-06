@@ -24,6 +24,7 @@ import { supabase } from './utils/supabaseClient';
 import { GameLayout, GameCardGrid, AdminPanel, Notification } from './components/ui';
 import ManualTargetSelector from './components/ManualTargetSelector';
 import SimulationPanel from './components/SimulationPanel';
+import ConflictSettingsPage from './components/ConflictSettingsPage';
 import { TargetingService, TargetingResult } from './services/targetingService';
 import { CardInstance } from './types/combat';
 
@@ -562,6 +563,17 @@ const AppContent: React.FC = () => {
           user?.is_admin ? (
             <AdminPanel title="Debug" icon="🛠">
               <DebugPanel />
+            </AdminPanel>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } />
+
+        {/* Gestion des conflits (admin uniquement) */}
+        <Route path="/conflicts" element={
+          user?.is_admin ? (
+            <AdminPanel title="Résolution des conflits" icon="⚔️">
+              <ConflictSettingsPage />
             </AdminPanel>
           ) : (
             <Navigate to="/" replace />
