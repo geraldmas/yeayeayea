@@ -11,3 +11,4 @@ export { default as PlayerBase } from './PlayerBase';
 export { default as ConflictResolutionManager } from './ConflictResolutionManager';
 export { default as ConflictResolutionDemo } from './ConflictResolutionDemo';
 export { default as ManualTargetSelector } from './ManualTargetSelector';
+export { default as InventoryManager } from './InventoryManager';
