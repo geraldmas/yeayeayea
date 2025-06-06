@@ -10,6 +10,7 @@ import Login from './components/Login';
 import Help from './components/Help';
 import UserManager from './components/UserManager';
 import GameBoardTest from './components/GameBoardTest';
+import DebugPanel from './components/DebugPanel';
 import { Card, Booster, User } from './types';
 import { saveCard, getAllCards, deleteCard } from './utils/supabaseClient';
 import './App.css';
@@ -540,6 +541,17 @@ const AppContent: React.FC = () => {
           user?.is_admin ? (
             <AdminPanel title="Gestionnaire d'utilisateurs" icon="👥">
               <UserManager />
+            </AdminPanel>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } />
+
+        {/* Panneau de debug (admin uniquement) */}
+        <Route path="/debug" element={
+          user?.is_admin ? (
+            <AdminPanel title="Debug" icon="🛠">
+              <DebugPanel />
             </AdminPanel>
           ) : (
             <Navigate to="/" replace />
