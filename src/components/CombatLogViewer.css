@@ -20,3 +20,9 @@
 .combat-log-viewer li {
   margin-bottom: 0.25rem;
 }
+
+.combat-log-viewer .MuiFormControlLabel-root {
+  margin-left: 0;
+  margin-bottom: 0.5rem;
+  color: #fff;
+}
