@@ -12,3 +12,5 @@ export { default as ConflictResolutionManager } from './ConflictResolutionManage
 export { default as ConflictResolutionDemo } from './ConflictResolutionDemo';
 export { default as ManualTargetSelector } from './ManualTargetSelector';
 export { default as Achievements } from './Achievements';
+export { default as DebugPanel } from './DebugPanel';
+export { default as SimulationPanel } from './SimulationPanel';
