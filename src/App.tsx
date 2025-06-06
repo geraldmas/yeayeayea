@@ -9,6 +9,7 @@ import CardBrowser from './components/CardBrowser';
 import Login from './components/Login';
 import Help from './components/Help';
 import UserManager from './components/UserManager';
+import DebugLogViewer from './components/DebugLogViewer';
 import GameBoardTest from './components/GameBoardTest';
 import { Card, Booster, User } from './types';
 import { saveCard, getAllCards, deleteCard } from './utils/supabaseClient';
@@ -540,6 +541,17 @@ const AppContent: React.FC = () => {
           user?.is_admin ? (
             <AdminPanel title="Gestionnaire d'utilisateurs" icon="👥">
               <UserManager />
+            </AdminPanel>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        } />
+
+        {/* Debug logs (admin uniquement) */}
+        <Route path="/debug-logs" element={
+          user?.is_admin ? (
+            <AdminPanel title="Debug Logs" icon="🐞">
+              <DebugLogViewer />
             </AdminPanel>
           ) : (
             <Navigate to="/" replace />
