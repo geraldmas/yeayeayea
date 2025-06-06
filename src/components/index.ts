@@ -15,3 +15,4 @@ export { default as InventoryManager } from './InventoryManager';
 export { default as Achievements } from './Achievements';
 export { default as DebugPanel } from './DebugPanel';
 export { default as SimulationPanel } from './SimulationPanel';
+export { default as ConflictSettingsPage } from './ConflictSettingsPage';

@@ -1,5 +1,6 @@
 import { CardInstance } from '../types/combat';
 import { Spell, SpellEffect } from '../types/index';
+import { gameConfigService } from '../utils/dataService';
 
 /**
  * @file actionResolutionService.ts
@@ -548,4 +549,46 @@ export class ActionResolutionService {
       resolutions
     };
   }
-} 
+
+  /**
+   * Charge la configuration de résolution des conflits depuis gameConfigService
+   */
+  public static async loadConfig(): Promise<{
+    strategy: ConflictResolutionStrategy;
+    randomChance: number;
+  }> {
+    try {
+      const strategyVal = await gameConfigService.getValue<string>('conflict_strategy');
+      const chanceVal = await gameConfigService.getValue<number>('conflict_random_chance');
+      return {
+        strategy: (strategyVal as ConflictResolutionStrategy) || ConflictResolutionStrategy.FIFO,
+        randomChance: chanceVal ?? 0,
+      };
+    } catch (error) {
+      console.error('Erreur chargement configuration conflits:', error);
+      return { strategy: ConflictResolutionStrategy.FIFO, randomChance: 0 };
+    }
+  }
+
+  /**
+   * Met à jour la stratégie de résolution des conflits
+   */
+  public static async updateStrategy(strategy: ConflictResolutionStrategy): Promise<void> {
+    try {
+      await gameConfigService.update('conflict_strategy', { value: strategy });
+    } catch (error) {
+      console.error('Erreur mise à jour stratégie:', error);
+    }
+  }
+
+  /**
+   * Met à jour la probabilité d'utilisation de l'aléatoire
+   */
+  public static async updateRandomChance(chance: number): Promise<void> {
+    try {
+      await gameConfigService.update('conflict_random_chance', { value: chance });
+    } catch (error) {
+      console.error('Erreur mise à jour chance aléatoire:', error);
+    }
+  }
+}

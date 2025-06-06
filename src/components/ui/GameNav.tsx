@@ -112,13 +112,22 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
           </Link>
           
           {isAdmin && (
-            <Link 
-              to="/users" 
-              onClick={closeMobileMenu}
-              className={`nav-link admin-link ${isActive('/users') ? 'active' : ''}`}
-            >
-              Utilisateurs
-            </Link>
+            <>
+              <Link
+                to="/users"
+                onClick={closeMobileMenu}
+                className={`nav-link admin-link ${isActive('/users') ? 'active' : ''}`}
+              >
+                Utilisateurs
+              </Link>
+              <Link
+                to="/conflicts"
+                onClick={closeMobileMenu}
+                className={`nav-link admin-link ${isActive('/conflicts') ? 'active' : ''}`}
+              >
+                Conflits
+              </Link>
+            </>
           )}
           
           <Link 
@@ -215,13 +224,22 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
           </Link>
           
           {isAdmin && (
-            <Link 
-              to="/users" 
-              onClick={closeMobileMenu}
-              className={`mobile-nav-link admin-link ${isActive('/users') ? 'active' : ''}`}
-            >
-              Utilisateurs
-            </Link>
+            <>
+              <Link
+                to="/users"
+                onClick={closeMobileMenu}
+                className={`mobile-nav-link admin-link ${isActive('/users') ? 'active' : ''}`}
+              >
+                Utilisateurs
+              </Link>
+              <Link
+                to="/conflicts"
+                onClick={closeMobileMenu}
+                className={`mobile-nav-link admin-link ${isActive('/conflicts') ? 'active' : ''}`}
+              >
+                Conflits
+              </Link>
+            </>
           )}
           
           <Link 

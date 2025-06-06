@@ -307,7 +307,17 @@ class SeedService {
         key: 'pv_base_initial',
         value: { value: 100 },
         description: 'Points de vie initiaux de la base'
-      }
+      },
+      {
+        key: 'conflict_strategy',
+        value: { value: 'fifo' },
+        description: 'Stratégie de résolution des conflits',
+      },
+      {
+        key: 'conflict_random_chance',
+        value: { value: 0 },
+        description: 'Probabilité de résolution aléatoire des conflits',
+      },
     ];
 
     for (const config of configs) {
