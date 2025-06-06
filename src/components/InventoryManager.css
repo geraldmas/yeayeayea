@@ -1,0 +1,28 @@
+.inventory-manager {
+  margin: 1rem 0;
+}
+
+.inventory-list {
+  list-style: none;
+  padding: 0;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.sell-button {
+  margin-left: 8px;
+}
+
+.charisme-info {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.no-items {
+  font-style: italic;
+}
