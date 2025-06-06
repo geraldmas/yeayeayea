@@ -16,6 +16,7 @@ import './App.css';
 import AlterationManager from './components/AlterationManager';
 import Objectives from './components/Objectives';
 import TodoProgress from './components/TodoProgress';
+import Achievements from './components/Achievements';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
@@ -529,7 +530,12 @@ const AppContent: React.FC = () => {
         <Route path="/alterations" element={
           <AlterationManager onChange={handleAlterationChange} />
         } />
-        
+
+        {/* Réalisations */}
+        <Route path="/achievements" element={
+          <Achievements user={user as User} />
+        } />
+
         {/* Page d'aide */}
         <Route path="/help" element={
           <Help />
