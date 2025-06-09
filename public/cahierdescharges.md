@@ -113,6 +113,25 @@ Les synergies constituent le cœur du système de jeu. Le moteur de règles dyna
 Configuration Facile :
 
 Définir les interactions entre tags, objets et événements via un format configurable (par exemple, des fichiers JSON ou scripts modifiables).
+Un fichier d'exemple existe dans `src/config/tagRules.json` :
+
+```json
+[
+  {
+    "tagName": "GUERRIER",
+    "rules": [
+      {
+        "name": "Bonus Attaque Guerrier",
+        "effectType": "ATTACK_MODIFIER",
+        "value": 10,
+        "isPercentage": false,
+        "targetType": "SELF"
+      }
+    ]
+  }
+]
+```
+Ces règles sont chargées par `TagRuleParserService` pour appliquer les synergies pendant le combat.
 Exemples de Synergies :
 
 Tags :
