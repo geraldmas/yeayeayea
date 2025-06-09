@@ -1,14 +1,15 @@
 import tagRulesConfig from '../config/tagRules.json';
-import { 
-  TagRule, 
-  TagRuleEffectType, 
-  TagRuleTargetType, 
-  TagRuleConditionType, 
+import {
+  TagRule,
+  TagRuleEffectType,
+  TagRuleTargetType,
+  TagRuleConditionType,
   TagRuleCondition,
   TagRuleApplicationResult,
   TagRuleDefinition
 } from '../types/rules';
 import { CardInstance } from '../types/combat';
+import { SpellEffect } from '../types';
 
 /**
  * @file tagRuleParserService.ts
@@ -848,6 +849,25 @@ export class TagRuleParserService {
     }
     
     return count;
+  }
+
+  /**
+   * Résout un effet de type "choice" en sélectionnant l'une des sous-options selon leur poids
+   */
+  public evaluateSpellEffect(effect: SpellEffect): SpellEffect {
+    if (effect.type !== 'choice' || !effect.subEffects || effect.subEffects.length === 0) {
+      return effect;
+    }
+    const total = effect.subEffects.reduce((sum, se) => sum + (se.weight || 1), 0);
+    const rand = Math.random() * total;
+    let acc = 0;
+    for (const se of effect.subEffects) {
+      acc += se.weight || 1;
+      if (rand < acc) {
+        return se.effect;
+      }
+    }
+    return effect.subEffects[0].effect;
   }
 
   /**

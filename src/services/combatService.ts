@@ -889,31 +889,37 @@ export class CombatManagerImpl implements CombatManager {
   private executeSpell(caster: CardInstance, spell: Spell, targets: CardInstance[]): void {
     // Appliquer les effets du sort à chaque cible
     spell.effects.forEach(effect => {
+      const resolved = tagRuleParser.evaluateSpellEffect(effect);
       targets.forEach(target => {
-        switch (effect.type) {
+        const eff = resolved;
+        switch (eff.type) {
           case 'damage':
-            target.applyDamage(effect.value);
+            if (eff.value !== undefined) {
+              target.applyDamage(eff.value);
+            }
             break;
           case 'heal':
-            target.heal(effect.value);
+            if (eff.value !== undefined) {
+              target.heal(eff.value);
+            }
             break;
           case 'apply_alteration':
             // Logique pour appliquer une altération
-            if (effect.alteration) {
+            if (eff.alteration) {
               // Récupérer l'altération depuis une source de données
               // Pour l'exemple, on suppose que nous avons accès à l'altération
               const alteration: Alteration = {
-                id: effect.alteration,
+                id: eff.alteration,
                 name: "Altération",
                 description: null,
                 effect: { action: "dummy" },
                 icon: "",
-                duration: effect.duration ?? 0,
+                duration: eff.duration ?? 0,
                 stackable: false,
                 unique_effect: false,
                 type: 'debuff'
               };
-              
+
               target.addAlteration(alteration, caster);
             }
             break;

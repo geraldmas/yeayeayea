@@ -43,35 +43,42 @@ export interface Booster {
   cards: Card[];
 }
 
-export type SpellEffectType = 
-  | 'damage' 
-  | 'heal' 
-  | 'buff' 
-  | 'debuff' 
+export type SpellEffectType =
+  | 'damage'
+  | 'heal'
+  | 'buff'
+  | 'debuff'
   | 'status'
   | 'draw'
   | 'resource'
   | 'add_tag'
   | 'multiply_damage'
   | 'shield'
-  | 'apply_alteration';
+  | 'apply_alteration'
+  | 'choice';
+
+export interface WeightedSpellEffect {
+  effect: SpellEffect;
+  weight: number;
+}
 
 export interface SpellEffect {
   type: SpellEffectType;
-  value: number;
+  value?: number;
   duration?: number;
   conditions?: {
     type: string;
     value: number;
   };
-  target_type?: 'self' | 'opponent' | 'all' | 'tagged';
-  targetType?: 'self' | 'opponent' | 'all' | 'tagged'; // Pour la rétrocompatibilité
+  target_type?: 'self' | 'opponent' | 'all' | 'tagged' | 'manual';
+  targetType?: 'self' | 'opponent' | 'all' | 'tagged' | 'manual'; // Pour la rétrocompatibilité
   is_percentage?: boolean;
   alteration?: number;
   chance?: number;
   tag?: string;
   tagTarget?: string; // Pour les effets add_tag
   color?: string;
+  subEffects?: WeightedSpellEffect[];
 }
 
 export interface Spell {
