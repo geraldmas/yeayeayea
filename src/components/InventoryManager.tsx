@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Player, Card } from '../types';
+import type { Player, Card } from '../types/index';
 import { PlayerInventoryService } from '../services/playerInventoryService';
 import { getModifiedMaxCharisme } from '../utils/charismeService';
 import './InventoryManager.css';

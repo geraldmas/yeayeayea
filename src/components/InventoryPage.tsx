@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import InventoryManager from './InventoryManager';
-import type { Player, Card } from '../types';
+import type { Player, Card } from '../types/index';
 import { userService } from '../utils/userService';
 
 interface InventoryPageProps {
