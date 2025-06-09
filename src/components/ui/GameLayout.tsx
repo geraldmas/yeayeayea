@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import GameNav from './GameNav';
 import './GameLayout.css';
 import { bgPattern } from '../../assets/images';
@@ -63,19 +64,19 @@ const GameLayout: React.FC<GameLayoutProps> = ({
           <div className="footer-section">
             <h4 className="footer-title">Navigation</h4>
             <ul className="footer-links">
-              <li><a href="/cards">Cartes</a></li>
-              <li><a href="/boosters">Boosters</a></li>
-              <li><a href="/browser">Explorateur</a></li>
-              <li><a href="/gameboard">Plateau</a></li>
+              <li><Link to="/cards">Cartes</Link></li>
+              <li><Link to="/boosters">Boosters</Link></li>
+              <li><Link to="/browser">Explorateur</Link></li>
+              <li><Link to="/gameboard">Plateau</Link></li>
             </ul>
           </div>
           
           <div className="footer-section">
             <h4 className="footer-title">Aide</h4>
             <ul className="footer-links">
-              <li><a href="/help">Documentation</a></li>
-              <li><a href="/help#regles">Règles du jeu</a></li>
-              <li><a href="/help#faq">FAQ</a></li>
+              <li><Link to="/help">Documentation</Link></li>
+              <li><Link to="/help#regles">Règles du jeu</Link></li>
+              <li><Link to="/help#faq">FAQ</Link></li>
             </ul>
           </div>
         </div>
