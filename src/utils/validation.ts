@@ -225,7 +225,6 @@ export const validateSpell = (spell: Spell): string[] => {
   const errors: string[] = [];
 
   if (!spell.name) errors.push('Le nom est requis');
-  if (typeof spell.power !== 'number') errors.push('La puissance doit être un nombre');
   if (spell.cost !== null && typeof spell.cost !== 'number') errors.push('Le coût doit être un nombre');
 
   if (spell.effects) {

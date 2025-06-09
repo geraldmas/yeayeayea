@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS public.spells (
   id bigserial PRIMARY KEY,
   name varchar NOT NULL,
   description text,
-  power integer NOT NULL,
   cost integer,
   range_min integer,
   range_max integer,

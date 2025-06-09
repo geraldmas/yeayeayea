@@ -39,7 +39,6 @@ interface Spell {
   id: number;
   name: string;
   description: string | null;
-  power: number;
   cost: number | null;
   range_min: number | null;
   range_max: number | null;

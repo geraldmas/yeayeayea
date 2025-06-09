@@ -54,7 +54,6 @@ class SeedService {
       {
         name: 'Boule de Feu',
         description: 'Inflige des dégâts de feu',
-        power: 30,
         cost: 3,
         range_min: 1,
         range_max: 3,
@@ -68,7 +67,6 @@ class SeedService {
       {
         name: 'Soin',
         description: 'Restaure des points de vie',
-        power: 25,
         cost: 2,
         range_min: 1,
         range_max: 1,

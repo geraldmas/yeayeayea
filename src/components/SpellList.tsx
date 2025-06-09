@@ -68,7 +68,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     const newSpell = {
       name: 'Nouveau sort',
       description: '',
-      power: 10,
       cost: 1,
       range_min: 0,
       range_max: 0,
@@ -243,7 +242,12 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                   <span className="spell-name">{spell.name || 'Sort sans nom'}</span>
                   <div className="spell-stats">
                     <span className="spell-cost" title="Coût en motivation">🎯 {spell.cost || 0}</span>
-                    <span className="spell-power" title="Puissance">⚡ {spell.power}</span>
+                    {(() => {
+                      const val = spell.effects.find(e => e.type === 'damage' || e.type === 'heal')?.value;
+                      return val !== undefined ? (
+                        <span className="spell-power" title="Valeur">⚡ {val}</span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <div className="spell-controls">
@@ -290,17 +294,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                   </div>
 
                   <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor={`spell-power-${spell.id}`}>Puissance</label>
-                      <input
-                        id={`spell-power-${spell.id}`}
-                        type="number"
-                        value={spell.power}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'power', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
                     <div className="form-group">
                       <label htmlFor={`spell-cost-${spell.id}`}>Coût en motivation</label>
                       <input

@@ -22,8 +22,7 @@
 - **Propriétés principales** :
   - `id`: Identifiant unique
   - `name`: Nom du sort
-  - `description`: Description de l'effet
-  - `power`: Puissance de base
+- `description`: Description de l'effet
   - `cost`: Coût en ressources
   - `range_min/max`: Portée du sort
   - `effects`: Tableau des effets du sort
