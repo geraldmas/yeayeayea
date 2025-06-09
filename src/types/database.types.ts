@@ -8,9 +8,15 @@ export type Json =
 
 export type SpellEffect = {
   type: string;
-  value: number;
+  value?: number;
   targetType: string;
-}
+  subEffects?: WeightedSpellEffect[];
+};
+
+export type WeightedSpellEffect = {
+  effect: SpellEffect;
+  weight: number;
+};
 
 export type Spell = {
   name: string;

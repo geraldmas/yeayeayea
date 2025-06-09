@@ -54,9 +54,20 @@ Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de ca
    - Description
    - Coût
    - Effets spécifiques
-   - Valeur pour chaque effet (damage, heal, etc.)
+   - Pour les effets de type `choice`, ajoutez des sous-effets et indiquez la chance de chaque issue.
 
-Chaque effet possède désormais son propre champ **value** qui détermine la puissance de l'action.
+Exemple d'effet `choice` :
+
+```json
+{
+  "type": "choice",
+  "subEffects": [
+    { "weight": 70, "effect": { "type": "heal", "value": 5 } },
+    { "weight": 30, "effect": { "type": "damage", "value": 5 } }
+  ]
+}
+```
+Lors de l'exécution, un des sous-effets est sélectionné selon son poids.
 
 ### 4. Gestion des Altérations
 
