@@ -70,10 +70,8 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
       description: '',
       power: 10,
       cost: 1,
-      range_min: 0,
-      range_max: 0,
-      effects: [{ 
-        type: 'damage' as const, 
+      effects: [{
+        type: 'damage' as const,
         value: 10,
         targetType: 'opponent' as const,
         chance: 100
@@ -313,29 +311,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                     </div>
                   </div>
                   
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-min-${spell.id}`}>Portée min</label>
-                      <input
-                        id={`spell-range-min-${spell.id}`}
-                        type="number"
-                        value={spell.range_min || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_min', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-max-${spell.id}`}>Portée max</label>
-                      <input
-                        id={`spell-range-max-${spell.id}`}
-                        type="number"
-                        value={spell.range_max || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_max', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
 
                   <div className="spell-effects">
                     <h4>Effets du sort</h4>
