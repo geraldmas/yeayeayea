@@ -27,6 +27,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     { value: 'multiply_damage', label: '✖️ Multiplier dégâts', color: '#ffecb3', needsValue: true, needsTarget: false },
     { value: 'special', label: '✨ Effet spécial', color: '#fce4ec', needsValue: false, needsTarget: false },
     { value: 'choice', label: '🎲 Choix aléatoire', color: '#fafafa', needsValue: false, needsTarget: false }
+    { value: 'disable_attack', label: '🚫 Désactiver attaque', color: '#ffe0e0', needsValue: false, needsTarget: true },
   ];
 
   const loadSpells = useCallback(async () => {
@@ -69,12 +70,9 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     const newSpell = {
       name: 'Nouveau sort',
       description: '',
-      power: 10,
       cost: 1,
-      range_min: 0,
-      range_max: 0,
-      effects: [{ 
-        type: 'damage' as const, 
+      effects: [{
+        type: 'damage' as const,
         value: 10,
         targetType: 'opponent' as const,
         chance: 100
@@ -294,7 +292,12 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                   <span className="spell-name">{spell.name || 'Sort sans nom'}</span>
                   <div className="spell-stats">
                     <span className="spell-cost" title="Coût en motivation">🎯 {spell.cost || 0}</span>
-                    <span className="spell-power" title="Puissance">⚡ {spell.power}</span>
+                    {(() => {
+                      const val = spell.effects.find(e => e.type === 'damage' || e.type === 'heal')?.value;
+                      return val !== undefined ? (
+                        <span className="spell-power" title="Valeur">⚡ {val}</span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <div className="spell-controls">
@@ -342,17 +345,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor={`spell-power-${spell.id}`}>Puissance</label>
-                      <input
-                        id={`spell-power-${spell.id}`}
-                        type="number"
-                        value={spell.power}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'power', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
-                    <div className="form-group">
                       <label htmlFor={`spell-cost-${spell.id}`}>Coût en motivation</label>
                       <input
                         id={`spell-cost-${spell.id}`}
@@ -364,29 +356,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                     </div>
                   </div>
                   
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-min-${spell.id}`}>Portée min</label>
-                      <input
-                        id={`spell-range-min-${spell.id}`}
-                        type="number"
-                        value={spell.range_min || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_min', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-max-${spell.id}`}>Portée max</label>
-                      <input
-                        id={`spell-range-max-${spell.id}`}
-                        type="number"
-                        value={spell.range_max || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_max', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
 
                   <div className="spell-effects">
                     <h4>Effets du sort</h4>

@@ -44,10 +44,7 @@ const mockSpell: Spell = {
   id: 1,
   name: 'Sort Test',
   description: 'Sort pour les tests',
-  power: 5,
   cost: 2,
-  range_min: 1,
-  range_max: 3,
   effects: [
     {
       type: 'damage',
@@ -466,10 +463,7 @@ describe('Résolution simultanée des actions', () => {
       id: 1,
       name: 'Test Spell',
       description: 'Test description',
-      power: 5,
       cost: 2,
-      range_min: 1,
-      range_max: 3,
       effects: [
         { type: 'damage', value: 3 } as SpellEffect
       ],

@@ -271,6 +271,9 @@ export class TagRuleParserService {
 
       case TagRuleEffectType.DEFENSE_MODIFIER:
         return this.applyDefenseModifierEffect(rule, sourceCard, targets, result, gameState);
+
+      case TagRuleEffectType.DISABLE_ATTACK:
+        return this.applyDisableAttackEffect(rule, sourceCard, targets, result, gameState);
       // --- End new effect types ---
       
       default:
@@ -526,6 +529,23 @@ export class TagRuleParserService {
         source: `Tag: ${result.sourceTag} (Rule: ${rule.name})`,
         isPercentage: rule.isPercentage,
       });
+    }
+    result.success = true;
+    return result;
+  }
+
+  /**
+   * Applique un effet désactivant la capacité d'attaque des cartes ciblées.
+   */
+  private applyDisableAttackEffect(
+    rule: TagRule,
+    sourceCard: CardInstance,
+    targets: CardInstance[],
+    result: TagRuleApplicationResult,
+    gameState: any
+  ): TagRuleApplicationResult {
+    for (const target of targets) {
+      (target as any).unableToAttack = true;
     }
     result.success = true;
     return result;

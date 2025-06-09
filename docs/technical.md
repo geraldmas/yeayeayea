@@ -39,10 +39,7 @@ interface Spell {
   id: number;
   name: string;
   description: string | null;
-  power: number;
   cost: number | null;
-  range_min: number | null;
-  range_max: number | null;
   effects: SpellEffect[];
   is_value_percentage: boolean;
 }
@@ -166,6 +163,27 @@ interface TagRule {
 
 Exemple de règle textuelle :
 `damageModifier:self:+15%:Augmente les dégâts de 15%`.
+
+Un nouvel `effectType` nommé `DISABLE_ATTACK` permet d'empêcher les cartes ciblées
+d'attaquer. Exemple dans `tagRules.json` :
+
+```json
+{
+  "tagName": "PROTECTEUR",
+  "rules": [
+    {
+      "id": 2,
+      "name": "Intimidation",
+      "description": "Empêche les Berserkers ennemis d'attaquer.",
+      "effectType": "DISABLE_ATTACK",
+      "targetType": "TAGGED",
+      "targetTag": "BERSERKER",
+      "value": 0,
+      "isPercentage": false
+    }
+  ]
+}
+```
 
 Le service gère la priorité d'application et permet de tester facilement de
 nouvelles synergies.

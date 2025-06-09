@@ -132,7 +132,16 @@ const CardDisplay: React.FC<CardDisplayProps> = ({
           <div className="spell-header">
             <span className="spell-name">{spell.name}</span>
             <div className="spell-stats">
-              {spell.power > 0 && <span className="spell-power">⚔️ {spell.power}</span>}
+              {(() => {
+                const dmg = spell.effects.find(e => e.type === 'damage')?.value;
+                const heal = spell.effects.find(e => e.type === 'heal')?.value;
+                return (
+                  <>
+                    {dmg !== undefined && <span className="spell-power">⚔️ {dmg}</span>}
+                    {heal !== undefined && <span className="spell-power">💚 {heal}</span>}
+                  </>
+                );
+              })()}
               {spell.cost && spell.cost > 0 && <span className="spell-cost">💎 {spell.cost}</span>}
             </div>
           </div>

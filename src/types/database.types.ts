@@ -21,7 +21,6 @@ export type WeightedSpellEffect = {
 export type Spell = {
   name: string;
   description: string;
-  power?: number;
   effects?: SpellEffect[];
   cost: number;
   range?: {
@@ -166,10 +165,7 @@ export interface Database {
           id: number;
           name: string;
           description: string | null;
-          power: number;
           cost: number | null;
-          range_min: number | null;
-          range_max: number | null;
           effects: Json;
           is_value_percentage: boolean;
           created_at?: string;
