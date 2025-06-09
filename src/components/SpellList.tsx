@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Spell, SpellEffect } from '../types';
 import { spellService } from '../utils/dataService';
 import AlterationSelector from './AlterationSelector';
+import { effectTypes } from '../utils/effectTypes';
 import './SpellList.css';
 
 interface SpellListProps {
@@ -15,18 +16,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
   const [expandedSpellId, setExpandedSpellId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingEffect, setEditingEffect] = useState<{spellIndex: number, effectIndex: number} | null>(null);
-
-  // Effect types with their visual properties
-  const effectTypes = [
-    { value: 'damage', label: '⚔️ Dégâts', color: '#ffebee', needsValue: true, needsTarget: true },
-    { value: 'heal', label: '💚 Soin', color: '#e8f5e9', needsValue: true, needsTarget: true },
-    { value: 'draw', label: '🃏 Piocher', color: '#e3f2fd', needsValue: true, needsTarget: false },
-    { value: 'resource', label: '⚡ Ressource', color: '#e0f2f1', needsValue: true, needsTarget: true },
-    { value: 'apply_alteration', label: '🔄 Appliquer altération', color: '#d1c4e9', needsValue: false, needsTarget: true },
-    { value: 'add_tag', label: '🏷️ Ajouter tag', color: '#e8eaf6', needsValue: false, needsTarget: true },
-    { value: 'multiply_damage', label: '✖️ Multiplier dégâts', color: '#ffecb3', needsValue: true, needsTarget: false },
-    { value: 'special', label: '✨ Effet spécial', color: '#fce4ec', needsValue: false, needsTarget: false }
-  ];
 
   const loadSpells = useCallback(async () => {
     if (spellIds.length === 0) {
@@ -357,6 +346,12 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                               </option>
                             ))}
                           </select>
+                          <span
+                            className="effect-help"
+                            title={effectTypes.find(t => t.value === effect.type)?.help}
+                          >
+                            ?
+                          </span>
                           <button
                             onClick={() => handleRemoveEffect(spell.id, effectIndex)}
                             className="remove-effect-button"
@@ -368,13 +363,15 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
 
                         {effectTypes.find(t => t.value === effect.type)?.needsValue && (
                           <div className="effect-value">
-                            <input
-                              type="number"
-                              value={effect.value || 0}
-                              onChange={(e) => handleUpdateEffect(spell.id, effectIndex, 'value', parseInt(e.target.value) || 0)}
-                              placeholder="Valeur"
-                              className="effect-input"
-                            />
+                            <label>
+                              Puissance
+                              <input
+                                type="number"
+                                value={effect.value || 0}
+                                onChange={(e) => handleUpdateEffect(spell.id, effectIndex, 'value', parseInt(e.target.value) || 0)}
+                                className="effect-input"
+                              />
+                            </label>
                           </div>
                         )}
 
