@@ -23,6 +23,29 @@ if (!supabaseUrl || !supabaseKey) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 /**
+ * Upload an image file to Supabase Storage and return its public URL.
+ * The file is uploaded to the `card-images` bucket.
+ * @param file The image file to upload
+ * @returns The public URL of the uploaded image
+ */
+export const uploadCardImage = async (file: File): Promise<string> => {
+  const bucket = 'card-images';
+  const extension = file.name.split('.').pop();
+  const fileName = `${Date.now()}.${extension}`;
+
+  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
+    contentType: file.type,
+    cacheControl: '3600',
+  });
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
+  return data.publicUrl;
+};
+
+/**
  * Sauvegarde une carte dans la base de données (création ou mise à jour)
  * @param card - La carte à sauvegarder
  * @returns Un objet contenant la carte sauvegardée ou une erreur

@@ -15,7 +15,7 @@ Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de ca
    - Type (personnage, objet, événement, lieu, action)
    - Rareté (gros_bodycount, interessant, banger, cheate)
    - Description
-   - Image (URL)
+   - Image (URL ou fichier à téléverser)
    - Effet passif
    - Coût d'invocation
    - Propriétés spécifiques (PV, etc.)
@@ -129,6 +129,7 @@ Lors de l'exécution, un des sous-effets est sélectionné selon son poids.
 3. **Qualité**
    - Vérifiez les descriptions
    - Assurez-vous que les images sont de bonne qualité
+   - Vous pouvez téléverser une image locale : le formulaire l'enverra dans Supabase, remplira automatiquement l'URL et la prévisualisation se mettra à jour
    - Testez les interactions entre cartes
 
 ## Support
