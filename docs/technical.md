@@ -40,8 +40,6 @@ interface Spell {
   name: string;
   description: string | null;
   cost: number | null;
-  range_min: number | null;
-  range_max: number | null;
   effects: SpellEffect[];
   is_value_percentage: boolean;
 }

@@ -68,8 +68,6 @@ const mockSpell: Spell = {
   name: 'Éclair',
   description: 'Lance un éclair',
   cost: 2,
-  range_min: 1,
-  range_max: 3,
   effects: [{
     type: 'damage',
     value: 5

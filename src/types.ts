@@ -79,8 +79,6 @@ export interface Spell {
   name: string;
   description: string | null;
   cost: number | null;
-  range_min: number | null;
-  range_max: number | null;
   effects: SpellEffect[];
   is_value_percentage: boolean;
 }
@@ -126,5 +124,5 @@ export interface LoadedTagsMap {
 }
 
 export interface LoadedSpellsMap {
-  [cardId: number]: { id: number; name: string; description: string | null; cost: number | null; range_min: number | null; range_max: number | null; effects: any[]; is_value_percentage: boolean }[];
+  [cardId: number]: { id: number; name: string; description: string | null;  effects: any[]; is_value_percentage: boolean }[];
 }

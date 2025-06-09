@@ -53,7 +53,6 @@ Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de ca
    - Nom
    - Description
    - Coût
-   - Plage d'effet
    - Effets spécifiques
    - Valeur pour chaque effet (damage, heal, etc.)
 

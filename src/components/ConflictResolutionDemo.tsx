@@ -79,8 +79,6 @@ const createMockSpells = (): Spell[] => [
     name: 'Frappe puissante',
     description: 'Inflige des dégâts importants',
     cost: 3,
-    range_min: 1,
-    range_max: 1,
     effects: [
       { type: 'damage', value: 8 } as SpellEffect
     ],
@@ -91,8 +89,6 @@ const createMockSpells = (): Spell[] => [
     name: 'Tir précis',
     description: 'Inflige des dégâts modérés',
     cost: 2,
-    range_min: 2,
-    range_max: 4,
     effects: [
       { type: 'damage', value: 5 } as SpellEffect
     ],
@@ -103,8 +99,6 @@ const createMockSpells = (): Spell[] => [
     name: 'Boule de feu',
     description: 'Inflige des dégâts de zone',
     cost: 4,
-    range_min: 1,
-    range_max: 3,
     effects: [
       { type: 'damage', value: 7 } as SpellEffect,
       { type: 'apply_alteration', value: 1, alteration: 1 } as SpellEffect
@@ -116,8 +110,6 @@ const createMockSpells = (): Spell[] => [
     name: 'Poison',
     description: 'Applique du poison à la cible',
     cost: 2,
-    range_min: 1,
-    range_max: 2,
     effects: [
       { type: 'apply_alteration', value: 1, alteration: 2 } as SpellEffect
     ],
