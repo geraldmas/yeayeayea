@@ -101,7 +101,14 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
             className={`nav-link ${isActive('/achievements') ? 'active' : ''}`}
           >
             Succès
-              
+
+          </Link>
+          <Link
+            to="/inventory"
+            onClick={closeMobileMenu}
+            className={`nav-link ${isActive('/inventory') ? 'active' : ''}`}
+          >
+            Inventaire
           </Link>
           <Link
             to="/simulation"
@@ -214,6 +221,13 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
             className={`mobile-nav-link ${isActive('/achievements') ? 'active' : ''}`}
           >
             Succès
+          </Link>
+          <Link
+            to="/inventory"
+            onClick={closeMobileMenu}
+            className={`mobile-nav-link ${isActive('/inventory') ? 'active' : ''}`}
+          >
+            Inventaire
           </Link>
           <Link
             to="/simulation"

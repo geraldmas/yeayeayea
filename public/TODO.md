@@ -33,7 +33,7 @@
   - Revoir la grille des cartes et l'affichage du GameBoard pour < 600px
 - [ ] Nettoyer le code mort et les commentaires obsolètes
   - Passer en revue les services et composants non utilisés
-- [ ] Ajouter la possibilité de vendre ses objets depuis l’interface de gestion de deck
+- [x] Ajouter la possibilité de vendre ses objets depuis l’interface de gestion de deck
   - Connecter l'UI à `PlayerInventoryService.sellItem` et mettre à jour le charisme du joueur en temps réel
 - [ ] Mettre en place l'affichage des réalisations des joueurs
   - Exploiter les tables `achievements` et `user_achievements` pour suivre la progression

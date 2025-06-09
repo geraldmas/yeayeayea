@@ -18,6 +18,7 @@ import AlterationManager from './components/AlterationManager';
 import Objectives from './components/Objectives';
 import TodoProgress from './components/TodoProgress';
 import Achievements from './components/Achievements';
+import InventoryPage from './components/InventoryPage';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
@@ -540,6 +541,15 @@ const AppContent: React.FC = () => {
         {/* Réalisations */}
         <Route path="/achievements" element={
           <Achievements user={user as User} />
+        } />
+
+        {/* Inventaire */}
+        <Route path="/inventory" element={
+          user ? (
+            <InventoryPage user={user as User} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         } />
 
         {/* Page d'aide */}
