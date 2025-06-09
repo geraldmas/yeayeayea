@@ -237,7 +237,7 @@ export const validateSpell = (spell: Spell): string[] => {
 
       const def = effectTypes.find(t => t.value === effect.type);
 
-      if (def?.needsValue && typeof effect.value !== 'number') {
+      if (def?.needsValue && (typeof effect.value !== 'number' || isNaN(effect.value))) {
         errors.push(`Effet #${index + 1}: La valeur doit être un nombre`);
       }
 

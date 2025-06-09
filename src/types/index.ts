@@ -41,7 +41,7 @@ export interface WeightedSpellEffect {
 }
 
 export interface SpellEffect {
-  type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration' | 'choice';
+  type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration' | 'special' | 'choice' | 'disable_attack';
   value?: number;
   targetType?: 'self' | 'opponent' | 'all' | 'tagged' | 'manual';
   tagTarget?: string;

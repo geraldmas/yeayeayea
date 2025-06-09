@@ -55,7 +55,8 @@ export type SpellEffectType =
   | 'multiply_damage'
   | 'shield'
   | 'apply_alteration'
-  | 'choice';
+  | 'special'
+  | 'choice'
   | 'disable_attack';
 
 export interface WeightedSpellEffect {
