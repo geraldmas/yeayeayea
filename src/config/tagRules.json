@@ -30,6 +30,19 @@
         "conditions": [],
         "priority": 10,
         "sourceTag": "PROTECTEUR"
+      },
+      {
+        "id": 2,
+        "name": "Intimidation",
+        "description": "Empêche les Berserkers ennemis d'attaquer.",
+        "effectType": "DISABLE_ATTACK",
+        "value": 0,
+        "isPercentage": false,
+        "targetType": "TAGGED",
+        "targetTag": "BERSERKER",
+        "conditions": [],
+        "priority": 8,
+        "sourceTag": "PROTECTEUR"
       }
     ]
   },

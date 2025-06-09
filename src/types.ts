@@ -54,7 +54,8 @@ export type SpellEffectType =
   | 'add_tag'
   | 'multiply_damage'
   | 'shield'
-  | 'apply_alteration';
+  | 'apply_alteration'
+  | 'disable_attack';
 
 export interface SpellEffect {
   type: SpellEffectType;
