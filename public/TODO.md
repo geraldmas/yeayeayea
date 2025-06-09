@@ -6,6 +6,12 @@
 - [x] Implémenter la réduction des dégâts subis par la base (division par deux configurable)
 - [x] Permettre la vente d'objets contre du charisme en tenant compte des modificateurs
 - [x] Introduire la classification des cartes **Événement** (instantanée, temporaire, permanente)
+- [ ] Implémenter la gestion complète des cartes **Lieu** (distribution, sélection du lieu actif, pioche commune)
+  - Rassembler les cartes lieu de chaque joueur puis tirer au hasard celle qui devient active
+  - Stocker les cartes restantes dans une pioche commune modifiable par actions ou événements
+- [ ] Appliquer les conditions d'attaque sur la base selon le cahier des charges
+  - Interdire l'attaque directe lorsque l'adversaire possède encore des personnages sur le terrain
+  - Prévoir des exceptions pour les effets spéciaux (poison, dégâts directs, etc.)
 
 ## 🚀 Prioritaire
 - [ ] Créer un panneau de débug pour modifier en temps réel la configuration via `gameConfigService`
