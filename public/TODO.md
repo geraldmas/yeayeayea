@@ -26,6 +26,7 @@
   - Utiliser `tagRuleParser` pour identifier les effets déclenchés et les consigner via `combatLogService`
 - [ ] Mettre en place un système d'entraînement de l'IA basé sur les simulations
   - Exécuter régulièrement `simulateGame` pour collecter des métriques et ajuster les stratégies IA
+- [x] Documenter un exemple de configuration JSON des synergies dans `cahierdescharges.md`
 
 ## 🌱 Améliorations
 - [ ] Optimiser l’interface mobile pour les petits écrans
