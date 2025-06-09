@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.cards (
   description text,
   type text NOT NULL CHECK (type IN ('personnage', 'objet', 'evenement', 'lieu', 'action')),
   rarity text NOT NULL,
+  event_duration text CHECK (event_duration IN ('instantanee', 'temporaire', 'permanente')),
   properties jsonb DEFAULT '{}',
   summon_cost integer, -- Nouveau: coût en charisme pour les cartes invoquables
   image text,

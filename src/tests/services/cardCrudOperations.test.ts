@@ -50,6 +50,7 @@ const mockCardRow: CardRow = {
   description: 'A card for testing',
   type: 'personnage',
   rarity: 'commun',
+  event_duration: null,
   properties: { hp: 10, attack: 5 },
   summon_cost: 3,
   image: null,
@@ -109,6 +110,7 @@ describe('Card CRUD Operations', () => {
       // Utiliser un type valide afin d'éviter une erreur de compilation
       type: 'action',
       rarity: 'rare',
+      event_duration: null,
       properties: { mana_cost: 4 },
       summon_cost: 0, // Assuming 0 for sort type or if not applicable
       image: null,

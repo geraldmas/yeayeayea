@@ -81,6 +81,7 @@ export interface Database {
           description: string | null;
           type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
           rarity: string;
+          event_duration: 'instantanee' | 'temporaire' | 'permanente' | null;
           properties: Json;
           summon_cost: number | null;  // Nouveau: coût en charisme pour les cartes invoquables
           image: string | null;
@@ -90,7 +91,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         }
-        Insert: Omit<Database['public']['Tables']['cards']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: Omit<Database['public']['Tables']['cards']['Row'], 'id' | 'created_at' | 'updated_at' | 'event_duration'> & {
+          event_duration?: 'instantanee' | 'temporaire' | 'permanente' | null
+        }
         Update: Partial<Database['public']['Tables']['cards']['Insert']>
       },
       users: {

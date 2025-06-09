@@ -14,7 +14,7 @@
   - `passive_effect`: Effet passif de la carte
   - `properties`: Propriétés spécifiques (points de vie, etc.)
   - `summon_cost`: Coût d'invocation
-  - `eventDuration`: Pour les cartes `evenement`, indique si l'effet est `instantanee`, `temporaire` ou `permanente`
+  - `event_duration` (exposé comme `eventDuration` côté client) : pour les cartes `evenement`, indique si l'effet est `instantanee`, `temporaire` ou `permanente`
   - `is_wip`: Indique si la carte est en cours de développement
   - `is_crap`: Indique si la carte est à retravailler
 
