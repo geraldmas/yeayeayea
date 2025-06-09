@@ -4,7 +4,7 @@ import type { Card } from '../types';
 import SpellList from './SpellList';
 import TagList from './TagList';
 import CardPreview from './CardPreview';
-import { updateCard, insertCard } from '../utils/supabaseClient';
+import { updateCard, insertCard, uploadCardImage } from '../utils/supabaseClient';
 import { updateCardSpells, updateCardTags } from '../utils/supabaseUtils';
 import { getCardSpells, getCardTags } from '../utils/validation';
 import './CardForm.css';
@@ -187,6 +187,17 @@ const CardForm: React.FC<CardFormProps> = ({
       setTimeout(() => saveToDatabase(cardToSave), 500);
     }
   }, [saveToDatabase]);
+
+  const handleImageFile = async (file: File) => {
+    try {
+      const url = await uploadCardImage(file);
+      setLocalCard(prev => ({ ...prev, image: url }));
+      showToast('Image uploadée avec succès', 'success');
+    } catch (err) {
+      console.error('Erreur lors de l\'upload de l\'image', err);
+      showToast('Erreur lors de l\'upload de l\'image', 'error');
+    }
+  };
 
   const handleChange = (e: CardInputEvent) => {
     const { name, value, type } = e.target;
@@ -532,6 +543,14 @@ const CardForm: React.FC<CardFormProps> = ({
                     onChange={handleChange}
                     placeholder="URL de l'image"
                     className="form-input"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageFile(file);
+                    }}
                   />
                 </div>
 
