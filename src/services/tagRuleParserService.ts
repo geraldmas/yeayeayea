@@ -1,14 +1,15 @@
 import tagRulesConfig from '../config/tagRules.json';
-import { 
-  TagRule, 
-  TagRuleEffectType, 
-  TagRuleTargetType, 
-  TagRuleConditionType, 
+import {
+  TagRule,
+  TagRuleEffectType,
+  TagRuleTargetType,
+  TagRuleConditionType,
   TagRuleCondition,
   TagRuleApplicationResult,
   TagRuleDefinition
 } from '../types/rules';
 import { CardInstance } from '../types/combat';
+import { SpellEffect } from '../types';
 
 /**
  * @file tagRuleParserService.ts
@@ -270,6 +271,9 @@ export class TagRuleParserService {
 
       case TagRuleEffectType.DEFENSE_MODIFIER:
         return this.applyDefenseModifierEffect(rule, sourceCard, targets, result, gameState);
+
+      case TagRuleEffectType.DISABLE_ATTACK:
+        return this.applyDisableAttackEffect(rule, sourceCard, targets, result, gameState);
       // --- End new effect types ---
       
       default:
@@ -525,6 +529,23 @@ export class TagRuleParserService {
         source: `Tag: ${result.sourceTag} (Rule: ${rule.name})`,
         isPercentage: rule.isPercentage,
       });
+    }
+    result.success = true;
+    return result;
+  }
+
+  /**
+   * Applique un effet désactivant la capacité d'attaque des cartes ciblées.
+   */
+  private applyDisableAttackEffect(
+    rule: TagRule,
+    sourceCard: CardInstance,
+    targets: CardInstance[],
+    result: TagRuleApplicationResult,
+    gameState: any
+  ): TagRuleApplicationResult {
+    for (const target of targets) {
+      (target as any).unableToAttack = true;
     }
     result.success = true;
     return result;
@@ -848,6 +869,25 @@ export class TagRuleParserService {
     }
     
     return count;
+  }
+
+  /**
+   * Résout un effet de type "choice" en sélectionnant l'une des sous-options selon leur poids
+   */
+  public evaluateSpellEffect(effect: SpellEffect): SpellEffect {
+    if (effect.type !== 'choice' || !effect.subEffects || effect.subEffects.length === 0) {
+      return effect;
+    }
+    const total = effect.subEffects.reduce((sum, se) => sum + (se.weight || 1), 0);
+    const rand = Math.random() * total;
+    let acc = 0;
+    for (const se of effect.subEffects) {
+      acc += se.weight || 1;
+      if (rand < acc) {
+        return se.effect;
+      }
+    }
+    return effect.subEffects[0].effect;
   }
 
   /**

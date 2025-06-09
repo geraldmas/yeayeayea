@@ -37,11 +37,8 @@ CREATE TABLE IF NOT EXISTS public.spells (
   id bigserial PRIMARY KEY,
   name varchar NOT NULL,
   description text,
-  power integer NOT NULL,
   cost integer,
-  range_min integer,
-  range_max integer,
-  effects jsonb NOT NULL DEFAULT '[]',
+  effects jsonb NOT NULL DEFAULT '[]', -- SpellEffect[] pouvant contenir des sous-effets pondérés
   is_value_percentage boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())

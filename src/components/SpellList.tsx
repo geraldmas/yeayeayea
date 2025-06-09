@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Spell, SpellEffect } from '../types';
+import { Spell, SpellEffect, WeightedSpellEffect } from '../types';
 import { spellService } from '../utils/dataService';
 import AlterationSelector from './AlterationSelector';
 import { effectTypes } from '../utils/effectTypes';
@@ -16,6 +16,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
   const [expandedSpellId, setExpandedSpellId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingEffect, setEditingEffect] = useState<{spellIndex: number, effectIndex: number} | null>(null);
+
 
   const loadSpells = useCallback(async () => {
     if (spellIds.length === 0) {
@@ -57,12 +58,9 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     const newSpell = {
       name: 'Nouveau sort',
       description: '',
-      power: 10,
       cost: 1,
-      range_min: 0,
-      range_max: 0,
-      effects: [{ 
-        type: 'damage' as const, 
+      effects: [{
+        type: 'damage' as const,
         value: 10,
         targetType: 'opponent' as const,
         chance: 100
@@ -202,6 +200,56 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     }
   };
 
+  const handleAddSubEffect = (spellId: number, effectIndex: number) => {
+    const spellIndex = spells.findIndex(s => s.id === spellId);
+    if (spellIndex === -1) return;
+    const spell = spells[spellIndex];
+    const effect = spell.effects[effectIndex];
+    const newSub: WeightedSpellEffect = { weight: 1, effect: { type: 'damage', value: 0, targetType: 'opponent' } };
+    const updatedEffects = [...spell.effects];
+    const subEffects = effect.subEffects ? [...effect.subEffects, newSub] : [newSub];
+    updatedEffects[effectIndex] = { ...effect, subEffects };
+    setSpells(spells.map((s, i) => i === spellIndex ? { ...s, effects: updatedEffects } : s));
+    spellService.update(spellId, { effects: updatedEffects }).catch(console.error);
+  };
+
+  const handleUpdateSubEffect = (
+    spellId: number,
+    effectIndex: number,
+    subIndex: number,
+    field: keyof SpellEffect | 'weight',
+    value: any
+  ) => {
+    const spellIndex = spells.findIndex(s => s.id === spellId);
+    if (spellIndex === -1) return;
+    const spell = spells[spellIndex];
+    const effect = spell.effects[effectIndex];
+    if (!effect.subEffects) return;
+    const updatedEffects = [...spell.effects];
+    const updatedSub = [...effect.subEffects];
+    if (field === 'weight') {
+      updatedSub[subIndex] = { ...updatedSub[subIndex], weight: value };
+    } else {
+      updatedSub[subIndex] = { ...updatedSub[subIndex], effect: { ...updatedSub[subIndex].effect, [field]: value } };
+    }
+    updatedEffects[effectIndex] = { ...effect, subEffects: updatedSub };
+    setSpells(spells.map((s, i) => i === spellIndex ? { ...s, effects: updatedEffects } : s));
+    spellService.update(spellId, { effects: updatedEffects }).catch(console.error);
+  };
+
+  const handleRemoveSubEffect = (spellId: number, effectIndex: number, subIndex: number) => {
+    const spellIndex = spells.findIndex(s => s.id === spellId);
+    if (spellIndex === -1) return;
+    const spell = spells[spellIndex];
+    const effect = spell.effects[effectIndex];
+    if (!effect.subEffects) return;
+    const updatedSub = effect.subEffects.filter((_, i) => i !== subIndex);
+    const updatedEffects = [...spell.effects];
+    updatedEffects[effectIndex] = { ...effect, subEffects: updatedSub };
+    setSpells(spells.map((s, i) => i === spellIndex ? { ...s, effects: updatedEffects } : s));
+    spellService.update(spellId, { effects: updatedEffects }).catch(console.error);
+  };
+
   const getEffectTypeLabel = (type: string) => {
     return effectTypes.find(t => t.value === type)?.label || type;
   };
@@ -232,7 +280,12 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                   <span className="spell-name">{spell.name || 'Sort sans nom'}</span>
                   <div className="spell-stats">
                     <span className="spell-cost" title="Coût en motivation">🎯 {spell.cost || 0}</span>
-                    <span className="spell-power" title="Puissance">⚡ {spell.power}</span>
+                    {(() => {
+                      const val = spell.effects.find(e => e.type === 'damage' || e.type === 'heal')?.value;
+                      return val !== undefined ? (
+                        <span className="spell-power" title="Valeur">⚡ {val}</span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <div className="spell-controls">
@@ -280,17 +333,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor={`spell-power-${spell.id}`}>Puissance</label>
-                      <input
-                        id={`spell-power-${spell.id}`}
-                        type="number"
-                        value={spell.power}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'power', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
-                    <div className="form-group">
                       <label htmlFor={`spell-cost-${spell.id}`}>Coût en motivation</label>
                       <input
                         id={`spell-cost-${spell.id}`}
@@ -302,29 +344,6 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                     </div>
                   </div>
                   
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-min-${spell.id}`}>Portée min</label>
-                      <input
-                        id={`spell-range-min-${spell.id}`}
-                        type="number"
-                        value={spell.range_min || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_min', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor={`spell-range-max-${spell.id}`}>Portée max</label>
-                      <input
-                        id={`spell-range-max-${spell.id}`}
-                        type="number"
-                        value={spell.range_max || 0}
-                        onChange={(e) => handleUpdateSpell(spell.id, 'range_max', parseInt(e.target.value) || 0)}
-                        className="form-input"
-                      />
-                    </div>
-                  </div>
 
                   <div className="spell-effects">
                     <h4>Effets du sort</h4>
@@ -417,6 +436,70 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                             %
                           </label>
                         </div>
+
+                        {effect.type === 'choice' && (
+                          <div className="choice-sub-effects">
+                            {(effect.subEffects || []).map((sub, subIndex) => (
+                              <div key={subIndex} className="sub-effect">
+                                <div className="sub-effect-header">
+                                  <select
+                                    value={sub.effect.type}
+                                    onChange={(e) => handleUpdateSubEffect(spell.id, effectIndex, subIndex, 'type', e.target.value)}
+                                    className="effect-type-select"
+                                  >
+                                    {effectTypes.filter(t => t.value !== 'choice').map(type => (
+                                      <option key={type.value} value={type.value}>{type.label}</option>
+                                    ))}
+                                  </select>
+                                  <button
+                                    onClick={() => handleRemoveSubEffect(spell.id, effectIndex, subIndex)}
+                                    className="remove-effect-button"
+                                    title="Supprimer ce résultat"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+
+                                {effectTypes.find(t => t.value === sub.effect.type)?.needsValue && (
+                                  <input
+                                    type="number"
+                                    value={sub.effect.value || 0}
+                                    onChange={(e) => handleUpdateSubEffect(spell.id, effectIndex, subIndex, 'value', parseInt(e.target.value) || 0)}
+                                    className="effect-input"
+                                  />
+                                )}
+
+                                {effectTypes.find(t => t.value === sub.effect.type)?.needsTarget && (
+                                  <select
+                                    value={sub.effect.targetType || 'opponent'}
+                                    onChange={(e) => handleUpdateSubEffect(spell.id, effectIndex, subIndex, 'targetType', e.target.value)}
+                                    className="effect-input"
+                                  >
+                                    <option value="opponent">Adversaire</option>
+                                    <option value="self">Soi-même</option>
+                                    <option value="ally">Allié</option>
+                                    <option value="all">Tous</option>
+                                  </select>
+                                )}
+
+                                <input
+                                  type="number"
+                                  value={sub.weight}
+                                  onChange={(e) => handleUpdateSubEffect(spell.id, effectIndex, subIndex, 'weight', parseInt(e.target.value) || 1)}
+                                  className="effect-input"
+                                  min="1"
+                                />
+                              </div>
+                            ))}
+
+                            <button
+                              onClick={() => handleAddSubEffect(spell.id, effectIndex)}
+                              className="add-effect-button"
+                            >
+                              + Ajouter un résultat
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
 

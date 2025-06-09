@@ -52,10 +52,22 @@ Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de ca
 3. Configurez les propriétés du sort :
    - Nom
    - Description
-   - Puissance
    - Coût
-   - Plage d'effet
    - Effets spécifiques
+   - Pour les effets de type `choice`, ajoutez des sous-effets et indiquez la chance de chaque issue.
+
+Exemple d'effet `choice` :
+
+```json
+{
+  "type": "choice",
+  "subEffects": [
+    { "weight": 70, "effect": { "type": "heal", "value": 5 } },
+    { "weight": 30, "effect": { "type": "damage", "value": 5 } }
+  ]
+}
+```
+Lors de l'exécution, un des sous-effets est sélectionné selon son poids.
 
 ### 4. Gestion des Altérations
 

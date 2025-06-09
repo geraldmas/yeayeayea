@@ -15,6 +15,7 @@ export enum TagRuleEffectType {
   APPLY_ALTERATION = 'applyAlteration',       // Applique une altération
   CONDITIONAL_EFFECT = 'conditionalEffect',   // Effet qui s'applique sous condition
   SYNERGY_EFFECT = 'synergyEffect',           // Effet qui s'applique en fonction d'autres tags
+  DISABLE_ATTACK = 'disableAttack',           // Empêche les cartes ciblées d'attaquer
 }
 
 /**

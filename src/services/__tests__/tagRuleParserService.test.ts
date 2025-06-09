@@ -62,6 +62,7 @@ const createMockCardInstance = (card: TestCard, id: string = `player1_${card.id}
     availableSpells: [],
     isExhausted: false,
     isTapped: false,
+    unableToAttack: false,
     counters: {},
     
     // Implémentations simplifiées des méthodes requises
@@ -408,6 +409,29 @@ describe('TagRuleParserService', () => {
 
       expect(results[0].success).toBe(true);
       expect(sourceCard.temporaryStats.defense).toBe(6); // 4 + 50% of base (4) => +2
+    });
+
+    test("Devrait désactiver l'attaque des cibles", () => {
+      const rule: TagRule = {
+        name: 'Intimidation',
+        description: 'Empêche la cible d\'attaquer',
+        effectType: TagRuleEffectType.DISABLE_ATTACK,
+        value: 0,
+        isPercentage: false,
+        targetType: TagRuleTargetType.TAGGED,
+        targetTag: 'FRAGILE'
+      };
+
+      parserService.addRuleForTag('JOUR', rule);
+
+      const sourceCard = mockCardInstances[1]; // player1_2 avec tag JOUR
+      const targetCard = mockCardInstances[0];
+
+      const results = parserService.applyTagRules('JOUR', sourceCard, mockCardInstances, mockGameState);
+
+      expect(results[0].success).toBe(true);
+      // @ts-ignore - property added dynamically
+      expect(targetCard.unableToAttack).toBe(true);
     });
   });
 });

@@ -25,10 +25,7 @@ export interface Spell {
   id: number;
   name: string;
   description: string | null;
-  power: number;
   cost: number | null;
-  range_min: number | null;
-  range_max: number | null;
   effects: SpellEffect[];
   is_value_percentage: boolean;
   created_at?: string;
@@ -38,9 +35,14 @@ export interface Spell {
 /**
  * Interface représentant un effet de sort avec ses caractéristiques et conditions d'application
  */
+export interface WeightedSpellEffect {
+  effect: SpellEffect;
+  weight: number;
+}
+
 export interface SpellEffect {
-  type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration';
-  value: number; 
+  type: 'damage' | 'heal' | 'draw' | 'resource' | 'add_tag' | 'multiply_damage' | 'apply_alteration' | 'choice';
+  value?: number;
   targetType?: 'self' | 'opponent' | 'all' | 'tagged' | 'manual';
   tagTarget?: string;
   chance?: number;
@@ -67,6 +69,7 @@ export interface SpellEffect {
     };
     excludeTags?: number[];
   };
+  subEffects?: WeightedSpellEffect[];
 }
 
 export interface AlterationEffect {

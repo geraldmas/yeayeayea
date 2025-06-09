@@ -28,6 +28,7 @@ const mockCardInstance = (canAttackResult = true): CardInstance => ({
   availableSpells: [],
   isExhausted: false,
   isTapped: false,
+  unableToAttack: false,
   counters: {},
   damageHistory: [],
   activeEffects: {},
