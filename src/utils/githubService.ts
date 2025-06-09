@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import { Buffer } from 'buffer';
 import { Card } from '../types';
 
 const REPO_OWNER = 'geraldmas';

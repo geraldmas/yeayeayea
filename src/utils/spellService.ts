@@ -19,7 +19,7 @@ export const getById = async (id: number): Promise<Spell | null> => {
 export const getByIds = async (spells: { spell_id: number }[]): Promise<Spell[]> => {
   if (!spells || spells.length === 0) return [];
   
-  const spellIds = spells.map(s => s.spell_id);
+  const spellIds = spells.map((s: { spell_id: number }) => s.spell_id);
   
   const { data, error } = await supabase
     .from('spells')

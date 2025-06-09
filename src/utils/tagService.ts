@@ -19,7 +19,7 @@ export const getById = async (id: number): Promise<Tag | null> => {
 export const getByIds = async (tags: { tag_id: number }[]): Promise<Tag[]> => {
   if (!tags || tags.length === 0) return [];
   
-  const tagIds = tags.map(t => t.tag_id);
+  const tagIds = tags.map((t: { tag_id: number }) => t.tag_id);
   
   const { data, error } = await supabase
     .from('tags')

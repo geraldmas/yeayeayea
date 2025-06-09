@@ -308,7 +308,7 @@ export const getCardSpells = async (cardId: number) => {
 export const getCardTagIds = async (cardId: number): Promise<number[]> => {
   try {
     const tags = await getCardTags(cardId);
-    return tags.map(tag => tag.tag_id);
+    return tags.map((tag: { tag_id: number }) => tag.tag_id);
   } catch (error) {
     console.warn('Error getting card tag IDs:', error);
     return [];
@@ -319,7 +319,7 @@ export const getCardTagIds = async (cardId: number): Promise<number[]> => {
 export const getCardSpellIds = async (cardId: number): Promise<number[]> => {
   try {
     const spells = await getCardSpells(cardId);
-    return spells.map(spell => spell.spell_id);
+    return spells.map((spell: { spell_id: number }) => spell.spell_id);
   } catch (error) {
     console.warn('Error getting card spell IDs:', error);
     return [];

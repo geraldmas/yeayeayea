@@ -506,7 +506,11 @@ export const debugLogsService = {
     
     const metrics = data.map(log => log.context as { response_time: number; is_error: boolean });
     const totalRequests = metrics.length;
-    const totalResponseTime = metrics.reduce((sum, m) => sum + m.response_time, 0);
+    const totalResponseTime = metrics.reduce(
+      (sum: number, m: { response_time: number; is_error: boolean }) =>
+        sum + m.response_time,
+      0
+    );
     const errorCount = metrics.filter(m => m.is_error).length;
     
     return {
