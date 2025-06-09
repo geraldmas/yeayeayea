@@ -71,7 +71,7 @@ export class TagRuleParserService {
   public async loadRulesFromConfig(filePath: string): Promise<void> {
     try {
       if (typeof window === 'undefined') {
-        const fs = await import('fs');
+        const fs = await eval("import('fs')") as typeof import('fs');
         const rawData = fs.readFileSync(filePath, 'utf-8');
         const definitions: TagRuleDefinition[] = JSON.parse(rawData);
         this.loadRules(definitions);
