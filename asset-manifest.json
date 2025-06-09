@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/yeayeayea/static/css/main.a7398d74.css",
-    "main.js": "/yeayeayea/static/js/main.c4ca1ecb.js",
+    "main.js": "/yeayeayea/static/js/main.183f8a75.js",
     "static/js/685.bd46bb57.chunk.js": "/yeayeayea/static/js/685.bd46bb57.chunk.js",
     "static/media/default-card.svg": "/yeayeayea/static/media/default-card.496d17e5c6793948acb6ca3db5a2ba0c.svg",
     "index.html": "/yeayeayea/index.html",
@@ -9,6 +9,6 @@
   },
   "entrypoints": [
     "static/css/main.a7398d74.css",
-    "static/js/main.c4ca1ecb.js"
+    "static/js/main.183f8a75.js"
   ]
 }
