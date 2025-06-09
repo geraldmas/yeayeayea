@@ -21,7 +21,6 @@ const mockSpell: Spell = {
   id: 1,
   name: 'Test Spell',
   description: 'Test spell description',
-  power: 5,
   cost: 2,
   effects: [
     { type: 'damage', value: 3 } as SpellEffect,

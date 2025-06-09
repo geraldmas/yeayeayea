@@ -52,9 +52,11 @@ Le Yeayeayea est un outil de création et de gestion de cartes pour un jeu de ca
 3. Configurez les propriétés du sort :
    - Nom
    - Description
-   - Puissance
    - Coût
    - Effets spécifiques
+   - Valeur pour chaque effet (damage, heal, etc.)
+
+Chaque effet possède désormais son propre champ **value** qui détermine la puissance de l'action.
 
 ### 4. Gestion des Altérations
 

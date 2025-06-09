@@ -34,7 +34,7 @@ interface LoadedTagsMap {
 }
 
 interface LoadedSpellsMap {
-  [cardId: number]: { id: number; name: string; description: string | null; power: number; cost: number | null; effects: any[]; is_value_percentage: boolean }[];
+  [cardId: number]: { id: number; name: string; description: string | null; cost: number | null; effects: any[]; is_value_percentage: boolean }[];
 }
 
 interface SaveCardResult {

@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS public.spells (
   id bigserial PRIMARY KEY,
   name varchar NOT NULL,
   description text,
-  power integer NOT NULL,
   cost integer,
   effects jsonb NOT NULL DEFAULT '[]',
   is_value_percentage boolean DEFAULT false,

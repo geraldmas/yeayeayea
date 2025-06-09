@@ -67,7 +67,6 @@ const mockSpell: Spell = {
   id: 1,
   name: 'Éclair',
   description: 'Lance un éclair',
-  power: 5,
   cost: 2,
   effects: [{
     type: 'damage',

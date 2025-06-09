@@ -25,7 +25,6 @@ export interface Spell {
   id: number;
   name: string;
   description: string | null;
-  power: number;
   cost: number | null;
   effects: SpellEffect[];
   is_value_percentage: boolean;

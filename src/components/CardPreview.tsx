@@ -73,7 +73,6 @@ const CardPreview: React.FC<CardPreviewProps> = ({ card, spellIds = [], tagIds =
         name: spell.name || '',
         description: spell.description || '',
         cost: spell.cost || null,
-        power: spell.power,
         is_value_percentage: spell.is_value_percentage || false,
         effects: spell.effects?.map(effect => ({
           type: effect.type,

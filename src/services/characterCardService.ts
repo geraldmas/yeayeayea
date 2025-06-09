@@ -6,11 +6,11 @@ import { CardInstance, SpellInstance } from '../types/combat';
 // --- Mock Spell Data & Service (Placeholder) ---
 // In a real scenario, this would come from a dedicated spell service and data store.
 const mockSpellsDatabase: Map<number, Spell> = new Map([
-  [101, { id: 101, name: 'Petite Frappe', description: 'Inflige de faibles dégâts.', power: 5, cost: 1, effects: [{ type: 'damage', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
-  [102, { id: 102, name: 'Mini Soin', description: 'Soigne légèrement.', power: 3, cost: 2, effects: [{ type: 'heal', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
-  [105, { id: 105, name: 'Boule de Feu Basique', description: 'Une boule de feu.', power: 10, cost: 3, effects: [{ type: 'damage', value: 10 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
-  [201, { id: 201, name: 'Grande Guérison', description: 'Soigne une quantité modérée de PV.', power: 15, cost: 5, effects: [{ type: 'heal', value: 20 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
-  [202, { id: 202, name: 'Frappe Puissante', description: 'Une frappe plus conséquente.', power: 12, cost: 4, effects: [{ type: 'damage', value: 15 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [101, { id: 101, name: 'Petite Frappe', description: 'Inflige de faibles dégâts.', effects: [{ type: 'damage', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [102, { id: 102, name: 'Mini Soin', description: 'Soigne légèrement.', effects: [{ type: 'heal', value: 5 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [105, { id: 105, name: 'Boule de Feu Basique', description: 'Une boule de feu.', effects: [{ type: 'damage', value: 10 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [201, { id: 201, name: 'Grande Guérison', description: 'Soigne une quantité modérée de PV.', effects: [{ type: 'heal', value: 20 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
+  [202, { id: 202, name: 'Frappe Puissante', description: 'Une frappe plus conséquente.', effects: [{ type: 'damage', value: 15 }], is_value_percentage: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }],
 ]);
 
 const mockSpellService = {

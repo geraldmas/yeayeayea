@@ -15,7 +15,6 @@ export type SpellEffect = {
 export type Spell = {
   name: string;
   description: string;
-  power?: number;
   effects?: SpellEffect[];
   cost: number;
   range?: {
@@ -160,7 +159,6 @@ export interface Database {
           id: number;
           name: string;
           description: string | null;
-          power: number;
           cost: number | null;
           effects: Json;
           is_value_percentage: boolean;
