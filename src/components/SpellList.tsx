@@ -447,7 +447,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
                                     onChange={(e) => handleUpdateSubEffect(spell.id, effectIndex, subIndex, 'type', e.target.value)}
                                     className="effect-type-select"
                                   >
-                                    {effectTypes.filter(t => t.value !== 'choice').map(type => (
+                                    {effectTypes.map(type => (
                                       <option key={type.value} value={type.value}>{type.label}</option>
                                     ))}
                                   </select>
