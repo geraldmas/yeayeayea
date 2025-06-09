@@ -23,8 +23,6 @@ const mockSpell: Spell = {
   description: 'Test spell description',
   power: 5,
   cost: 2,
-  range_min: 1,
-  range_max: 3,
   effects: [
     { type: 'damage', value: 3 } as SpellEffect,
     { type: 'apply_alteration', value: 1, alteration: 1 } as SpellEffect

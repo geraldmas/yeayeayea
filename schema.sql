@@ -39,8 +39,6 @@ CREATE TABLE IF NOT EXISTS public.spells (
   description text,
   power integer NOT NULL,
   cost integer,
-  range_min integer,
-  range_max integer,
   effects jsonb NOT NULL DEFAULT '[]',
   is_value_percentage boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
