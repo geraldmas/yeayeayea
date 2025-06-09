@@ -77,6 +77,7 @@ export interface CardInstance {
   // État de la carte
   isExhausted: boolean; // Si la carte a déjà été utilisée ce tour
   isTapped: boolean;    // Si la carte est inclinée (pour les actions spéciales)
+  unableToAttack?: boolean; // Effet temporaire empêchant d'attaquer
   
   // Compteurs spécifiques
   counters: {

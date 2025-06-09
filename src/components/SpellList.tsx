@@ -25,6 +25,7 @@ const SpellList: React.FC<SpellListProps> = ({ spellIds, onChange, maxSpells }) 
     { value: 'apply_alteration', label: '🔄 Appliquer altération', color: '#d1c4e9', needsValue: false, needsTarget: true },
     { value: 'add_tag', label: '🏷️ Ajouter tag', color: '#e8eaf6', needsValue: false, needsTarget: true },
     { value: 'multiply_damage', label: '✖️ Multiplier dégâts', color: '#ffecb3', needsValue: true, needsTarget: false },
+    { value: 'disable_attack', label: '🚫 Désactiver attaque', color: '#ffe0e0', needsValue: false, needsTarget: true },
     { value: 'special', label: '✨ Effet spécial', color: '#fce4ec', needsValue: false, needsTarget: false }
   ];
 

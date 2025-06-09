@@ -72,6 +72,9 @@ export class CardInstanceImpl implements CardInstance {
   
   /** Indique si la carte est inclinée (pour les actions spéciales) */
   public isTapped: boolean;
+
+  /** Indique si la carte est empêchée d'attaquer */
+  public unableToAttack: boolean;
   
   /** Compteurs spécifiques */
   public counters: { [key: string]: number };
@@ -109,6 +112,7 @@ export class CardInstanceImpl implements CardInstance {
     // Initialiser les états
     this.isExhausted = false;
     this.isTapped = false;
+    this.unableToAttack = false;
     
     // Initialiser les compteurs
     this.counters = {};
@@ -291,7 +295,7 @@ export class CardInstanceImpl implements CardInstance {
    * @returns Vrai si la carte peut attaquer, faux sinon
    */
   public canAttack(): boolean {
-    return !this.isExhausted && !this.isTapped && this.currentHealth > 0;
+    return !this.isExhausted && !this.isTapped && !this.unableToAttack && this.currentHealth > 0;
   }
 
   /**
@@ -320,6 +324,7 @@ export class CardInstanceImpl implements CardInstance {
     // Réinitialiser l'état d'épuisement
     this.isExhausted = false;
     this.isTapped = false;
+    this.unableToAttack = false;
     
     // Réduire la durée des altérations et supprimer celles expirées
     const alterationsBeforeUpdate = [...this.activeAlterations];
