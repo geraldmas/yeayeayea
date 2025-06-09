@@ -1,5 +1,4 @@
-import * as fs from 'fs'; // For loading JSON file
-import * as path from 'path'; // For constructing path to JSON file
+import tagRulesConfig from '../config/tagRules.json';
 import { 
   TagRule, 
   TagRuleEffectType, 
@@ -63,26 +62,27 @@ export class TagRuleParserService {
   }
 
   /**
-   * Loads rules from a JSON file at the given path.
-   * @param filePath - The path to the JSON file containing TagRuleDefinition[]
+   * Loads rules from a JSON file at the given path. In a browser context, the
+   * file is fetched via HTTP. In a Node context, it falls back to using the `fs`
+   * module.
+   *
+   * @param filePath - Path or URL to the JSON file containing TagRuleDefinition[]
    */
-  public loadRulesFromConfig(filePath: string): void {
+  public async loadRulesFromConfig(filePath: string): Promise<void> {
     try {
-      // Construct an absolute path if filePath is relative, assuming it's relative to project root or a known base
-      // For this example, let's assume filePath could be relative to where the script is run or an absolute path.
-      // If running in a context where __dirname is reliable (e.g. Node.js module):
-      // const absolutePath = path.resolve(__dirname, filePath); 
-      // However, __dirname might behave differently based on execution context (e.g. bundled code).
-      // For simplicity, if filePath is like "src/config/tagRules.json", we might need to ensure it's correctly resolved.
-      // Let's assume for now that the path will be correctly provided to this service.
-      const rawData = fs.readFileSync(filePath, 'utf-8');
-      const definitions: TagRuleDefinition[] = JSON.parse(rawData);
-      this.loadRules(definitions);
+      if (typeof window === 'undefined') {
+        const fs = await import('fs');
+        const rawData = fs.readFileSync(filePath, 'utf-8');
+        const definitions: TagRuleDefinition[] = JSON.parse(rawData);
+        this.loadRules(definitions);
+      } else {
+        const response = await fetch(filePath);
+        const definitions: TagRuleDefinition[] = await response.json();
+        this.loadRules(definitions);
+      }
       console.log(`Successfully loaded tag rules from ${filePath}`);
     } catch (error) {
       console.error(`Error loading tag rules from ${filePath}:`, error);
-      // Decide if this should throw or if the service can operate without rules.
-      // For now, it logs error and continues, meaning no rules will be loaded.
     }
   }
 
@@ -1050,12 +1050,8 @@ export class TagRuleParserService {
   }
 }
 
-// Export de l'instance pour un accès facile
-// Auto-load rules when the singleton instance is first created.
-// This path assumes the config file is at `src/config/tagRules.json` relative to the project root.
-// Adjust the path as necessary depending on your project structure and where the built service runs.
-const defaultRulesPath = path.join(process.cwd(), 'src', 'config', 'tagRules.json');
+// Export de l'instance pour un accès facile et chargement automatique des règles
 const tagRuleParser = TagRuleParserService.getInstance();
-tagRuleParser.loadRulesFromConfig(defaultRulesPath);
+tagRuleParser.loadRules(tagRulesConfig as TagRuleDefinition[]);
 
 export { tagRuleParser }; // Export the initialized instance
