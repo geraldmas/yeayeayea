@@ -129,7 +129,8 @@ Lors de l'exécution, un des sous-effets est sélectionné selon son poids.
 3. **Qualité**
    - Vérifiez les descriptions
    - Assurez-vous que les images sont de bonne qualité
-   - Vous pouvez téléverser une image locale : le formulaire l'enverra dans Supabase et remplira automatiquement l'URL
+   - Vous pouvez téléverser une image locale : le formulaire l'enverra dans Supabase, remplira automatiquement l'URL et la prévisualisation se mettra à jour
+
    - Testez les interactions entre cartes
 
 ## Support

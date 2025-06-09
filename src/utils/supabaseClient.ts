@@ -33,7 +33,10 @@ export const uploadCardImage = async (file: File): Promise<string> => {
   const extension = file.name.split('.').pop();
   const fileName = `${Date.now()}.${extension}`;
 
-  const { error } = await supabase.storage.from(bucket).upload(fileName, file);
+  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
+    contentType: file.type,
+    cacheControl: '3600',
+  });
   if (error) {
     throw error;
   }

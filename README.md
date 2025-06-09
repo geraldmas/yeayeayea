@@ -9,7 +9,8 @@ Yeayeayea is a web application for building and managing trading card game data.
 - npm
 
 Environment variables are read from a `.env` file. Example configuration is provided in the repository. Adjust the Supabase keys and other values to match your setup. When running in production, the `SESSION_SECRET` variable **must** be set or the Express server will exit with an error.
-If you plan to upload card images directly, create a Supabase Storage bucket named `card-images` and ensure your anon key has write access.
+If you plan to upload card images directly, create a Supabase Storage bucket named `card-images` and ensure your anon key has write access. The bucket must allow public read access or the preview will fail with 404 errors.
+
 
 
 ## Installation

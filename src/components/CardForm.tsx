@@ -189,12 +189,18 @@ const CardForm: React.FC<CardFormProps> = ({
   }, [saveToDatabase]);
 
   const handleImageFile = async (file: File) => {
+    // Prévisualiser immédiatement l'image choisie
+    const localUrl = URL.createObjectURL(file);
+    setLocalCard(prev => ({ ...prev, image: localUrl }));
+    refreshPreview();
     try {
       const url = await uploadCardImage(file);
+      URL.revokeObjectURL(localUrl);
       setLocalCard(prev => ({ ...prev, image: url }));
+      refreshPreview();
       showToast('Image uploadée avec succès', 'success');
     } catch (err) {
-      console.error('Erreur lors de l\'upload de l\'image', err);
+      console.error('Erreur lors de l\'upload de l\'image:', err);
       showToast('Erreur lors de l\'upload de l\'image', 'error');
     }
   };
