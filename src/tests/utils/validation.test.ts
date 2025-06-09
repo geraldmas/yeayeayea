@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { validateCardSync } from '../../utils/validation';
+import { validateCardSync, validateSpell } from '../../utils/validation';
 import { Card } from '../../types';
 
 describe('validateCardSync', () => {
@@ -337,4 +337,33 @@ describe('validateCardSync', () => {
       expect(errors).toContain('Le coût d\'invocation doit être positif même pour les cartes "cheate"');
     });
   });
-}); 
+});
+
+describe('validateSpell', () => {
+  const baseSpell = {
+    id: 1,
+    name: 'Test',
+    description: '',
+    power: 1,
+    cost: 1,
+    range_min: 0,
+    range_max: 0,
+    is_value_percentage: false,
+  };
+
+  it('requires value when effect needs it', () => {
+    const errors = validateSpell({
+      ...baseSpell,
+      effects: [{ type: 'damage', value: NaN, targetType: 'self' }],
+    });
+    expect(errors).toContain('Effet #1: La valeur doit être un nombre');
+  });
+
+  it('does not require value for effects without needsValue', () => {
+    const errors = validateSpell({
+      ...baseSpell,
+      effects: [{ type: 'apply_alteration', alteration: 1, targetType: 'self' }],
+    });
+    expect(errors.find(e => e.includes('valeur'))).toBeUndefined();
+  });
+});

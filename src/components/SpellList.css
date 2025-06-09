@@ -256,6 +256,12 @@
   cursor: not-allowed;
 }
 
+.effect-help {
+  margin-left: 6px;
+  cursor: help;
+  font-weight: bold;
+}
+
 @media (max-width: 768px) {
   .form-row {
     flex-direction: column;

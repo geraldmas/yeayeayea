@@ -1,4 +1,5 @@
 import { Card, Spell, Tag } from '../types';
+import { effectTypes } from './effectTypes';
 import { Json } from '../types/database.types';
 import { spellService, tagService } from './dataService';
 import { supabase } from './supabaseClient';
@@ -229,11 +230,25 @@ export const validateSpell = (spell: Spell): string[] => {
 
   if (spell.effects) {
     spell.effects.forEach((effect, index) => {
-      if (!effect.type) errors.push(`Effet #${index + 1}: Le type est requis`);
-      if (typeof effect.value !== 'number') errors.push(`Effet #${index + 1}: La valeur doit être un nombre`);
+      if (!effect.type) {
+        errors.push(`Effet #${index + 1}: Le type est requis`);
+        return;
+      }
+
+      const def = effectTypes.find(t => t.value === effect.type);
+
+      if (def?.needsValue && typeof effect.value !== 'number') {
+        errors.push(`Effet #${index + 1}: La valeur doit être un nombre`);
+      }
+
+      if (def?.needsTarget && !effect.targetType) {
+        errors.push(`Effet #${index + 1}: La cible est requise`);
+      }
+
       if (effect.type === 'add_tag' && !effect.tagTarget) {
         errors.push(`Effet #${index + 1}: Un tag cible est requis pour l'effet add_tag`);
       }
+
       if (effect.type === 'apply_alteration' && !effect.alteration) {
         errors.push(`Effet #${index + 1}: Une altération est requise pour l'effet apply_alteration`);
       }
