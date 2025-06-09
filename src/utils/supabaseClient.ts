@@ -52,10 +52,12 @@ export const uploadCardImage = async (file: File): Promise<string> => {
  */
 export const saveCard = async (card: Card) => {
   try {
+    const { eventDuration, ...rest } = card;
     const formattedCard = {
-      ...card,
+      ...rest,
+      event_duration: eventDuration,
       properties: card.properties || {},
-    };
+    } as Omit<Card, 'eventDuration'> & { event_duration: Card['eventDuration'] };
 
     if (card.id) {
       const { data, error } = await supabase
@@ -66,7 +68,10 @@ export const saveCard = async (card: Card) => {
         .single();
 
       if (error) throw error;
-      return { data, error: null };
+      const normalized = data
+        ? { ...data, eventDuration: (data as any).event_duration }
+        : null;
+      return { data: normalized as unknown as Card, error: null };
     } else {
       const { data, error } = await supabase
         .from('cards')
@@ -75,7 +80,10 @@ export const saveCard = async (card: Card) => {
         .single();
 
       if (error) throw error;
-      return { data, error: null };
+      const normalized = data
+        ? { ...data, eventDuration: (data as any).event_duration }
+        : null;
+      return { data: normalized as unknown as Card, error: null };
     }
   } catch (error) {
     console.error('Erreur lors de la sauvegarde de la carte:', error);
@@ -98,6 +106,7 @@ export async function getAllCards() {
   // Convertir le format des données et s'assurer que les tableaux sont initialisés
   return (data || []).map(card => ({
     ...card,
+    eventDuration: (card as any).event_duration,
     passive_effect: card.passive_effect,
     is_wip: card.is_wip ?? true, // Si is_wip est null, on considère la carte comme WIP
     is_crap: card.is_crap ?? false
@@ -116,6 +125,7 @@ export async function searchCards(query: string) {
   // Réutiliser la même logique de conversion que dans getAllCards
   return (data || []).map(card => ({
     ...card,
+    eventDuration: (card as any).event_duration,
     passive_effect: card.passive_effect,
     is_wip: card.is_wip ?? true, // Si is_wip est null, on considère la carte comme WIP
     is_crap: card.is_crap ?? false
@@ -180,20 +190,21 @@ export const updateCard = async (card: Card) => {
     }
     
     // Supprimer la propriété tags qui n'existe pas dans la table cards
-    const { tags, ...cardWithoutTags } = cleanedCard;
+    const { tags, eventDuration, ...cardWithoutTags } = cleanedCard;
+    const dbCard = { ...cardWithoutTags, event_duration: eventDuration } as Omit<Card, 'eventDuration'> & { event_duration: Card['eventDuration'] };
     
     // Vérifier si c'est une nouvelle carte (id = 0 ou manquant)
     if (!cardWithoutTags.id || cardWithoutTags.id === 0) {
       console.log('Carte avec ID 0 ou manquant détectée - utilisation de insertCard au lieu de updateCard');
       // Utiliser insertCard pour les nouvelles cartes
-      return insertCard(cardWithoutTags);
+      return insertCard({ ...cardWithoutTags, eventDuration } as Card);
     }
     
     console.log('Envoi de la carte pour mise à jour:', JSON.stringify(cardWithoutTags));
     
     const { data, error } = await supabase
       .from('cards')
-      .update(cardWithoutTags)
+      .update(dbCard)
       .eq('id', cardWithoutTags.id)
       .select() // Make sure to add .select() to return the updated data
       .single();
@@ -204,7 +215,7 @@ export const updateCard = async (card: Card) => {
       throw error;
     }
     
-    return data;
+    return data ? { ...data, eventDuration: (data as any).event_duration } as Card : null;
   } catch (error) {
     console.error('Error updating card:', error);
     console.error('Error stacktrace:', (error as Error).stack);
@@ -219,11 +230,15 @@ export const updateCard = async (card: Card) => {
  */
 export const insertCard = async (card: Card) => {
   // Supprimer la propriété tags qui n'existe pas dans la table "cards"
-  const { id, tags, ...cardWithoutIdAndTags } = card;
+  const { id, tags, eventDuration, ...cardWithoutIdAndTags } = card;
+  const dbCard = {
+    ...cardWithoutIdAndTags,
+    event_duration: eventDuration,
+  } as Omit<Card, 'eventDuration'> & { event_duration: Card['eventDuration'] };
   
   const { data, error } = await supabase
     .from('cards')
-    .insert(cardWithoutIdAndTags)
+    .insert(dbCard)
     .select() // Make sure to add .select() to return the inserted data
     .single();
     
@@ -232,6 +247,6 @@ export const insertCard = async (card: Card) => {
     throw error;
   }
   
-  return data;
+  return data ? { ...data, eventDuration: (data as any).event_duration } as Card : null;
 };
 

@@ -4,6 +4,7 @@ import { Card, CardFrontend } from '../types';
 export const normalizeCardForFrontend = (card: Card): CardFrontend => {
   return {
     ...card,
+    eventDuration: (card as any).event_duration ?? card.eventDuration,
     // Create virtual properties that map to the database fields
     isWIP: card.is_wip,
     isCrap: card.is_crap,
@@ -15,12 +16,15 @@ export const normalizeCardForFrontend = (card: Card): CardFrontend => {
   };
 };
 
-export const normalizeCardForDatabase = (card: CardFrontend): Omit<Card, 'id'> => {
+export const normalizeCardForDatabase = (
+  card: CardFrontend
+): Omit<Card, 'id' | 'eventDuration'> & { event_duration?: Card['eventDuration'] } => {
   // Extract only the properties that should be saved to the database
   const { isWIP, isCrap, passiveEffect, spells, tags, ...rest } = card;
-  
+
   return {
     ...rest,
+    event_duration: card.eventDuration,
     is_wip: isWIP,
     is_crap: isCrap,
     passive_effect: passiveEffect,
