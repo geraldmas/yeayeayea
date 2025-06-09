@@ -12,6 +12,7 @@ Environment variables are read from a `.env` file. Example configuration is prov
 If you plan to upload card images directly, create a Supabase Storage bucket named `card-images` and ensure your anon key has write access. The bucket must allow public read access or the preview will fail with 404 errors.
 
 
+
 ## Installation
 
 1. Clone the repository
