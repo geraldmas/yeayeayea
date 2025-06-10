@@ -3,6 +3,7 @@ import { userService } from '../utils/userService';
 import { simulationResultsService } from '../utils/dataService';
 import { simulateGame } from '../simulation/gameSimulator';
 import type { Deck } from '../types/userTypes';
+import { InfoTooltip } from './ui';
 
 interface SimulationPanelProps {
   user: { id: string } | null;
@@ -19,6 +20,12 @@ const SimulationPanel: React.FC<SimulationPanelProps> = ({ user }) => {
     averageTurns: number;
     totalGames: number;
   } | null>(null);
+
+  const tooltips = {
+    deckA: 'Deck utilisé comme joueur principal',
+    deckB: 'Deck opposé pour la simulation',
+    runs: 'Nombre de parties à simuler'
+  } as const;
 
   useEffect(() => {
     const load = async () => {
@@ -53,7 +60,7 @@ const SimulationPanel: React.FC<SimulationPanelProps> = ({ user }) => {
       <h2>Simulations</h2>
       <div className="sim-form">
         <label>
-          Deck A
+          Deck A <InfoTooltip title={tooltips.deckA} />
           <select value={deckA} onChange={e => setDeckA(e.target.value)}>
             <option value="">Choisir un deck</option>
             {decks.map(d => (
@@ -62,7 +69,7 @@ const SimulationPanel: React.FC<SimulationPanelProps> = ({ user }) => {
           </select>
         </label>
         <label>
-          Deck B
+          Deck B <InfoTooltip title={tooltips.deckB} />
           <select value={deckB} onChange={e => setDeckB(e.target.value)}>
             <option value="">Choisir un deck</option>
             {decks.map(d => (
@@ -71,7 +78,7 @@ const SimulationPanel: React.FC<SimulationPanelProps> = ({ user }) => {
           </select>
         </label>
         <label>
-          Nombre de simulations
+          Nombre de simulations <InfoTooltip title={tooltips.runs} />
           <input type="number" min="1" value={runs} onChange={e => setRuns(parseInt(e.target.value, 10))} />
         </label>
         <button className="btn btn-primary" onClick={runSimulation}>Lancer</button>

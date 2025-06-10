@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TextField, Button, Grid } from '@mui/material';
 import { gameConfigService } from '../utils/dataService';
+import { InfoTooltip } from './ui';
 
 interface ConfigValues {
   [key: string]: number;
@@ -12,6 +13,13 @@ const CONFIG_KEYS = [
   'budget_motivation_initial',
   'pv_base_initial'
 ];
+
+const TOOLTIPS: Record<string, string> = {
+  max_personnages: 'Nombre maximum de personnages simultanés sur le terrain',
+  emplacements_objet: "Nombre d'emplacements disponibles pour les objets",
+  budget_motivation_initial: 'Motivation de départ pour chaque joueur',
+  pv_base_initial: 'Points de vie initiaux de la base des joueurs'
+};
 
 const DebugPanel: React.FC = () => {
   const [values, setValues] = useState<ConfigValues>({});
@@ -58,13 +66,16 @@ const DebugPanel: React.FC = () => {
       <Grid container spacing={2}>
         {CONFIG_KEYS.map(key => (
           <Grid item xs={12} md={6} key={key}>
-            <TextField
-              fullWidth
-              label={key}
-              type="number"
-              value={inputs[key] ?? ''}
-              onChange={e => handleChange(key, Number(e.target.value))}
-            />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <TextField
+                fullWidth
+                label={key}
+                type="number"
+                value={inputs[key] ?? ''}
+                onChange={e => handleChange(key, Number(e.target.value))}
+              />
+              {TOOLTIPS[key] && <InfoTooltip title={TOOLTIPS[key]} />}
+            </div>
             <Button
               variant="contained"
               onClick={() => handleSubmit(key)}
