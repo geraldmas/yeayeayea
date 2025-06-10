@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './GameBoard.css';
 import { Card, CardFrontend } from '../types/index';
 import { CardInstance } from '../types/combat';
 import { PlayerBase } from '../types/player';
 import PlayerBaseComponent from './PlayerBase';
+import { gameConfigService } from '../utils/dataService';
 
 interface GameBoardProps {
   // Propriétés du joueur
@@ -62,6 +63,18 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   // État pour le glisser-déposer
   const [draggedCard, setDraggedCard] = useState<Card | null>(null);
+  const [maxCharacters, setMaxCharacters] = useState<number>(3);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const val = await gameConfigService.getValue<number>('max_personnages');
+        if (val) setMaxCharacters(val);
+      } catch (e) {
+        console.warn('Configuration max_personnages indisponible:', e);
+      }
+    })();
+  }, []);
 
   // Gestionnaires d'événements pour le glisser-déposer
   const handleDragStart = (e: React.DragEvent, card: Card) => {
@@ -96,7 +109,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   // Rendu des emplacements de personnages
   const renderCharacterSlots = (characters: CardInstance[], isPlayer: boolean) => {
     const slots = [];
-    const maxSlots = 3; // Nombre d'emplacements de personnages
+    const maxSlots = maxCharacters; // Nombre d'emplacements de personnages
 
     for (let i = 0; i < maxSlots; i++) {
       const character = characters[i] || null;
