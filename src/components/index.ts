@@ -9,7 +9,6 @@ export { default as GameBoard } from './GameBoard';
 export { default as GameBoardTest } from './GameBoardTest';
 export { default as PlayerBase } from './PlayerBase';
 export { default as ConflictResolutionManager } from './ConflictResolutionManager';
-export { default as ConflictResolutionDemo } from './ConflictResolutionDemo';
 export { default as ManualTargetSelector } from './ManualTargetSelector';
 export { default as InventoryManager } from './InventoryManager';
 export { default as InventoryPage } from './InventoryPage';
