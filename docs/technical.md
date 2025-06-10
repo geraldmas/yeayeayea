@@ -247,6 +247,9 @@ L'application utilise :
 - Tests d'intégration pour les flux
 - Tests end-to-end pour les scénarios critiques
 - Tests de performance
+  - Un script `runLoadTest` (fichier `src/simulation/loadTest.ts`) exécute de
+    multiples simulations pour mesurer le temps d'exécution du moteur de
+    combat.
 
 ## Déploiement
 

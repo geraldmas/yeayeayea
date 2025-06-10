@@ -62,6 +62,6 @@
 - [x] Améliorer la gestion des erreurs
   - [x] Ajouter des logs détaillés pour le débogage
   - [x] Implémenter un système de récupération après crash
-- [ ] Mettre en place des tests de charge
+- [x] Mettre en place des tests de charge
   - Simuler des parties avec de nombreuses cartes et effets
   - Identifier et résoudre les goulots d'étranglement
