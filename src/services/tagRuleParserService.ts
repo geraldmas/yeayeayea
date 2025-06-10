@@ -60,9 +60,12 @@ export class TagRuleParserService {
    * @param definitions - Tableau de définitions de règles de tags
    */
   public loadRules(definitions: TagRuleDefinition[]): void {
-    this.rules.clear(); // Clear existing rules before loading new ones
+    this.rules.clear();
     for (const definition of definitions) {
-      this.rules.set(definition.tagName, definition.rules);
+      const sorted = [...definition.rules].sort(
+        (a, b) => (b.priority || 0) - (a.priority || 0)
+      );
+      this.rules.set(definition.tagName, sorted);
     }
     this.cache.clear();
   }
@@ -126,6 +129,7 @@ export class TagRuleParserService {
   public addRuleForTag(tagName: string, rule: TagRule): void {
     const existingRules = this.rules.get(tagName) || [];
     existingRules.push(rule);
+    existingRules.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     this.rules.set(tagName, existingRules);
   }
 
@@ -139,10 +143,11 @@ export class TagRuleParserService {
   public updateRule(tagName: string, ruleId: number, updatedRule: TagRule): boolean {
     const existingRules = this.rules.get(tagName) || [];
     const ruleIndex = existingRules.findIndex(rule => rule.id === ruleId);
-    
+
     if (ruleIndex === -1) return false;
-    
+
     existingRules[ruleIndex] = { ...updatedRule, id: ruleId };
+    existingRules.sort((a, b) => (b.priority || 0) - (a.priority || 0));
     this.rules.set(tagName, existingRules);
     return true;
   }
@@ -190,10 +195,7 @@ export class TagRuleParserService {
     const rules = this.getRulesForTag(tagName);
     const results: TagRuleApplicationResult[] = [];
 
-    // Trier les règles par priorité
-    const sortedRules = [...rules].sort((a, b) => (b.priority || 0) - (a.priority || 0));
-
-    for (const rule of sortedRules) {
+    for (const rule of rules) {
       try {
         const result = this.applySingleRule(rule, tagName, sourceCard, allCards, gameState);
         results.push(result);

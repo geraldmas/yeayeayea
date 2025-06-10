@@ -56,9 +56,9 @@
   - Mettre en place des défis quotidiens avec des récompenses spéciales
 
 ## 🔧 Technique
-- [ ] Optimiser les performances du moteur de combat
-  - Réduire la complexité des calculs de synergies
-  - Mettre en cache les résultats des règles fréquemment utilisées
+- [x] Optimiser les performances du moteur de combat
+  - [x] Réduire la complexité des calculs de synergies
+  - [x] Mettre en cache les résultats des règles fréquemment utilisées
 - [x] Améliorer la gestion des erreurs
   - [x] Ajouter des logs détaillés pour le débogage
   - [x] Implémenter un système de récupération après crash

@@ -123,4 +123,39 @@ describe('TagRuleParserService - Tests simples', () => {
 
     expect(spy).toHaveBeenCalledTimes(1);
   });
+
+  test('Les règles sont triées par priorité lors du chargement', () => {
+    const rules: TagRuleDefinition[] = [
+      {
+        tagName: 'SORT_TAG',
+        rules: [
+          {
+            id: 1,
+            name: 'Low',
+            description: 'low',
+            effectType: TagRuleEffectType.DAMAGE_MODIFIER,
+            value: 1,
+            isPercentage: false,
+            targetType: TagRuleTargetType.SELF,
+            priority: 1,
+          },
+          {
+            id: 2,
+            name: 'High',
+            description: 'high',
+            effectType: TagRuleEffectType.DAMAGE_MODIFIER,
+            value: 2,
+            isPercentage: false,
+            targetType: TagRuleTargetType.SELF,
+            priority: 5,
+          },
+        ],
+      },
+    ];
+
+    parser.loadRules(rules);
+    const loaded = parser.getRulesForTag('SORT_TAG');
+    expect(loaded[0].id).toBe(2);
+    expect(loaded[1].id).toBe(1);
+  });
 });
