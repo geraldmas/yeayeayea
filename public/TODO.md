@@ -49,8 +49,8 @@
   - Créer des scénarios guidés pour expliquer les mécaniques de base
   - Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
 - [ ] Ajouter des effets visuels pour les interactions importantes
-  - Animer les dégâts et soins sur la base
-  - Visualiser les synergies actives entre les cartes
+  - [x] Animer les dégâts et soins sur la base
+  - [ ] Visualiser les synergies actives entre les cartes
 - [x] Créer un système de récompenses quotidiennes
   - Offrir du charisme et des objets bonus pour encourager la connexion régulière
   - Mettre en place des défis quotidiens avec des récompenses spéciales
