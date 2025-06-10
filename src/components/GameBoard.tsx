@@ -4,6 +4,7 @@ import { Card, CardFrontend } from '../types/index';
 import { CardInstance } from '../types/combat';
 import { PlayerBase } from '../types/player';
 import PlayerBaseComponent from './PlayerBase';
+import SynergyIndicator from './SynergyIndicator';
 import { gameConfigService } from '../utils/dataService';
 
 interface GameBoardProps {
@@ -134,6 +135,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   <span key={idx} className="tag">{tagInstance.tag.name}</span>
                 ))}
               </div>
+              <SynergyIndicator
+                effects={character.activeEffects.synergyEffect || []}
+              />
             </div>
           ) : (
             <div className="empty-slot-text">Emplacement personnage</div>

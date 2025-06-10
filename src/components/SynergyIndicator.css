@@ -1,0 +1,9 @@
+.synergy-indicator {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.synergy-icon {
+  color: #8e44ad;
+}
