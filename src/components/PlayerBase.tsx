@@ -3,7 +3,7 @@
  * @description Composant pour afficher la base du joueur
  */
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './PlayerBase.css';
 import { PlayerBase as PlayerBaseType } from '../types/player';
 
@@ -40,6 +40,19 @@ const PlayerBase: React.FC<PlayerBaseProps> = ({
   onClick,
   className = '',
 }) => {
+  const [animationClass, setAnimationClass] = useState('');
+  const prevHealthRef = useRef(playerBase.currentHealth);
+
+  useEffect(() => {
+    if (playerBase.currentHealth > prevHealthRef.current) {
+      setAnimationClass('heal-animation');
+    } else if (playerBase.currentHealth < prevHealthRef.current) {
+      setAnimationClass('damage-animation');
+    }
+    prevHealthRef.current = playerBase.currentHealth;
+    const timeout = setTimeout(() => setAnimationClass(''), 500);
+    return () => clearTimeout(timeout);
+  }, [playerBase.currentHealth]);
   // Calcule le pourcentage de vie restant
   const healthPercentage = Math.max(0, Math.min(100, (playerBase.currentHealth / playerBase.maxHealth) * 100));
   
@@ -77,8 +90,8 @@ const PlayerBase: React.FC<PlayerBaseProps> = ({
   };
   
   return (
-    <div 
-      className={`player-base ${isCurrentPlayer ? 'current-player' : 'opponent'} ${className}`}
+    <div
+      className={`player-base ${isCurrentPlayer ? 'current-player' : 'opponent'} ${className} ${animationClass}`}
       onClick={onClick}
     >
       <div className="player-base-header">
