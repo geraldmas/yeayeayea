@@ -24,7 +24,7 @@ const SynergyIndicator: React.FC<SynergyIndicatorProps> = ({ effects }) => {
           title={`${e.source} (+${e.value}${e.isPercentage ? '%' : ''})`}
           arrow
         >
-          <LinkIcon fontSize="small" className="synergy-icon" />
+          <LinkIcon fontSize="small" className="synergy-icon glow-pulse" />
         </Tooltip>
       ))}
     </div>

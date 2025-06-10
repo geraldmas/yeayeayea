@@ -10,6 +10,10 @@ describe('SynergyIndicator', () => {
       { value: 2, source: 'Synergie: C avec D', isPercentage: false },
     ];
     const { container } = render(<SynergyIndicator effects={effects} />);
-    expect(container.querySelectorAll('.synergy-icon').length).toBe(2);
+    const icons = container.querySelectorAll('.synergy-icon');
+    expect(icons.length).toBe(2);
+    icons.forEach(icon => {
+      expect(icon.classList.contains('glow-pulse')).toBe(true);
+    });
   });
 });
