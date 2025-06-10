@@ -4,8 +4,16 @@
  */
 
 import { createPlayerBase, PlayerBaseImpl } from '../services/PlayerBaseService';
+import { createPlayerBaseFromConfig } from '../services/PlayerBaseService';
 import { PlayerBase, PlayerBaseConfig } from '../types/player';
 import { Alteration } from '../types';
+
+// Mock de gameConfigService pour les tests liés à la configuration
+jest.mock('../utils/dataService', () => ({
+  gameConfigService: {
+    getValue: jest.fn()
+  }
+}));
 
 // Mock pour une altération de test
 const createMockAlteration = (id: number, stackable: boolean = false, duration: number | undefined = undefined): Alteration => {
@@ -186,4 +194,25 @@ describe('PlayerBaseService', () => {
     expect(playerBase.hasAlteration(1)).toBe(false);
     expect(playerBase.hasAlteration(3)).toBe(true);
   });
-}); 
+
+  describe('createPlayerBaseFromConfig', () => {
+    it('utilise la valeur de configuration lorsqu\'elle est disponible', async () => {
+      const { gameConfigService } = require('../utils/dataService');
+      gameConfigService.getValue.mockResolvedValue(150);
+
+      const base = await createPlayerBaseFromConfig();
+
+      expect(gameConfigService.getValue).toHaveBeenCalledWith('pv_base_initial');
+      expect(base.maxHealth).toBe(150);
+    });
+
+    it('retourne la valeur par defaut en cas d\'absence de configuration', async () => {
+      const { gameConfigService } = require('../utils/dataService');
+      gameConfigService.getValue.mockResolvedValue(null);
+
+      const base = await createPlayerBaseFromConfig();
+
+      expect(base.maxHealth).toBe(100);
+    });
+  });
+});

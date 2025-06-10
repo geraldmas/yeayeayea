@@ -212,4 +212,24 @@ export class PlayerBaseImpl implements PlayerBase {
  */
 export const createPlayerBase = (config?: PlayerBaseConfig): PlayerBase => {
   return new PlayerBaseImpl(config);
-}; 
+};
+
+/**
+ * Crée une nouvelle instance de base de joueur en chargeant la configuration
+ * depuis `gameConfigService` pour déterminer les points de vie initiaux.
+ * Utilise la valeur par défaut (100) en cas d'erreur ou de configuration absente.
+ */
+export const createPlayerBaseFromConfig = async (): Promise<PlayerBase> => {
+  try {
+    const { gameConfigService } = await import('../utils/dataService');
+    const pv = await gameConfigService.getValue<number>('pv_base_initial');
+    const maxHealth = pv ?? 100;
+    return new PlayerBaseImpl({ maxHealth });
+  } catch (error) {
+    console.warn(
+      "Erreur lors du chargement de la configuration 'pv_base_initial':",
+      error
+    );
+    return new PlayerBaseImpl({ maxHealth: 100 });
+  }
+};
