@@ -1,6 +1,7 @@
 import express from 'express';
 import authRouter from './auth';
 import session from 'express-session';
+import { ErrorRecoveryService } from '../services/errorRecoveryService';
 
 const app = express();
 const port = process.env.SERVER_PORT || 3000;
@@ -28,6 +29,10 @@ app.use(session({
 // Routes d'authentification
 app.use('/api/auth', authRouter);
 
+ErrorRecoveryService.init(() => {
+  console.error("Redemarrage du serveur suite a une erreur critique");
+  process.exit(1);
+});
 // Démarrage du serveur
 app.listen(port, () => {
   console.log(`Serveur démarré sur le port ${port}`);
