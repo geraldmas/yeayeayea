@@ -194,6 +194,8 @@ Un composant `SynergyIndicator` affiche une icône sur chaque carte lorsqu'un
 effet de synergie est actif. Les informations détaillées sont accessibles via un
 tooltip et proviennent du `combatLogService`. Cette indication visuelle aide à
 comprendre rapidement quelles cartes profitent des combinaisons de tags.
+Depuis la version actuelle, l'icône s'accompagne d'un effet de halo
+(`glowPulse`) afin de mettre en valeur ces interactions importantes.
 
 ## Interface de débug
 
