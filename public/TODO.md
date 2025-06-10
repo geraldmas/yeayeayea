@@ -47,7 +47,7 @@
 -## 🎮 Gameplay
 - [x] Implémenter un système de tutoriel interactif
   - [x] Créer des scénarios guidés pour expliquer les mécaniques de base
-  - [ ] Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
+  - [x] Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
 - [ ] Ajouter des effets visuels pour les interactions importantes
   - [x] Animer les dégâts et soins sur la base
   - [x] Visualiser les synergies actives entre les cartes
