@@ -77,4 +77,50 @@ describe('TagRuleParserService - Tests simples', () => {
     expect(parsedRule.isPercentage).toBe(true);
     expect(parsedRule.description).toBe('Augmente les dégâts de 15%');
   });
-}); 
+
+  test('Devrait utiliser un cache pour les règles appliquées', () => {
+    const rules: TagRuleDefinition[] = [
+      {
+        tagName: 'CACHE_TAG',
+        rules: [
+          {
+            id: 1,
+            name: 'Cache Rule',
+            description: 'Rule for cache',
+            effectType: TagRuleEffectType.DAMAGE_MODIFIER,
+            value: 5,
+            isPercentage: false,
+            targetType: TagRuleTargetType.SELF
+          }
+        ]
+      }
+    ];
+
+    parser.loadRules(rules);
+
+    const card: any = {
+      instanceId: 'c1',
+      cardDefinition: { id: 1, name: 'Test', type: 'personnage', rarity: 'banger', description: '', image: '', passive_effect: '', properties: { health: 10, attack: 1, defense: 1 }, is_wip: false, is_crap: false, summon_cost: 1 },
+      activeTags: [],
+      activeAlterations: [],
+      availableSpells: [],
+      currentHealth: 10,
+      maxHealth: 10,
+      isExhausted: false,
+      isTapped: false,
+      unableToAttack: false,
+      counters: {},
+      temporaryStats: { attack: 1, defense: 1 },
+      damageHistory: [],
+      activeEffects: {},
+    };
+
+    const gameState: any = { currentTurn: 1 };
+    const spy = jest.spyOn(parser, 'getRulesForTag');
+
+    parser.applyTagRules('CACHE_TAG', card, [card], gameState);
+    parser.applyTagRules('CACHE_TAG', card, [card], gameState);
+
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+});
