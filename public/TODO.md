@@ -59,9 +59,9 @@
 - [ ] Optimiser les performances du moteur de combat
   - Réduire la complexité des calculs de synergies
   - Mettre en cache les résultats des règles fréquemment utilisées
-- [ ] Améliorer la gestion des erreurs
+- [x] Améliorer la gestion des erreurs
   - [x] Ajouter des logs détaillés pour le débogage
-  - Implémenter un système de récupération après crash
+  - [x] Implémenter un système de récupération après crash
 - [ ] Mettre en place des tests de charge
   - Simuler des parties avec de nombreuses cartes et effets
   - Identifier et résoudre les goulots d'étranglement
