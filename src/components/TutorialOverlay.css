@@ -1,0 +1,45 @@
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.tutorial-box {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.tutorial-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tutorial-next,
+.tutorial-skip {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tutorial-next {
+  background-color: var(--color-primary, #007bff);
+  color: #fff;
+}
+
+.tutorial-skip {
+  background-color: #ccc;
+  color: #000;
+}
