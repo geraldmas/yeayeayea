@@ -23,6 +23,7 @@ import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
 import { GameLayout, GameCardGrid, AdminPanel, Notification } from './components/ui';
+import TutorialOverlay, { TutorialStep } from './components/TutorialOverlay';
 import ManualTargetSelector from './components/ManualTargetSelector';
 import SimulationPanel from './components/SimulationPanel';
 import ConflictSettingsPage from './components/ConflictSettingsPage';
@@ -86,6 +87,22 @@ const AppContent: React.FC = () => {
     onComplete: (result: TargetingResult) => void;
     onCancel: () => void;
   } | null>(null);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+
+  const tutorialSteps: TutorialStep[] = [
+    {
+      title: 'Bienvenue dans Yeayeayea',
+      content: 'Utilisez la navigation pour accéder aux cartes et à votre deck.'
+    },
+    {
+      title: 'Panneau de débogage',
+      content: 'Le menu Debug permet d\'ajuster les paramètres de partie.'
+    },
+    {
+      title: 'Prêt à jouer !',
+      content: 'Lancez une partie depuis le plateau pour tester vos cartes.'
+    }
+  ];
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -349,6 +366,13 @@ const AppContent: React.FC = () => {
     }
   }, [isAuthenticated]); // S'exécute uniquement lors de l'authentification
 
+  // Afficher le tutoriel interactif lors de la première connexion
+  useEffect(() => {
+    if (isAuthenticated && localStorage.getItem('tutorialCompleted') !== 'true') {
+      setShowTutorial(true);
+    }
+  }, [isAuthenticated]);
+
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
   }
@@ -366,6 +390,13 @@ const AppContent: React.FC = () => {
           message={notification.message}
           type={notification.type}
           onClose={() => setNotification(null)}
+        />
+      )}
+
+      {showTutorial && (
+        <TutorialOverlay
+          steps={tutorialSteps}
+          onFinish={() => setShowTutorial(false)}
         />
       )}
 

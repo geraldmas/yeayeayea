@@ -44,10 +44,10 @@
 - [x] Mettre en place l'affichage des réalisations des joueurs
   - Exploiter les tables `achievements` et `user_achievements` pour suivre la progression
 
-## 🎮 Gameplay
-- [ ] Implémenter un système de tutoriel interactif
-  - Créer des scénarios guidés pour expliquer les mécaniques de base
-  - Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
+-## 🎮 Gameplay
+- [x] Implémenter un système de tutoriel interactif
+  - [x] Créer des scénarios guidés pour expliquer les mécaniques de base
+  - [ ] Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
 - [ ] Ajouter des effets visuels pour les interactions importantes
   - [x] Animer les dégâts et soins sur la base
   - [x] Visualiser les synergies actives entre les cartes
