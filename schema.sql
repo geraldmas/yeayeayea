@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS public.cards (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.cards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_cards ON public.cards FOR ALL USING (true) WITH CHECK (true);
 
 CREATE TABLE IF NOT EXISTS public.alterations (
   id bigserial PRIMARY KEY,
@@ -33,6 +35,8 @@ CREATE TABLE IF NOT EXISTS public.alterations (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.alterations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_alterations ON public.alterations FOR ALL USING (true) WITH CHECK (true);
 
 CREATE TABLE IF NOT EXISTS public.spells (
   id bigserial PRIMARY KEY,
@@ -44,6 +48,8 @@ CREATE TABLE IF NOT EXISTS public.spells (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.spells ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_spells ON public.spells FOR ALL USING (true) WITH CHECK (true);
 
 CREATE TABLE IF NOT EXISTS public.tags (
   id bigserial PRIMARY KEY,
@@ -52,18 +58,24 @@ CREATE TABLE IF NOT EXISTS public.tags (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_tags ON public.tags FOR ALL USING (true) WITH CHECK (true);
 
 CREATE TABLE IF NOT EXISTS public.card_spells (
   card_id bigint REFERENCES public.cards(id) ON DELETE CASCADE,
   spell_id bigint REFERENCES public.spells(id) ON DELETE CASCADE,
   PRIMARY KEY (card_id, spell_id)
 );
+ALTER TABLE public.card_spells ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_card_spells ON public.card_spells FOR ALL USING (true) WITH CHECK (true);
 
 CREATE TABLE IF NOT EXISTS public.card_tags (
   card_id bigint REFERENCES public.cards(id) ON DELETE CASCADE,
   tag_id bigint REFERENCES public.tags(id) ON DELETE CASCADE,
   PRIMARY KEY (card_id, tag_id)
 );
+ALTER TABLE public.card_tags ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_card_tags ON public.card_tags FOR ALL USING (true) WITH CHECK (true);
 
 -- Création des triggers pour mettre à jour updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -72,7 +84,7 @@ BEGIN
   NEW.updated_at = timezone('utc'::text, now());
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 
 -- Utility RPC used by migrations
@@ -81,7 +93,7 @@ RETURNS void AS $$
 BEGIN
   EXECUTE sql;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Suppression des triggers existants s'ils existent
 DROP TRIGGER IF EXISTS set_updated_at ON cards;
@@ -127,6 +139,8 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP WITH TIME ZONE,
     CONSTRAINT username_length CHECK (char_length(username) >= 3)
 );
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_users ON users FOR ALL USING (true) WITH CHECK (true);
 
 -- Table d'inventaire des cartes
 CREATE TABLE IF NOT EXISTS card_inventory (
@@ -137,6 +151,8 @@ CREATE TABLE IF NOT EXISTS card_inventory (
     acquired_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, card_id)
 );
+ALTER TABLE card_inventory ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_card_inventory ON card_inventory FOR ALL USING (true) WITH CHECK (true);
 
 -- Table des decks
 CREATE TABLE IF NOT EXISTS decks (
@@ -147,6 +163,8 @@ CREATE TABLE IF NOT EXISTS decks (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE decks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_decks ON decks FOR ALL USING (true) WITH CHECK (true);
 DROP TRIGGER IF EXISTS update_decks_updated_at ON decks;
 
 
@@ -166,6 +184,8 @@ CREATE TABLE IF NOT EXISTS deck_cards (
     quantity INTEGER NOT NULL DEFAULT 1,
     PRIMARY KEY (deck_id, card_id)
 );
+ALTER TABLE deck_cards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_deck_cards ON deck_cards FOR ALL USING (true) WITH CHECK (true);
 
 -- Table des réalisations
 CREATE TABLE IF NOT EXISTS achievements (
@@ -175,6 +195,8 @@ CREATE TABLE IF NOT EXISTS achievements (
     points INTEGER DEFAULT 0,
     icon_url TEXT
 );
+ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_achievements ON achievements FOR ALL USING (true) WITH CHECK (true);
 
 -- Table de liaison utilisateurs-réalisations
 CREATE TABLE IF NOT EXISTS user_achievements (
@@ -183,6 +205,8 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, achievement_id)
 );
+ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_user_achievements ON user_achievements FOR ALL USING (true) WITH CHECK (true);
 
 -- Fonction pour vérifier le mot de passe
 CREATE OR REPLACE FUNCTION public.check_password(p_username text, p_password text)
@@ -201,7 +225,7 @@ BEGIN
     WHERE u.username = p_username
     AND u.password_hash = crypt(p_password, u.password_hash);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Création du compte admin par défaut
 INSERT INTO public.users (
@@ -235,6 +259,8 @@ CREATE TABLE IF NOT EXISTS public.game_config (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.game_config ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_game_config ON public.game_config FOR ALL USING (true) WITH CHECK (true);
 
 -- Trigger pour mettre à jour le timestamp de game_config
 CREATE TRIGGER set_updated_at
@@ -263,6 +289,8 @@ CREATE TABLE IF NOT EXISTS public.simulation_results (
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.simulation_results ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_simulation_results ON public.simulation_results FOR ALL USING (true) WITH CHECK (true);
 
 -- Trigger pour mettre à jour le timestamp de simulation_results
 CREATE TRIGGER set_updated_at
@@ -289,6 +317,8 @@ CREATE TABLE IF NOT EXISTS public.debug_logs (
     stack_trace text,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.debug_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_debug_logs ON public.debug_logs FOR ALL USING (true) WITH CHECK (true);
 
 -- Index pour optimiser les requêtes par type de log
 CREATE INDEX idx_debug_logs_type ON public.debug_logs(log_type);
@@ -307,7 +337,7 @@ BEGIN
     DELETE FROM public.debug_logs
     WHERE created_at < NOW() - INTERVAL '30 days';
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Créer un job pour nettoyer les logs tous les jours
 SELECT cron.schedule('0 0 * * *', $$SELECT clean_old_logs()$$);
@@ -324,6 +354,8 @@ CREATE TABLE IF NOT EXISTS public.migrations (
     error text,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
+ALTER TABLE public.migrations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_migrations ON public.migrations FOR ALL USING (true) WITH CHECK (true);
 
 -- Index pour optimiser les requêtes par version
 CREATE INDEX idx_migrations_version ON public.migrations(version);
@@ -346,7 +378,7 @@ BEGIN
     
     RETURN last_batch + 1;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Fonction pour vérifier si une migration peut être appliquée
 CREATE OR REPLACE FUNCTION can_apply_migration(p_version varchar, p_dependencies text[])
@@ -370,7 +402,7 @@ BEGIN
     
     RETURN true;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Fonction pour sauvegarder l'état de la base avant une migration
 CREATE OR REPLACE FUNCTION backup_before_migration(p_version varchar)
@@ -387,7 +419,7 @@ BEGIN
         '-f', backup_name || '.dump'
     );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Fonction pour restaurer une sauvegarde
 CREATE OR REPLACE FUNCTION restore_backup(p_version varchar)
@@ -403,4 +435,4 @@ BEGIN
         backup_name || '.dump'
     );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
