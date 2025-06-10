@@ -60,7 +60,7 @@
   - Réduire la complexité des calculs de synergies
   - Mettre en cache les résultats des règles fréquemment utilisées
 - [ ] Améliorer la gestion des erreurs
-  - Ajouter des logs détaillés pour le débogage
+  - [x] Ajouter des logs détaillés pour le débogage
   - Implémenter un système de récupération après crash
 - [ ] Mettre en place des tests de charge
   - Simuler des parties avec de nombreuses cartes et effets

@@ -27,6 +27,7 @@ import {
 } from '../utils/charismeService';
 import { tagRuleParser } from './tagRuleParserService'; // Import the tagRuleParser
 import { combatLogService } from './combatLogService';
+import { logger } from '../utils/logger';
 
 /**
  * @file combatService.ts
@@ -511,7 +512,7 @@ export class CardInstanceImpl implements CardInstance {
       
       if (effect.action === 'on_damage_taken') {
         // Implémenter la logique d'effet ici
-        console.log(`Effet déclenché sur dégâts: ${alteration.alteration.name}`);
+        logger.debug(`Effet déclenché sur dégâts: ${alteration.alteration.name}`);
       }
     });
   }
@@ -526,7 +527,7 @@ export class CardInstanceImpl implements CardInstance {
       
       if (effect.action === 'on_heal_received') {
         // Implémenter la logique d'effet ici
-        console.log(`Effet déclenché sur soin: ${alteration.alteration.name}`);
+        logger.debug(`Effet déclenché sur soin: ${alteration.alteration.name}`);
       }
     });
   }
@@ -588,7 +589,7 @@ export class CardInstanceImpl implements CardInstance {
         isLocked: false
       }));
     } catch (error) {
-      console.warn('Utilisation de la configuration par défaut pour les emplacements d\'objets:', error);
+      logger.warn('Utilisation de la configuration par défaut pour les emplacements d\'objets:', error);
       // Par défaut, créer 3 emplacements si la configuration n'est pas disponible
       this.objectSlots = Array(3).fill(0).map((_, index) => ({
         slotId: index + 1,
@@ -607,13 +608,13 @@ export class CardInstanceImpl implements CardInstance {
   public equipObject(objectCard: CardInstance, slotId?: number): boolean {
     // Vérifier que la carte est de type objet
     if (objectCard.cardDefinition.type !== 'objet') {
-      console.error('Impossible d\'équiper: la carte n\'est pas un objet');
+      logger.error('Impossible d\'équiper: la carte n\'est pas un objet');
       return false;
     }
     
     // Vérifier que les emplacements d'objets sont initialisés
     if (!this.objectSlots) {
-      console.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
+      logger.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
       return false;
     }
     
@@ -621,17 +622,17 @@ export class CardInstanceImpl implements CardInstance {
     if (slotId !== undefined) {
       const slot = this.objectSlots.find(s => s.slotId === slotId);
       if (!slot) {
-        console.error(`L'emplacement d'ID ${slotId} n'existe pas`);
+        logger.error(`L'emplacement d'ID ${slotId} n'existe pas`);
         return false;
       }
       
       if (slot.isLocked) {
-        console.warn(`L'emplacement d'ID ${slotId} est verrouillé`);
+        logger.warn(`L'emplacement d'ID ${slotId} est verrouillé`);
         return false;
       }
       
       if (slot.equippedObject) {
-        console.warn(`L'emplacement d'ID ${slotId} est déjà occupé`);
+        logger.warn(`L'emplacement d'ID ${slotId} est déjà occupé`);
         return false;
       }
       
@@ -642,7 +643,7 @@ export class CardInstanceImpl implements CardInstance {
     // Si aucun slotId n'est spécifié, utiliser le premier emplacement disponible
     const availableSlot = this.objectSlots.find(s => !s.isLocked && !s.equippedObject);
     if (!availableSlot) {
-      console.error('Aucun emplacement disponible pour équiper l\'objet');
+      logger.error('Aucun emplacement disponible pour équiper l\'objet');
       return false;
     }
     
@@ -657,18 +658,18 @@ export class CardInstanceImpl implements CardInstance {
    */
   public unequipObject(slotId: number): CardInstance | null {
     if (!this.objectSlots) {
-      console.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
+      logger.error('Les emplacements d\'objets ne sont pas disponibles pour cette carte');
       return null;
     }
     
     const slot = this.objectSlots.find(s => s.slotId === slotId);
     if (!slot) {
-      console.error(`L'emplacement d'ID ${slotId} n'existe pas`);
+      logger.error(`L'emplacement d'ID ${slotId} n'existe pas`);
       return null;
     }
     
     if (slot.isLocked) {
-      console.warn(`L'emplacement d'ID ${slotId} est verrouillé et ne peut pas être déséquipé`);
+      logger.warn(`L'emplacement d'ID ${slotId} est verrouillé et ne peut pas être déséquipé`);
       return null;
     }
     
@@ -730,7 +731,7 @@ export class CardInstanceImpl implements CardInstance {
       if (passiveEffect) {
         // Ici, nous devrions implémenter la logique pour appliquer les effets passifs
         // Cette implémentation dépendra du format spécifique des effets passifs
-        console.log(`Appliquer l'effet passif: ${passiveEffect} de l'objet ${objectCard.cardDefinition.name}`);
+        logger.debug(`Appliquer l'effet passif: ${passiveEffect} de l'objet ${objectCard.cardDefinition.name}`);
         
         // Exemple simple d'effet passif (à adapter selon le format réel des effets)
         // Note: Ceci est un exemple et devrait être adapté au format réel des effets passifs
@@ -759,11 +760,11 @@ export class CardInstanceImpl implements CardInstance {
                 this.temporaryStats.defense += (this.temporaryStats.defense * (effect.value / 100));
                 break;
               default:
-                console.warn(`Type d'effet passif non géré: ${effect.type}`);
+                logger.warn(`Type d'effet passif non géré: ${effect.type}`);
             }
           }
         } catch (error) {
-          console.error(`Erreur lors de l'application de l'effet passif de l'objet ${objectCard.cardDefinition.name}:`, error);
+          logger.error(`Erreur lors de l'application de l'effet passif de l'objet ${objectCard.cardDefinition.name}:`, error);
         }
       }
     });
@@ -806,7 +807,7 @@ export class CombatManagerImpl implements CombatManager {
       this.actionResolutionService.setConflictStrategy(cfg.strategy);
       this.actionResolutionService.setRandomResolutionChance(cfg.randomChance);
     }).catch(err => {
-      console.warn('Impossible de charger la configuration de résolution des conflits', err);
+      logger.warn('Impossible de charger la configuration de résolution des conflits', err);
     });
   }
 
@@ -830,7 +831,7 @@ export class CombatManagerImpl implements CombatManager {
    */
   public executeAttack(attacker: CardInstance, target: CardInstance): void {
     if (!attacker.canAttack()) {
-      console.log("L'attaquant ne peut pas attaquer");
+      logger.debug("L'attaquant ne peut pas attaquer");
       return;
     }
 
@@ -843,7 +844,7 @@ export class CombatManagerImpl implements CombatManager {
       cost: 1 // Coût par défaut pour une attaque
     });
 
-    console.log(`Attaque planifiée: ${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} (ID: ${actionId})`);
+    logger.debug(`Attaque planifiée: ${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} (ID: ${actionId})`);
     
     // On ne marque pas immédiatement l'attaquant comme ayant agi, cela sera fait lors de la résolution
   }
@@ -860,13 +861,13 @@ export class CombatManagerImpl implements CombatManager {
     target.applyDamage(damage);
     attacker.isExhausted = true;
     
-    console.log(`${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} pour ${damage} dégâts`);
+    logger.debug(`${attacker.cardDefinition.name} attaque ${target.cardDefinition.name} pour ${damage} dégâts`);
   }
 
   public castSpell(caster: CardInstance, spell: Spell, targets: CardInstance[]): void {
     // Vérifier si le sort peut être lancé
     if (!caster.canUseSpell(spell.id)) {
-      console.log("Le sort ne peut pas être lancé");
+      logger.debug("Le sort ne peut pas être lancé");
       return;
     }
 
@@ -880,7 +881,7 @@ export class CombatManagerImpl implements CombatManager {
       cost: spell.cost || 0
     });
 
-    console.log(`Sort planifié: ${caster.cardDefinition.name} lance ${spell.name} (ID: ${actionId})`);
+    logger.debug(`Sort planifié: ${caster.cardDefinition.name} lance ${spell.name} (ID: ${actionId})`);
     
     // On ne marque pas immédiatement le lanceur comme ayant agi, cela sera fait lors de la résolution
   }
@@ -948,14 +949,14 @@ export class CombatManagerImpl implements CombatManager {
    * Résout toutes les actions planifiées de manière simultanée
    */
   public resolveAllActions(): void {
-    console.log("Résolution des actions planifiées...");
+    logger.debug("Résolution des actions planifiées...");
     
     // Résoudre les conflits automatiquement avant l'exécution
     const resolutions = this.actionResolutionService.resolveConflictsAutomatically();
     if (resolutions.length > 0) {
-      console.log("Conflits résolus:");
+      logger.debug("Conflits résolus:");
       resolutions.forEach(resolution => {
-        console.log(` - ${resolution.resolution}`);
+        logger.debug(` - ${resolution.resolution}`);
       });
     }
     
@@ -965,7 +966,7 @@ export class CombatManagerImpl implements CombatManager {
         case ActionType.CAST_SPELL:
           if (action.spell) {
             this.executeSpell(action.source, action.spell, action.targets);
-            console.log(`Sort exécuté: ${action.source.cardDefinition.name} lance ${action.spell.name}`);
+            logger.debug(`Sort exécuté: ${action.source.cardDefinition.name} lance ${action.spell.name}`);
           }
           break;
         case ActionType.ATTACK:
@@ -976,11 +977,11 @@ export class CombatManagerImpl implements CombatManager {
           break;
         // Autres types d'actions...
         default:
-          console.log(`Type d'action non géré: ${action.type}`);
+          logger.debug(`Type d'action non géré: ${action.type}`);
       }
     });
     
-    console.log("Toutes les actions ont été résolues");
+    logger.debug("Toutes les actions ont été résolues");
   }
 
   public applyAlterations(): void {
