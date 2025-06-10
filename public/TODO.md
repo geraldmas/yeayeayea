@@ -35,7 +35,7 @@
 - [x] Documenter un exemple de configuration JSON des synergies dans `cahierdescharges.md`
 
 ## 🌱 Améliorations
-- [ ] Optimiser l'interface mobile pour les petits écrans
+- [x] Optimiser l'interface mobile pour les petits écrans
   - Revoir la grille des cartes et l'affichage du GameBoard pour < 600px
 - [ ] Nettoyer le code mort et les commentaires obsolètes
   - Passer en revue les services et composants non utilisés
