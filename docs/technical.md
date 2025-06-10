@@ -188,6 +188,13 @@ d'attaquer. Exemple dans `tagRules.json` :
 Le service gère la priorité d'application et permet de tester facilement de
 nouvelles synergies.
 
+## Visualisation des synergies
+
+Un composant `SynergyIndicator` affiche une icône sur chaque carte lorsqu'un
+effet de synergie est actif. Les informations détaillées sont accessibles via un
+tooltip et proviennent du `combatLogService`. Cette indication visuelle aide à
+comprendre rapidement quelles cartes profitent des combinaisons de tags.
+
 ## Interface de débug
 
 Une interface de débug (voir tâche 3) permet de modifier en temps réel les
