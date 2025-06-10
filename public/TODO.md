@@ -1,6 +1,37 @@
 # TODO
 
 ## 🔥 Critique
+- [ ] Ajouter des options avancées de ciblage manuel (priorités par tags, altérations ou passifs)
+- [ ] Afficher une prévisualisation des synergies avant la validation d'une action
+
+## 🚀 Prioritaire
+- [ ] Éditeur des règles JSON dans le panneau de débug
+- [ ] Paramétrer la taille du deck et l'autorisation des cartes "cheatées" via `gameConfigService`
+- [ ] Documenter la configuration des synergies et le panneau de débug dans `docs/technical.md`
+
+## ⚡ Moyen terme
+- [ ] Implémenter un système optionnel de boucliers pour la base
+- [ ] Persister le charisme entre les parties pour une réserve évolutive
+- [ ] Développer un mode d'entraînement IA utilisant les simulations
+
+## 🌱 Améliorations
+- [ ] Optimiser l'affichage des synergies sur mobile
+- [ ] Organiser et nettoyer les fichiers de configuration JSON
+- [ ] Ajouter des animations pour la résolution simultanée des sorts
+
+## 🎮 Gameplay
+- [ ] Étendre le système de récompenses quotidiennes avec des bonus progressifs
+
+## 🔧 Technique
+- [ ] Étendre `TagRuleParserService` pour gérer les conditions avancées `IF()`
+- [ ] Mettre en cache les règles chargées pour améliorer les performances
+
+---
+
+## 📁 Archives
+# TODO
+
+## 🔥 Critique
 - [x] Intégrer le système de charisme dans le **CombatService** (gain à la défaite, dépense à l'invocation)
 - [x] Relier le **TargetingService** à une interface de sélection manuelle dans React
 - [x] Implémenter la réduction des dégâts subis par la base (division par deux configurable)
