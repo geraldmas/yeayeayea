@@ -36,6 +36,9 @@ import { SpellEffect } from '../types';
 export class TagRuleParserService {
   /** Map stockant les règles par nom de tag */
   private rules: Map<string, TagRule[]> = new Map();
+
+  /** Cache des résultats par combinaison tag/carte/turn */
+  private cache: Map<string, TagRuleApplicationResult[]> = new Map();
   
   /** Instance unique du service (pattern Singleton) */
   private static instance: TagRuleParserService;
@@ -60,6 +63,7 @@ export class TagRuleParserService {
     for (const definition of definitions) {
       this.rules.set(definition.tagName, definition.rules);
     }
+    this.cache.clear();
   }
 
   /**
@@ -93,6 +97,14 @@ export class TagRuleParserService {
    */
   public clearRules(): void {
     this.rules.clear();
+    this.cache.clear();
+  }
+
+  /**
+   * Vide le cache des résultats calculés
+   */
+  public clearCache(): void {
+    this.cache.clear();
   }
 
   /**
@@ -163,11 +175,17 @@ export class TagRuleParserService {
    * @returns Tableau des résultats d'application de chaque règle du tag
    */
   public applyTagRules(
-    tagName: string, 
-    sourceCard: CardInstance, 
-    allCards: CardInstance[], 
+    tagName: string,
+    sourceCard: CardInstance,
+    allCards: CardInstance[],
     gameState: any
   ): TagRuleApplicationResult[] {
+    const cacheKey = `${tagName}:${sourceCard.instanceId}:${gameState.currentTurn}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const rules = this.getRulesForTag(tagName);
     const results: TagRuleApplicationResult[] = [];
 
@@ -191,7 +209,7 @@ export class TagRuleParserService {
         });
       }
     }
-
+    this.cache.set(cacheKey, results);
     return results;
   }
 
