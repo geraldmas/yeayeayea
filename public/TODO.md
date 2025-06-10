@@ -30,7 +30,7 @@
 - [x] Documenter le moteur de règles et l'interface de débug dans `docs/technical.md`
 - [x] Afficher les synergies actives lors des combats (tooltips ou logs)
   - Utiliser `tagRuleParser` pour identifier les effets déclenchés et les consigner via `combatLogService`
-- [ ] Mettre en place un système d'entraînement de l'IA basé sur les simulations
+- [x] Mettre en place un système d'entraînement de l'IA basé sur les simulations
   - Exécuter régulièrement `simulateGame` pour collecter des métriques et ajuster les stratégies IA
 - [x] Documenter un exemple de configuration JSON des synergies dans `cahierdescharges.md`
 
