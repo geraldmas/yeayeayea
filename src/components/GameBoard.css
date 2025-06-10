@@ -364,14 +364,31 @@
   .card-name, .card-type {
     font-size: 0.7rem;
   }
-  
+
   .card-health, .card-tags {
     font-size: 0.6rem;
   }
-  
+
   .hand-card {
     width: 60px;
     height: 90px;
+  }
+
+  .characters-row,
+  .objects-row {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 4px;
+  }
+
+  .character-slot,
+  .object-slot {
+    width: 48%;
+    margin-bottom: 6px;
+  }
+
+  .main-player-hand-area {
+    height: 40%;
   }
 }
 
