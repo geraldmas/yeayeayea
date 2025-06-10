@@ -10,6 +10,7 @@ import {
 } from '../types/rules';
 import { CardInstance } from '../types/combat';
 import { SpellEffect } from '../types';
+import { logger } from '../utils/logger';
 
 /**
  * @file tagRuleParserService.ts
@@ -85,9 +86,9 @@ export class TagRuleParserService {
         const definitions: TagRuleDefinition[] = await response.json();
         this.loadRules(definitions);
       }
-      console.log(`Successfully loaded tag rules from ${filePath}`);
+      logger.info(`Successfully loaded tag rules from ${filePath}`);
     } catch (error) {
-      console.error(`Error loading tag rules from ${filePath}:`, error);
+      logger.error(`Error loading tag rules from ${filePath}:`, error);
     }
   }
 
@@ -197,7 +198,7 @@ export class TagRuleParserService {
         const result = this.applySingleRule(rule, tagName, sourceCard, allCards, gameState);
         results.push(result);
       } catch (error) {
-        console.error(`Erreur lors de l'application de la règle ${rule.name}:`, error);
+        logger.error(`Erreur lors de l'application de la règle ${rule.name}:`, error);
         results.push({
           success: false,
           sourceTag: tagName,
@@ -928,7 +929,7 @@ export class TagRuleParserService {
       const parts = ruleText.split(':');
       
       if (parts.length < 4) {
-        console.error('Format de règle invalide, au moins 4 parties attendues');
+        logger.error('Format de règle invalide, au moins 4 parties attendues');
         return null;
       }
       
@@ -937,7 +938,7 @@ export class TagRuleParserService {
       const effectType = Object.values(TagRuleEffectType).find(type => type === effectTypeStr);
       
       if (!effectType) {
-        console.error(`Type d'effet invalide: ${effectTypeStr}`);
+        logger.error(`Type d'effet invalide: ${effectTypeStr}`);
         return null;
       }
       
@@ -958,7 +959,7 @@ export class TagRuleParserService {
       }
       
       if (!targetType) {
-        console.error(`Type de cible invalide: ${targetStr}`);
+        logger.error(`Type de cible invalide: ${targetStr}`);
         return null;
       }
       
@@ -975,7 +976,7 @@ export class TagRuleParserService {
       }
       
       if (isNaN(value)) {
-        console.error(`Valeur invalide: ${valueStr}`);
+        logger.error(`Valeur invalide: ${valueStr}`);
         return null;
       }
       
@@ -1027,7 +1028,7 @@ export class TagRuleParserService {
                 break;
             }
           } else {
-            console.error(`Type de condition invalide: ${conditionType}`);
+            logger.error(`Type de condition invalide: ${conditionType}`);
           }
         } else if (conditionStr.startsWith('IF:')) {
           // Ancien format pour la rétrocompatibilité
@@ -1040,7 +1041,7 @@ export class TagRuleParserService {
       
       return rule;
     } catch (error) {
-      console.error('Erreur lors du parsing de la règle:', error);
+      logger.error('Erreur lors du parsing de la règle:', error);
       return null;
     }
   }
@@ -1066,7 +1067,7 @@ export class TagRuleParserService {
       const parts = conditionText.split(':');
       
       if (parts.length < 3) {
-        console.error('Format de condition invalide');
+        logger.error('Format de condition invalide');
         return undefined;
       }
       
@@ -1074,7 +1075,7 @@ export class TagRuleParserService {
       const conditionType = Object.values(TagRuleConditionType).find(type => type === typeStr);
       
       if (!conditionType) {
-        console.error(`Type de condition invalide: ${typeStr}`);
+        logger.error(`Type de condition invalide: ${typeStr}`);
         return undefined;
       }
       
@@ -1102,7 +1103,7 @@ export class TagRuleParserService {
       
       return condition;
     } catch (error) {
-      console.error('Erreur lors du parsing de la condition:', error);
+      logger.error('Erreur lors du parsing de la condition:', error);
       return undefined;
     }
   }
