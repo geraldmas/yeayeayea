@@ -25,7 +25,7 @@
   - Drag & drop pour jouer les cartes
   - Emplacements visuels pour personnages et objets
   - Affichage des statistiques des cartes en jeu
-- [ ] **Système de motivation** avec interface
+- [x] **Système de motivation** avec interface
   - Barre de motivation visible et interactive
   - Coût des actions affiché clairement
   - Renouvellement automatique à chaque tour
