@@ -20,6 +20,7 @@ import TodoProgress from './components/TodoProgress';
 import Achievements from './components/Achievements';
 import InventoryPage from './components/InventoryPage';
 import BoosterOpening from './components/BoosterOpening';
+import DeckBuilder from './components/DeckBuilder';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
@@ -588,6 +589,15 @@ const AppContent: React.FC = () => {
         <Route path="/inventory" element={
           user ? (
             <InventoryPage user={user as User} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        } />
+
+        {/* Deck builder */}
+        <Route path="/decks" element={
+          user ? (
+            <DeckBuilder user={user as User} />
           ) : (
             <Navigate to="/login" replace />
           )
