@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './TargetSelector.css';
 import { CardInstance, ManualTargetingOptions } from '../types/combat';
+import SynergyIndicator from './SynergyIndicator';
 
 interface TargetSelectorProps extends ManualTargetingOptions {
   isOpen: boolean;
@@ -24,6 +25,7 @@ const TargetSelector: React.FC<TargetSelectorProps> = ({
 }) => {
   const [selectedTargets, setSelectedTargets] = useState<CardInstance[]>([]);
   const [filteredTargets, setFilteredTargets] = useState<CardInstance[]>(possibleTargets);
+  const [hoveredTarget, setHoveredTarget] = useState<CardInstance | null>(null);
 
   // Reset selection when component opens
   useEffect(() => {
@@ -120,10 +122,12 @@ const TargetSelector: React.FC<TargetSelectorProps> = ({
             <p className="no-targets">Aucune cible disponible correspondant aux critères</p>
           ) : (
             filteredTargets.map(target => (
-              <div 
+              <div
                 key={target.instanceId}
                 className={`target-card ${selectedTargets.some(t => t.instanceId === target.instanceId) ? 'selected' : ''}`}
                 onClick={() => handleTargetClick(target)}
+                onMouseEnter={() => setHoveredTarget(target)}
+                onMouseLeave={() => setHoveredTarget(null)}
               >
                 <div className="target-header">
                   <h4>{target.cardDefinition.name}</h4>
@@ -141,6 +145,9 @@ const TargetSelector: React.FC<TargetSelectorProps> = ({
                       <span key={index} className="tag">{tagInstance.tag.name}</span>
                     ))}
                   </div>
+                )}
+                {hoveredTarget?.instanceId === target.instanceId && (
+                  <SynergyIndicator effects={target.activeEffects.synergyEffect || []} />
                 )}
               </div>
             ))

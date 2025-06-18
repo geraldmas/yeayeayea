@@ -170,11 +170,14 @@ const GameBoard: React.FC<GameBoardProps> = ({
           onDrop={(e) => handleDrop(e, isPlayer ? 'player-object' : 'opponent-object', i)}
         >
           {object ? (
-            <div 
+            <div
               className="object-card"
               onClick={() => handleCardClick(object, isPlayer ? 'player-object' : 'opponent-object')}
             >
               <div className="card-name">{object.cardDefinition.name}</div>
+              <SynergyIndicator
+                effects={object.activeEffects.synergyEffect || []}
+              />
             </div>
           ) : (
             <div className="empty-slot-text">Emplacement objet</div>
@@ -226,12 +229,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return (
       <div className="active-lieu">
         {activeLieu ? (
-          <div 
+          <div
             className="lieu-card"
             onClick={() => handleCardClick(activeLieu, 'active-lieu')}
           >
             <div className="card-name">{activeLieu.cardDefinition.name}</div>
             <div className="card-description">{activeLieu.cardDefinition.description}</div>
+            <SynergyIndicator
+              effects={activeLieu.activeEffects.synergyEffect || []}
+            />
           </div>
         ) : (
           <div className="empty-lieu">Aucun lieu actif</div>

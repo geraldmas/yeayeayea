@@ -3,9 +3,10 @@ import { CardInstance } from '../types/combat';
 
 export interface CombatLogEvent {
   message: string;
-  result: TagRuleApplicationResult;
-  targetCardId: string;
   timestamp: number;
+  type: 'tag' | 'interaction';
+  result?: TagRuleApplicationResult;
+  targetCardId?: string;
 }
 
 type Listener = (event: CombatLogEvent) => void;
@@ -35,7 +36,17 @@ class CombatLogService {
 
   logTagRule(result: TagRuleApplicationResult, target: CardInstance) {
     const message = `Tag '${result.sourceTag}' \u2192 ${result.effectDescription}`;
-    this.emit({ message, result, targetCardId: target.instanceId, timestamp: Date.now() });
+    this.emit({
+      message,
+      result,
+      targetCardId: target.instanceId,
+      timestamp: Date.now(),
+      type: 'tag'
+    });
+  }
+
+  logInteraction(message: string) {
+    this.emit({ message, timestamp: Date.now(), type: 'interaction' });
   }
 
   setEnabled(enabled: boolean) {

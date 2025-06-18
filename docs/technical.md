@@ -196,6 +196,16 @@ tooltip et proviennent du `combatLogService`. Cette indication visuelle aide à
 comprendre rapidement quelles cartes profitent des combinaisons de tags.
 Depuis la version actuelle, l'icône s'accompagne d'un effet de halo
 (`glowPulse`) afin de mettre en valeur ces interactions importantes.
+Les synergies sont signalées non seulement sur les personnages mais
+aussi sur les objets équipés et la carte de lieu active.
+Lors du survol d'une cible dans `TargetSelector`, un `SynergyIndicator`
+affiche une prévisualisation des effets appliqués avant de confirmer
+l'action.
+
+Toutes les interactions déclenchées pendant le combat sont enregistrées
+par `combatLogService`. Les événements sont consultables via le
+composant `CombatLogViewer` qui affiche un historique et des
+notifications.
 
 ## Interface de débug
 
