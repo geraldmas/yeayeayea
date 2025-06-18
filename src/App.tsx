@@ -603,7 +603,7 @@ const AppContent: React.FC = () => {
         <Route path="/debug" element={
           user?.is_admin ? (
             <AdminPanel title="Debug" icon="🛠">
-              <DebugPanel />
+              <DebugPanel user={user as User} />
             </AdminPanel>
           ) : (
             <Navigate to="/" replace />
