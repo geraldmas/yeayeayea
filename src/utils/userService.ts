@@ -205,6 +205,26 @@ export const userService = {
     },
 
     /**
+     * Remplace les cartes d'un deck
+     * @param deckId - Identifiant du deck
+     * @param cards - Liste des cartes avec leurs quantités
+     */
+    async saveDeckCards(deckId: string, cards: { card_id: number; quantity: number }[]) {
+        const { error: delError } = await supabase
+            .from('deck_cards')
+            .delete()
+            .eq('deck_id', deckId);
+        if (delError) throw delError;
+
+        if (cards.length === 0) return;
+
+        const { error } = await supabase
+            .from('deck_cards')
+            .upsert(cards.map(c => ({ deck_id: deckId, ...c })));
+        if (error) throw error;
+    },
+
+    /**
      * Récupère les réalisations obtenues par un utilisateur
      * @param userId - Identifiant de l'utilisateur
      * @returns Liste des réalisations de l'utilisateur
