@@ -436,6 +436,11 @@ export class CardInstanceImpl implements CardInstance {
       // Gérer d'autres types de modifications de statistiques par les altérations
     });
 
+    // 4. Appliquer les effets des objets équipés (après les altérations)
+    if (typeof this.applyEquippedObjectsEffects === 'function') {
+      this.applyEquippedObjectsEffects();
+    }
+
     // Remarque: La méthode applyStatModifier a été retirée de l'extrait original.
     // Si elle existait et était utilisée par les altérations, cette logique doit être revue.
     // Ici, on suppose que les altérations modifient directement temporaryStats ou utilisent un mécanisme similaire.
@@ -637,6 +642,7 @@ export class CardInstanceImpl implements CardInstance {
       }
       
       slot.equippedObject = objectCard;
+      this.recalculateTemporaryStats();
       return true;
     }
     
@@ -648,6 +654,7 @@ export class CardInstanceImpl implements CardInstance {
     }
     
     availableSlot.equippedObject = objectCard;
+    this.recalculateTemporaryStats();
     return true;
   }
 
@@ -675,6 +682,7 @@ export class CardInstanceImpl implements CardInstance {
     
     const equippedObject = slot.equippedObject;
     slot.equippedObject = null;
+    this.recalculateTemporaryStats();
     return equippedObject;
   }
 
@@ -1297,6 +1305,48 @@ export class CombatManagerImpl implements CombatManager {
    */
   public getActiveLieuCard(): CardInstance | null {
     return this.lieuCardService.getActiveLieuCard();
+  }
+
+  /**
+   * Applique les effets de la carte Lieu active sur toutes les cartes en jeu
+   */
+  public applyActiveLieuEffects(): void {
+    const lieu = this.getActiveLieuCard();
+    if (!lieu || !lieu.cardDefinition.passive_effect) return;
+
+    let effect: any;
+    try {
+      effect = typeof lieu.cardDefinition.passive_effect === 'string'
+        ? JSON.parse(lieu.cardDefinition.passive_effect)
+        : lieu.cardDefinition.passive_effect;
+    } catch {
+      logger.error('Effet de lieu invalide');
+      return;
+    }
+
+    const type = effect.type || effect.action;
+    const value = effect.value || 0;
+
+    switch (type) {
+      case 'heal':
+        this.cardInstances.forEach(ci => ci.heal(value));
+        break;
+      case 'damage':
+        this.cardInstances.forEach(ci => ci.applyDamage(value));
+        break;
+      case 'attack_boost':
+        this.cardInstances.forEach(ci => {
+          ci.temporaryStats.attack += ci.temporaryStats.attack * (value / 100);
+        });
+        break;
+      case 'defense_boost':
+        this.cardInstances.forEach(ci => {
+          ci.temporaryStats.defense += ci.temporaryStats.defense * (value / 100);
+        });
+        break;
+      default:
+        logger.warn(`Type d'effet de lieu non géré: ${type}`);
+    }
   }
 
   /**

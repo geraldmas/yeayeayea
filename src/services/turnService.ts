@@ -35,7 +35,8 @@ export class TurnService {
       currentTurn: 0,
       phase: 'main', // Phase initiale
       activePlayer: 0, // Le joueur 0 commence
-      turnCount: 1
+      turnCount: 1,
+      activeLieuCard: null
     };
   }
   
