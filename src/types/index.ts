@@ -220,6 +220,8 @@ export interface GameState {
   phase: 'draw' | 'main' | 'combat' | 'end';
   activePlayer: number;
   turnCount: number;
+  /** Carte lieu actuellement active sur le terrain */
+  activeLieuCard: import('./combat').CardInstance | null;
 }
 
 export interface GameEvent {

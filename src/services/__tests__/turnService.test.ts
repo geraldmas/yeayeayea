@@ -60,7 +60,8 @@ describe('TurnService', () => {
     currentTurn: 0,
     phase: 'main',
     activePlayer: 0,
-    turnCount: 1
+    turnCount: 1,
+    activeLieuCard: null
   });
 
   beforeEach(() => {

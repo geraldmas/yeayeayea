@@ -221,4 +221,9 @@ describe('CardInstance - Système d\'emplacements d\'objets', () => {
     // Vérifier que le déséquipement a échoué
     expect(unequippedObject).toBeNull();
   });
-}); 
+
+  test('Les effets passifs des objets modifient les statistiques', () => {
+    personnageInstance.equipObject(objetInstance2, 1); // attack_boost 30%
+    expect(personnageInstance.temporaryStats.attack).toBeGreaterThan(personnageCard.properties.attack);
+  });
+});
