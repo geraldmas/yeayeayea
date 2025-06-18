@@ -28,7 +28,9 @@ const TurnTracker: React.FC<TurnTrackerProps> = ({
     <div className="turn-tracker">
       <div className="turn-info">
         <div className="turn-number">Tour {gameState.turnCount}</div>
-        <div className="phase">Phase : {gameState.phase}</div>
+        <div className={`phase phase-indicator phase-${gameState.phase}`}>
+          Phase : {gameState.phase}
+        </div>
         <div className="active-player">Joueur actif : {activePlayer.name}</div>
         <div className="turn-buttons">
           {onNextPhase && (
