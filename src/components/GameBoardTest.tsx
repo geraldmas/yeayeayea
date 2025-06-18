@@ -261,10 +261,15 @@ const GameBoardTest: React.FC = () => {
   const Content: React.FC = () => {
     const { state, nextPhase, nextTurn } = useGameEngine();
 
+    const turnActions = [
+      { id: 'attack', label: 'Attaquer', cost: 2, onClick: () => console.log('Attaque') },
+      { id: 'draw', label: 'Piocher', cost: 1, onClick: () => console.log('Piocher') }
+    ];
+
     return (
       <div className="game-board-test-container">
         <h1>Test de la Zone de Jeu</h1>
-        <TurnTracker gameState={state} actions={[]} onNextPhase={nextPhase} onNextTurn={nextTurn} />
+        <TurnTracker gameState={state} actions={turnActions} onNextPhase={nextPhase} onNextTurn={nextTurn} />
         <div className="game-board-container">
           <GameBoard
             playerHand={playerHand}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Player, MotivationModifier } from '../types/index';
 import './MotivationDisplay.css';
 
@@ -13,10 +13,13 @@ interface MotivationDisplayProps {
  * Ce composant montre la quantité de motivation disponible pour un joueur,
  * ainsi que les modificateurs actifs si demandé.
  */
-const MotivationDisplay: React.FC<MotivationDisplayProps> = ({ 
-  player, 
-  isActive = false 
+const MotivationDisplay: React.FC<MotivationDisplayProps> = ({
+  player,
+  isActive = false
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
+
+  const toggleDetails = () => setShowDetails(prev => !prev);
   // Calculer le pourcentage de remplissage de la barre
   const getBaseMotivation = (): number => {
     return player.baseMotivation || 10; // Valeur par défaut si non définie
@@ -58,7 +61,10 @@ const MotivationDisplay: React.FC<MotivationDisplayProps> = ({
   };
   
   return (
-    <div className={`motivation-display ${isActive ? 'active' : ''}`}>
+    <div
+      className={`motivation-display ${isActive ? 'active' : ''}`}
+      onClick={toggleDetails}
+    >
       <div className="motivation-header">
         <h3>Motivation</h3>
         <div className="motivation-value">
@@ -76,7 +82,7 @@ const MotivationDisplay: React.FC<MotivationDisplayProps> = ({
         ></div>
       </div>
       
-      {isActive && renderModifiers()}
+      {(isActive || showDetails) && renderModifiers()}
     </div>
   );
 };

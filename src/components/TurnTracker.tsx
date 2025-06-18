@@ -1,11 +1,13 @@
 import React from 'react';
 import type { GameState, Player } from '../types';
+import MotivationDisplay from './MotivationDisplay';
 import { getModifiedMaxCharisme } from '../utils/charismeService';
 import './TurnTracker.css';
 
 export interface TurnAction {
   id: string;
   label: string;
+  cost: number;
   onClick: () => void;
 }
 
@@ -43,9 +45,7 @@ const TurnTracker: React.FC<TurnTrackerProps> = ({
       </div>
 
       <div className="resources">
-        <div className="resource motivation">
-          Motivation : {activePlayer.motivation} / {activePlayer.baseMotivation}
-        </div>
+        <MotivationDisplay player={activePlayer} isActive />
         <div className="resource charisme">
           Charisme : {activePlayer.charisme ?? 0} / {getModifiedMaxCharisme(activePlayer)}
         </div>
@@ -57,8 +57,9 @@ const TurnTracker: React.FC<TurnTrackerProps> = ({
             key={action.id}
             onClick={action.onClick}
             className="action-button"
+            title={`Coût : ${action.cost}`}
           >
-            {action.label}
+            {action.label} ({action.cost})
           </button>
         ))}
       </div>
