@@ -1,8 +1,8 @@
-import React from 'react';
-import type { GameState, Player } from '../types';
-import MotivationDisplay from './MotivationDisplay';
-import { getModifiedMaxCharisme } from '../utils/charismeService';
-import './TurnTracker.css';
+import React from "react";
+import type { GameState, Player } from "../types";
+import MotivationDisplay from "./MotivationDisplay";
+import CharismeDisplay from "./CharismeDisplay";
+import "./TurnTracker.css";
 
 export interface TurnAction {
   id: string;
@@ -22,7 +22,7 @@ const TurnTracker: React.FC<TurnTrackerProps> = ({
   gameState,
   actions,
   onNextPhase,
-  onNextTurn
+  onNextTurn,
 }) => {
   const activePlayer: Player = gameState.players[gameState.activePlayer];
 
@@ -35,24 +35,18 @@ const TurnTracker: React.FC<TurnTrackerProps> = ({
         </div>
         <div className="active-player">Joueur actif : {activePlayer.name}</div>
         <div className="turn-buttons">
-          {onNextPhase && (
-            <button onClick={onNextPhase}>Phase suivante</button>
-          )}
-          {onNextTurn && (
-            <button onClick={onNextTurn}>Fin de tour</button>
-          )}
+          {onNextPhase && <button onClick={onNextPhase}>Phase suivante</button>}
+          {onNextTurn && <button onClick={onNextTurn}>Fin de tour</button>}
         </div>
       </div>
 
       <div className="resources">
         <MotivationDisplay player={activePlayer} isActive />
-        <div className="resource charisme">
-          Charisme : {activePlayer.charisme ?? 0} / {getModifiedMaxCharisme(activePlayer)}
-        </div>
+        <CharismeDisplay player={activePlayer} isActive />
       </div>
 
       <div className="actions">
-        {actions.map(action => (
+        {actions.map((action) => (
           <button
             key={action.id}
             onClick={action.onClick}
