@@ -1,0 +1,18 @@
+.booster-opening {
+  text-align: center;
+}
+
+.open-btn {
+  margin-bottom: 1rem;
+}
+
+.opened-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.opened-card {
+  opacity: 0;
+}

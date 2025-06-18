@@ -63,12 +63,20 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
             Cartes
           </Link>
           
-          <Link 
-            to="/boosters" 
+          <Link
+            to="/boosters"
             onClick={closeMobileMenu}
             className={`nav-link ${isActive('/boosters') ? 'active' : ''}`}
           >
             Boosters
+          </Link>
+
+          <Link
+            to="/open-booster"
+            onClick={closeMobileMenu}
+            className={`nav-link ${isActive('/open-booster') ? 'active' : ''}`}
+          >
+            Ouvrir Booster
           </Link>
           
           <Link 
@@ -183,12 +191,20 @@ const GameNav: React.FC<GameNavProps> = ({ user, isAdmin = false, onLogout }) =>
             Cartes
           </Link>
           
-          <Link 
-            to="/boosters" 
+          <Link
+            to="/boosters"
             onClick={closeMobileMenu}
             className={`mobile-nav-link ${isActive('/boosters') ? 'active' : ''}`}
           >
             Boosters
+          </Link>
+
+          <Link
+            to="/open-booster"
+            onClick={closeMobileMenu}
+            className={`mobile-nav-link ${isActive('/open-booster') ? 'active' : ''}`}
+          >
+            Ouvrir Booster
           </Link>
           
           <Link 

@@ -18,4 +18,5 @@ export { default as SimulationPanel } from './SimulationPanel';
 export { default as ConflictSettingsPage } from './ConflictSettingsPage';
 export { default as SynergyIndicator } from './SynergyIndicator';
 export { default as TutorialOverlay } from './TutorialOverlay';
+export { default as BoosterOpening } from './BoosterOpening';
 export { InfoTooltip } from './ui';
