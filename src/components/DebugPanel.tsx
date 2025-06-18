@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { TextField, Button, Grid } from '@mui/material';
 import { gameConfigService } from '../utils/dataService';
+import { boosterService } from '../utils/boosterService';
 import { InfoTooltip } from './ui';
+
+interface DebugPanelProps {
+  user: { id: string };
+}
 
 interface ConfigValues {
   [key: string]: number;
@@ -21,9 +26,11 @@ const TOOLTIPS: Record<string, string> = {
   pv_base_initial: 'Points de vie initiaux de la base des joueurs'
 };
 
-const DebugPanel: React.FC = () => {
+const DebugPanel: React.FC<DebugPanelProps> = ({ user }) => {
   const [values, setValues] = useState<ConfigValues>({});
   const [inputs, setInputs] = useState<ConfigValues>({});
+  const [isGranting, setIsGranting] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
 
   const loadConfigs = async () => {
     try {
@@ -60,6 +67,28 @@ const DebugPanel: React.FC = () => {
     }
   };
 
+  const handleGrantBooster = async () => {
+    try {
+      setIsGranting(true);
+      await boosterService.grantBooster(user.id);
+    } catch (error) {
+      console.error('Erreur lors de la distribution du booster:', error);
+    } finally {
+      setIsGranting(false);
+    }
+  };
+
+  const handleOpenBooster = async () => {
+    try {
+      setIsOpening(true);
+      await boosterService.openBooster();
+    } catch (error) {
+      console.error("Erreur lors de l'ouverture du booster:", error);
+    } finally {
+      setIsOpening(false);
+    }
+  };
+
   return (
     <div className="debug-panel">
       <h2>Configuration du jeu</h2>
@@ -87,6 +116,25 @@ const DebugPanel: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      <div style={{ marginTop: '2rem' }}>
+        <h2>Boosters</h2>
+        <Button
+          variant="contained"
+          onClick={handleGrantBooster}
+          disabled={isGranting}
+          sx={{ mr: 1 }}
+        >
+          Obtenir un booster
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleOpenBooster}
+          disabled={isOpening}
+        >
+          Ouvrir un booster
+        </Button>
+      </div>
     </div>
   );
 };
