@@ -19,4 +19,5 @@ export { default as ConflictSettingsPage } from './ConflictSettingsPage';
 export { default as SynergyIndicator } from './SynergyIndicator';
 export { default as TutorialOverlay } from './TutorialOverlay';
 export { default as BoosterOpening } from './BoosterOpening';
+export { default as TurnTracker } from './TurnTracker';
 export { InfoTooltip } from './ui';
