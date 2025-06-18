@@ -19,6 +19,7 @@ import Objectives from './components/Objectives';
 import TodoProgress from './components/TodoProgress';
 import Achievements from './components/Achievements';
 import InventoryPage from './components/InventoryPage';
+import BoosterOpening from './components/BoosterOpening';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
@@ -562,6 +563,15 @@ const AppContent: React.FC = () => {
         {/* Éditeur de booster */}
         <Route path="/boosters" element={
           <BoosterForm booster={boosterData} onSave={() => {}} />
+        } />
+
+        {/* Ouverture de booster */}
+        <Route path="/open-booster" element={
+          user ? (
+            <BoosterOpening />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         } />
         
         {/* Gestionnaire d'altérations */}
