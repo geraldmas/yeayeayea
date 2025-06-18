@@ -43,7 +43,7 @@
   - Invocation de personnages avec coût en charisme
   - Équipement d'objets sur les personnages
   - Effets des cartes lieu actives
-- [ ] **Système de ciblage** fonctionnel
+- [x] **Système de ciblage** fonctionnel
   - Ciblage automatique pour les actions simples
   - Interface de ciblage manuel pour les actions complexes
   - Validation des cibles selon les règles
