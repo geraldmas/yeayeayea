@@ -6,6 +6,7 @@ export { default as Help } from './Help';
 export { default as UserManager } from './UserManager';
 export { default as TodoProgress } from './TodoProgress';
 export { default as GameBoard } from './GameBoard';
+export { default as Hand } from './Hand';
 export { default as GameBoardTest } from './GameBoardTest';
 export { default as PlayerBase } from './PlayerBase';
 export { default as ConflictResolutionManager } from './ConflictResolutionManager';

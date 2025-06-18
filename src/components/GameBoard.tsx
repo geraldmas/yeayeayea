@@ -5,6 +5,7 @@ import { CardInstance } from '../types/combat';
 import { PlayerBase } from '../types/player';
 import PlayerBaseComponent from './PlayerBase';
 import SynergyIndicator from './SynergyIndicator';
+import Hand from './Hand';
 import { gameConfigService } from '../utils/dataService';
 
 interface GameBoardProps {
@@ -123,12 +124,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
           onDrop={(e) => handleDrop(e, isPlayer ? 'player-character' : 'opponent-character', i)}
         >
           {character ? (
-            <div 
+            <div
               className="character-card"
               onClick={() => handleCardClick(character, isPlayer ? 'player-character' : 'opponent-character')}
             >
               <div className="card-name">{character.cardDefinition.name}</div>
               <div className="card-health">❤️ {character.currentHealth}/{character.maxHealth}</div>
+              <div className="card-stats">
+                <span className="card-attack">⚔️ {character.temporaryStats.attack}</span>
+                <span className="card-defense">🛡️ {character.temporaryStats.defense}</span>
+              </div>
               {/* Afficher les tags actifs */}
               <div className="card-tags">
                 {character.activeTags.map((tagInstance, idx) => (
@@ -179,51 +184,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
     }
 
     return slots;
-  };
-
-  // Rendu de la main du joueur avec gestion spéciale des cartes événement
-  const renderPlayerHand = () => {
-    return (
-      <div className="player-hand-container">
-        <div className="section-title">Votre Main</div>
-        <div className="player-hand">
-          {playerHand.length > 0 ? (
-            playerHand.map((card) => (
-              <div 
-                key={`hand-card-${card.id}`}
-                className={`hand-card hand-card-${card.type} ${card.type === 'evenement' ? 'face-down' : ''}`}
-                draggable
-                onDragStart={(e) => handleDragStart(e, card)}
-                onClick={() => handleCardClick(card, 'player-hand')}
-              >
-                {card.type !== 'evenement' ? (
-                  <>
-                    <div className="card-name">{card.name}</div>
-                    <div className="card-type">{card.type}</div>
-                    {card.type === 'personnage' && card.properties && card.properties.health && (
-                      <div className="card-health">❤️ {card.properties.health}</div>
-                    )}
-                    {card.rarity && (
-                      <div className="card-rarity">{card.rarity}</div>
-                    )}
-                    {card.type === 'action' && (
-                      <div className="action-indicator">Activable partout</div>
-                    )}
-                  </>
-                ) : (
-                  <div className="event-card-back">Événement</div>
-                )}
-              </div>
-            ))
-          ) : (
-            <div className="empty-hand-message">
-              <span>Aucune carte en main</span>
-              <div className="hand-hint">Utilisez le bouton "Piocher une carte" ci-dessous</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
   };
 
   // Rendu de la main de l'adversaire (faces cachées)
@@ -327,7 +287,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
       {/* Zone de la main du joueur mise en évidence, séparée du reste */}
       <div className="main-player-hand-area">
-        {renderPlayerHand()}
+        <Hand
+          cards={playerHand}
+          onDragStart={handleDragStart}
+          onCardClick={(card) => handleCardClick(card, 'player-hand')}
+        />
       </div>
     </div>
   );

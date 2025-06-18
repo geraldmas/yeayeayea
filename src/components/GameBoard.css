@@ -189,6 +189,18 @@
   font-weight: bold;
 }
 
+.card-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.card-attack,
+.card-defense {
+  color: #ecf0f1;
+}
+
 .card-tags {
   display: flex;
   flex-wrap: wrap;
