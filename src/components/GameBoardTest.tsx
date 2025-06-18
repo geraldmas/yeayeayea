@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import GameBoard from './GameBoard';
 import { Card, Tag, Spell, Rarity } from '../types';
 import { CardInstance, TagInstance, SpellInstance, ActiveAlteration } from '../types/combat';
 import { PlayerBase } from '../types/player';
 import { createPlayerBase } from '../services/PlayerBaseService';
+import { GameEngineProvider, useGameEngine } from '../contexts/GameEngineContext';
+import TurnTracker from './TurnTracker';
 import './GameBoardTest.css';
 
 /**
@@ -151,6 +153,37 @@ const GameBoardTest: React.FC = () => {
   // Création des bases de joueurs pour les tests
   const [playerBaseInstance, setPlayerBaseInstance] = useState<PlayerBase>(createPlayerBase({ maxHealth: 100 }));
   const [opponentBaseInstance, setOpponentBaseInstance] = useState<PlayerBase>(createPlayerBase({ maxHealth: 150 }));
+
+  const enginePlayers = useMemo(() => [
+    {
+      id: 'player1',
+      name: 'Joueur 1',
+      base: playerBaseInstance,
+      characters: playerCharacters,
+      objects: playerObjects,
+      hand: [],
+      deck: [],
+      discard: [],
+      motivation: 10,
+      charisme: 0,
+      getAllEntities: () => [...playerCharacters, ...playerObjects],
+      hasLost: () => playerBaseInstance.currentHealth <= 0
+    },
+    {
+      id: 'player2',
+      name: 'Joueur 2',
+      base: opponentBaseInstance,
+      characters: opponentCharacters,
+      objects: opponentObjects,
+      hand: [],
+      deck: [],
+      discard: [],
+      motivation: 10,
+      charisme: 0,
+      getAllEntities: () => [...opponentCharacters, ...opponentObjects],
+      hasLost: () => opponentBaseInstance.currentHealth <= 0
+    }
+  ], [playerBaseInstance, opponentBaseInstance, playerCharacters, playerObjects, opponentCharacters, opponentObjects]);
   
   // Gestion du glisser-déposer des cartes
   const handleCardDrop = (cardId: number, zone: string, slot?: number) => {
@@ -225,31 +258,35 @@ const GameBoardTest: React.FC = () => {
     // Logique supplémentaire pour les actions sur les bases (attaques directes, etc.)
   };
 
-  return (
-    <div className="game-board-test-container">
-      <h1>Test de la Zone de Jeu</h1>
-      <div className="game-board-container">
-        <GameBoard 
-          playerHand={playerHand}
-          playerCharacters={playerCharacters}
-          playerObjects={playerObjects}
-          playerDeck={playerDeckCount}
-          playerDiscard={playerDiscardCount}
-          playerBase={playerBaseInstance}
-          opponentHand={opponentHandCount}
-          opponentCharacters={opponentCharacters}
-          opponentObjects={opponentObjects}
-          opponentDeck={opponentDeckCount}
-          opponentDiscard={opponentDiscardCount}
-          opponentBase={opponentBaseInstance}
-          activeLieu={activeLieu}
-          onCardDrop={handleCardDrop}
-          onCardClick={handleCardClick}
-          onBaseClick={handleBaseClick}
-        />
-      </div>
-      <div className="test-controls">
-        <h2>Contrôles de Test</h2>
+  const Content: React.FC = () => {
+    const { state, nextPhase, nextTurn } = useGameEngine();
+
+    return (
+      <div className="game-board-test-container">
+        <h1>Test de la Zone de Jeu</h1>
+        <TurnTracker gameState={state} actions={[]} onNextPhase={nextPhase} onNextTurn={nextTurn} />
+        <div className="game-board-container">
+          <GameBoard
+            playerHand={playerHand}
+            playerCharacters={playerCharacters}
+            playerObjects={playerObjects}
+            playerDeck={playerDeckCount}
+            playerDiscard={playerDiscardCount}
+            playerBase={playerBaseInstance}
+            opponentHand={opponentHandCount}
+            opponentCharacters={opponentCharacters}
+            opponentObjects={opponentObjects}
+            opponentDeck={opponentDeckCount}
+            opponentDiscard={opponentDiscardCount}
+            opponentBase={opponentBaseInstance}
+            activeLieu={activeLieu}
+            onCardDrop={handleCardDrop}
+            onCardClick={handleCardClick}
+            onBaseClick={handleBaseClick}
+          />
+        </div>
+        <div className="test-controls">
+          <h2>Contrôles de Test</h2>
         <button onClick={() => setOpponentHandCount(prev => prev + 1)}>
           Ajouter une carte à la main adverse
         </button>
@@ -292,7 +329,14 @@ const GameBoardTest: React.FC = () => {
         </div>
       </div>
     </div>
+    );
+  };
+
+  return (
+    <GameEngineProvider players={enginePlayers}>
+      <Content />
+    </GameEngineProvider>
   );
 };
 
-export default GameBoardTest; 
+export default GameBoardTest;

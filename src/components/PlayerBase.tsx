@@ -41,16 +41,23 @@ const PlayerBase: React.FC<PlayerBaseProps> = ({
   className = '',
 }) => {
   const [animationClass, setAnimationClass] = useState('');
+  const [healthChange, setHealthChange] = useState<{ amount: number; type: 'damage' | 'heal' } | null>(null);
   const prevHealthRef = useRef(playerBase.currentHealth);
 
   useEffect(() => {
-    if (playerBase.currentHealth > prevHealthRef.current) {
+    const diff = playerBase.currentHealth - prevHealthRef.current;
+    if (diff > 0) {
       setAnimationClass('heal-animation');
-    } else if (playerBase.currentHealth < prevHealthRef.current) {
+      setHealthChange({ amount: diff, type: 'heal' });
+    } else if (diff < 0) {
       setAnimationClass('damage-animation');
+      setHealthChange({ amount: -diff, type: 'damage' });
     }
     prevHealthRef.current = playerBase.currentHealth;
-    const timeout = setTimeout(() => setAnimationClass(''), 500);
+    const timeout = setTimeout(() => {
+      setAnimationClass('');
+      setHealthChange(null);
+    }, 800);
     return () => clearTimeout(timeout);
   }, [playerBase.currentHealth]);
   // Calcule le pourcentage de vie restant
@@ -97,6 +104,11 @@ const PlayerBase: React.FC<PlayerBaseProps> = ({
       <div className="player-base-header">
         <h3>{isCurrentPlayer ? 'Votre Base' : 'Base Adverse'}</h3>
       </div>
+      {healthChange && (
+        <div className={`health-change ${healthChange.type}`}>
+          {healthChange.type === 'damage' ? '-' : '+'}{healthChange.amount}
+        </div>
+      )}
       
       <div className="player-base-content">
         <div className="player-base-health-container">

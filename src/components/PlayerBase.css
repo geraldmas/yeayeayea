@@ -126,6 +126,31 @@
   animation: heal-pulse 0.5s ease;
 }
 
+.health-change {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  animation: fade-move 0.8s ease forwards;
+}
+
+.health-change.damage {
+  background-color: rgba(244, 67, 54, 0.8);
+}
+
+.health-change.heal {
+  background-color: rgba(76, 175, 80, 0.8);
+}
+
+@keyframes fade-move {
+  0% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
 /* Adaptation pour mobile */
 @media (max-width: 768px) {
   .player-base {
