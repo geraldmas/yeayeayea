@@ -32,6 +32,7 @@ describe('combatLogService', () => {
     const event = listener.mock.calls[0][0];
     expect(event.result).toBe(sampleResult);
     expect(event.targetCardId).toBe('card1');
+    expect(event.type).toBe('tag');
     combatLogService.off(listener);
   });
 
@@ -53,5 +54,16 @@ describe('combatLogService', () => {
 
     combatLogService.logTagRule(sampleResult, target);
     expect(listener).not.toHaveBeenCalled();
+  });
+
+  test('logInteraction should emit interaction events', () => {
+    const listener = jest.fn();
+    combatLogService.on(listener);
+    combatLogService.logInteraction('Test interaction');
+    expect(listener).toHaveBeenCalledTimes(1);
+    const event = listener.mock.calls[0][0];
+    expect(event.type).toBe('interaction');
+    expect(event.message).toBe('Test interaction');
+    combatLogService.off(listener);
   });
 });

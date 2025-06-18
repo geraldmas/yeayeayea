@@ -45,7 +45,7 @@ const CombatLogViewer: React.FC = () => {
       <ul>
         {events.map((e, idx) => (
           <li key={idx}>
-            <Tooltip title={e.result.effectDescription} arrow>
+            <Tooltip title={e.result?.effectDescription || ''} arrow>
               <span>{e.message}</span>
             </Tooltip>
           </li>
