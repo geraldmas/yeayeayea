@@ -277,4 +277,53 @@ describe('TargetingService', () => {
     expect(result.targets).toHaveLength(0);
     expect(result.error).toBeDefined();
   });
+
+  test('validateTargets retourne vrai pour des cibles valides', () => {
+    const valid = targetingService.validateTargets(
+      sourceCard,
+      [targetCard1],
+      'opponent',
+      allCards
+    );
+    expect(valid).toBe(true);
+  });
+
+  test('validateTargets retourne faux pour des cibles invalides', () => {
+    const valid = targetingService.validateTargets(
+      sourceCard,
+      [sourceCard],
+      'opponent',
+      allCards
+    );
+    expect(valid).toBe(false);
+  });
+
+  test('devrait refuser les cibles invalides lors du ciblage manuel', async () => {
+    const mockCallback: ManualTargetingCallback = jest.fn((options) => {
+      setTimeout(() => {
+        options.onComplete({ id: 'test', targets: [targetCard1], success: true });
+      }, 10);
+    });
+
+    targetingService.registerManualTargetingCallback(mockCallback);
+
+    const effect: SpellEffect = {
+      type: 'damage',
+      targetType: 'manual',
+      manualTargetingCriteria: {
+        byRarity: ['banger']
+      }
+    };
+
+    const result = await targetingService.getTargets(
+      sourceCard,
+      'manual',
+      allCards,
+      effect
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.targets).toHaveLength(0);
+    expect(result.error).toBeDefined();
+  });
 });

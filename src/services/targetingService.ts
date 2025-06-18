@@ -165,7 +165,23 @@ export class TargetingService {
           // Stocker la fonction de résolution pour l'utiliser lorsque l'utilisateur termine sa sélection
           const handleCompletion = (result: TargetingResult) => {
             this.pendingTargetOperations.delete(id);
-            resolve(result);
+            const isValid = this.validateTargets(
+              source,
+              result.targets,
+              'manual',
+              filteredTargets,
+              effect
+            );
+            if (!isValid) {
+              resolve({
+                id,
+                targets: [],
+                success: false,
+                error: "Cibles invalides"
+              });
+            } else {
+              resolve({ id, targets: result.targets.slice(0, count), success: true });
+            }
           };
           
           // Définir ce qui se passe en cas d'annulation
@@ -217,12 +233,103 @@ export class TargetingService {
     
     // Limiter le nombre de cibles au nombre demandé
     const finalTargets = filteredTargets.slice(0, count);
-    
+
+    if (!this.validateTargets(source, finalTargets, targetType, availableTargets, effect)) {
+      return {
+        id,
+        targets: [],
+        success: false,
+        error: 'Cibles invalides'
+      };
+    }
+
     return {
       id,
       targets: finalTargets,
       success: true
     };
+  }
+
+  /**
+   * Valide qu'une liste de cibles correspond bien aux critères spécifiés
+   * @param source Carte qui initie l'action
+   * @param targets Cibles sélectionnées
+   * @param targetType Type de ciblage utilisé
+   * @param availableTargets Toutes les cibles possibles
+   * @param effect Effet optionnel contenant des critères supplémentaires
+   */
+  public validateTargets(
+    source: CardInstance,
+    targets: CardInstance[],
+    targetType: TargetType,
+    availableTargets: CardInstance[],
+    effect?: SpellEffect
+  ): boolean {
+    let validTargets: CardInstance[] = [];
+
+    switch (targetType) {
+      case 'self':
+        validTargets = [source];
+        break;
+      case 'opponent':
+        validTargets = availableTargets.filter(t => t.instanceId !== source.instanceId);
+        break;
+      case 'all':
+        validTargets = [...availableTargets];
+        break;
+      case 'tagged':
+        if (!effect?.tagTarget) {
+          return false;
+        }
+        const tagId = parseInt(effect.tagTarget);
+        validTargets = availableTargets.filter(t =>
+          t.activeTags.some(tag => tag.tag.id === tagId)
+        );
+        break;
+      case 'random':
+        validTargets = availableTargets.filter(t => t.instanceId !== source.instanceId);
+        break;
+      case 'manual':
+        validTargets = availableTargets.filter(t => t.instanceId !== source.instanceId);
+        const criteria = effect?.manualTargetingCriteria;
+        if (criteria) {
+          if (criteria.byTag && criteria.byTag.length > 0) {
+            validTargets = validTargets.filter(t =>
+              criteria.byTag!.some(tagId => t.activeTags.some(tag => tag.tag.id === tagId))
+            );
+          }
+          if (criteria.byRarity && criteria.byRarity.length > 0) {
+            validTargets = validTargets.filter(t =>
+              criteria.byRarity!.includes(t.cardDefinition.rarity)
+            );
+          }
+          if (criteria.byHealthPercent) {
+            validTargets = validTargets.filter(t => {
+              const hp = (t.currentHealth / t.maxHealth) * 100;
+              if (criteria.byHealthPercent!.min !== undefined && hp < criteria.byHealthPercent!.min) {
+                return false;
+              }
+              if (criteria.byHealthPercent!.max !== undefined && hp > criteria.byHealthPercent!.max) {
+                return false;
+              }
+              return true;
+            });
+          }
+          if (criteria.excludeTags && criteria.excludeTags.length > 0) {
+            validTargets = validTargets.filter(t =>
+              !criteria.excludeTags!.some(tagId =>
+                t.activeTags.some(tag => tag.tag.id === tagId)
+              )
+            );
+          }
+        }
+        break;
+      default:
+        return false;
+    }
+
+    const validIds = new Set(validTargets.map(t => t.instanceId));
+    return targets.every(t => validIds.has(t.instanceId));
   }
   
   /**
