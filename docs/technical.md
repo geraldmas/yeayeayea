@@ -207,6 +207,14 @@ par `combatLogService`. Les événements sont consultables via le
 composant `CombatLogViewer` qui affiche un historique et des
 notifications.
 
+## Altérations actives
+
+Un composant `ActiveAlterations` complète cette visualisation en affichant les
+buffs et debuffs présents sur chaque personnage. Les altérations sont
+représentées par une icône colorée accompagnée de la durée restante et du
+nombre de cumuls. Lorsqu'une altération expire (gérée par `resetForNextTurn`),
+le badge disparaît automatiquement de la carte.
+
 ## Interface de débug
 
 Une interface de débug (voir tâche 3) permet de modifier en temps réel les
