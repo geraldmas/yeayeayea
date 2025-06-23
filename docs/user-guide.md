@@ -82,6 +82,10 @@ Lors de l'exécution, un des sous-effets est sélectionné selon son poids.
    - Icône
    - Couleur
 
+Une fois en jeu, les altérations actives apparaissent sur chaque personnage
+grâce au composant `ActiveAlterations`. Les icônes indiquent la nature du buff
+ou du debuff, la durée restante et le nombre de cumuls éventuels.
+
 ### 5. Création de Boosters
 
 #### Création d'un Booster
