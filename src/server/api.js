@@ -2,6 +2,8 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const { authenticateToken } = require('./auth');
+const { dailyRewardService } = require('../services/dailyRewardService');
+const { dailyChallengeService } = require('../services/dailyChallengeService');
 require('dotenv').config();
 
 // Create Supabase client
@@ -638,5 +640,66 @@ router.delete('/cards/:id', async (req, res) => {
   } catch (err) {
     console.error('Unexpected error deleting card:', err);
     return res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// ---- Daily Reward Endpoints ----
+router.get('/daily-reward', authenticateToken, async (req, res) => {
+  try {
+    const canClaim = await dailyRewardService.canClaim(req.user.id);
+    res.json({ canClaim });
+  } catch (err) {
+    console.error('Error checking daily reward:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+router.post('/daily-reward/claim', authenticateToken, async (req, res) => {
+  try {
+    const success = await dailyRewardService.claim(req.user.id);
+    if (!success) {
+      return res.status(400).json({ error: 'Reward already claimed' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error claiming daily reward:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+// ---- Daily Challenge Endpoints ----
+router.get('/daily-challenge', authenticateToken, async (req, res) => {
+  try {
+    const challenge = await dailyChallengeService.getChallenge(req.user.id);
+    res.json({ challenge });
+  } catch (err) {
+    console.error('Error fetching daily challenge:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+router.post('/daily-challenge/task/:taskId', authenticateToken, async (req, res) => {
+  try {
+    const success = await dailyChallengeService.completeTask(req.user.id, req.params.taskId);
+    if (!success) {
+      return res.status(400).json({ error: 'Task not found or already completed' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error completing challenge task:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
+});
+
+router.post('/daily-challenge/claim', authenticateToken, async (req, res) => {
+  try {
+    const success = await dailyChallengeService.claimReward(req.user.id);
+    if (!success) {
+      return res.status(400).json({ error: 'Challenge not completed' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error claiming challenge reward:', err);
+    res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
