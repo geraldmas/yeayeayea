@@ -54,4 +54,13 @@ export interface UserAchievement {
     user_id: string;
     achievement_id: number;
     unlocked_at: string;
-} 
+}
+
+export interface GameSave {
+    id: number;
+    user_id: string;
+    state: Json;
+    history: Json;
+    created_at: string;
+    updated_at: string;
+}

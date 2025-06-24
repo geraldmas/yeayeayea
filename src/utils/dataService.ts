@@ -520,3 +520,43 @@ export const debugLogsService = {
     };
   }
 };
+
+export const gameSaveService = {
+  async create(save: Omit<Database['public']['Tables']['game_saves']['Row'], 'id' | 'created_at' | 'updated_at'>): Promise<Database['public']['Tables']['game_saves']['Row']> {
+    const { data, error } = await supabase
+      .from('game_saves')
+      .insert(save)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async getById(id: number): Promise<Database['public']['Tables']['game_saves']['Row'] | null> {
+    const { data, error } = await supabase
+      .from('game_saves')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async getByUser(userId: string): Promise<Database['public']['Tables']['game_saves']['Row'][]> {
+    const { data, error } = await supabase
+      .from('game_saves')
+      .select('*')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: number, update: Partial<Database['public']['Tables']['game_saves']['Row']>) {
+    const { error } = await supabase
+      .from('game_saves')
+      .update(update)
+      .eq('id', id);
+    if (error) throw error;
+  }
+};

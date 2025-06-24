@@ -61,10 +61,16 @@
   .game-board-container {
     height: 80vh;
   }
-  
+
   .test-controls button {
     width: 100%;
     margin-right: 0;
+  }
+
+  .base-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
