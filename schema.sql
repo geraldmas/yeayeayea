@@ -329,6 +329,23 @@ CREATE INDEX idx_debug_logs_severity ON public.debug_logs(severity);
 -- Index pour optimiser les requêtes par date
 CREATE INDEX idx_debug_logs_created_at ON public.debug_logs(created_at);
 
+-- Table des statistiques des utilisateurs
+CREATE TABLE IF NOT EXISTS public.user_stats (
+    user_id uuid PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+    wins integer DEFAULT 0,
+    losses integer DEFAULT 0,
+    card_usage jsonb NOT NULL DEFAULT '{}',
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
+);
+ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_user_stats ON public.user_stats FOR ALL USING (true) WITH CHECK (true);
+
+-- Trigger pour mettre à jour le timestamp de user_stats
+CREATE TRIGGER set_updated_at
+    BEFORE UPDATE ON user_stats
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Fonction pour nettoyer automatiquement les vieux logs
 CREATE OR REPLACE FUNCTION clean_old_logs()
 RETURNS void AS $$
