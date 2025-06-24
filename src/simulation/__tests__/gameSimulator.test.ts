@@ -14,7 +14,10 @@ const { simulationResultsService: mockedService } = jest.requireMock('../../util
 
 describe('simulateGame', () => {
   it('enregistre le resultat dans simulationResultsService', async () => {
-    await simulateGame({ deckId: 'deck1', opponentDeckId: 'deck2' });
+    await simulateGame({ deckId: 'deck1', opponentDeckId: 'deck2', difficulty: 'easy' });
     expect(mockedService.create).toHaveBeenCalledTimes(1);
+    const args = mockedService.create.mock.calls[0][0] as any;
+    expect(args.metadata.difficulty).toBe('easy');
   });
 });
+
