@@ -259,7 +259,7 @@ const GameBoardTest: React.FC = () => {
   };
 
   const Content: React.FC = () => {
-    const { state, nextPhase, nextTurn } = useGameEngine();
+    const { state, nextPhase, nextTurn, saveGame, loadGame, history } = useGameEngine();
 
     const turnActions = [
       { id: 'attack', label: 'Attaquer', cost: 2, onClick: () => console.log('Attaque') },
@@ -331,6 +331,9 @@ const GameBoardTest: React.FC = () => {
           }}>
             Infliger 15 dégâts à la base adverse
           </button>
+          <button onClick={() => saveGame('player1')}>Sauvegarder</button>
+          <button onClick={() => loadGame(1)}>Charger</button>
+          <p>Historique : {history.length} événements</p>
         </div>
       </div>
     </div>
