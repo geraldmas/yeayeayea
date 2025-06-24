@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 jest.useFakeTimers();
 
 jest.mock('../../simulation/gameSimulator', () => ({
-  simulateGame: jest.fn(() => Promise.resolve({ winner: 'a', turns: 1 }))
+  simulateGame: jest.fn(() => Promise.resolve({ winner: 'a', turns: 1, log: [] }))
 }));
 
 import { aiTrainingService } from '../aiTrainingService';
@@ -40,3 +40,4 @@ describe('aiTrainingService', () => {
     expect((simulateGame as jest.Mock).mock.calls.length).toBe(1);
   });
 });
+

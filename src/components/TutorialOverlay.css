@@ -20,6 +20,17 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
+@media (max-width: 480px) {
+  .tutorial-box {
+    width: 90%;
+    padding: 1rem;
+  }
+  .tutorial-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 .tutorial-actions {
   margin-top: 1rem;
   display: flex;

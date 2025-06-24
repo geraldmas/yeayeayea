@@ -2,12 +2,17 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Player, GameState } from '../types/player';
 import { CombatManagerImpl } from '../services/combatService';
 import { TurnService } from '../services/turnService';
+import { combatLogService, CombatLogEvent } from '../services/combatLogService';
+import { gameSaveService } from '../utils/dataService';
 
 interface GameEngineContextValue {
   combat: CombatManagerImpl;
   state: GameState;
   nextPhase: () => void;
   nextTurn: () => void;
+  history: CombatLogEvent[];
+  saveGame: (userId: string) => Promise<void>;
+  loadGame: (saveId: number) => Promise<void>;
 }
 
 const GameEngineContext = createContext<GameEngineContextValue | null>(null);
@@ -20,10 +25,17 @@ interface ProviderProps {
 export const GameEngineProvider: React.FC<ProviderProps> = ({ players, children }) => {
   const [combat] = useState(() => new CombatManagerImpl());
   const [state, setState] = useState<GameState>(() => TurnService.initializeGameState(players));
+  const [history, setHistory] = useState<CombatLogEvent[]>([]);
 
   useEffect(() => {
     setState(TurnService.initializeGameState(players));
   }, [players]);
+
+  useEffect(() => {
+    const handler = (e: CombatLogEvent) => setHistory(prev => [...prev, e]);
+    combatLogService.on(handler);
+    return () => combatLogService.off(handler);
+  }, []);
 
   const nextPhase = () => {
     const phases: GameState['phase'][] = ['draw', 'main', 'combat', 'end'];
@@ -36,8 +48,20 @@ export const GameEngineProvider: React.FC<ProviderProps> = ({ players, children 
     setState(s => TurnService.nextTurn(s));
   };
 
+  const saveGame = async (userId: string) => {
+    await gameSaveService.create({ user_id: userId, state, history });
+  };
+
+  const loadGame = async (saveId: number) => {
+    const save = await gameSaveService.getById(saveId);
+    if (save) {
+      setState(save.state as GameState);
+      setHistory(save.history as CombatLogEvent[]);
+    }
+  };
+
   return (
-    <GameEngineContext.Provider value={{ combat, state, nextPhase, nextTurn }}>
+    <GameEngineContext.Provider value={{ combat, state, nextPhase, nextTurn, history, saveGame, loadGame }}>
       {children}
     </GameEngineContext.Provider>
   );

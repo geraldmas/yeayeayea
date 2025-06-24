@@ -346,6 +346,27 @@ CREATE TRIGGER set_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- Table des sauvegardes de partie
+CREATE TABLE IF NOT EXISTS public.game_saves (
+    id bigserial PRIMARY KEY,
+    user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
+    state jsonb NOT NULL,
+    history jsonb NOT NULL DEFAULT '[]',
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now())
+);
+ALTER TABLE public.game_saves ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_access_game_saves ON public.game_saves FOR ALL USING (true) WITH CHECK (true);
+
+-- Trigger pour mettre à jour le timestamp de game_saves
+CREATE TRIGGER update_game_saves_updated_at
+    BEFORE UPDATE ON game_saves
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Index pour optimiser les requêtes par utilisateur
+CREATE INDEX idx_game_saves_user ON public.game_saves(user_id);
+
 -- Fonction pour nettoyer automatiquement les vieux logs
 CREATE OR REPLACE FUNCTION clean_old_logs()
 RETURNS void AS $$
