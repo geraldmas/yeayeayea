@@ -36,7 +36,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
       break;
     case 'objet':
       // Validation spécifique aux objets
-      if (card.summon_cost < 0) {
+      if (card.summon_cost !== null && card.summon_cost < 0) {
         errors.push('Le coût d\'invocation ne peut pas être négatif pour les objets');
       }
       break;
@@ -47,7 +47,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
       }
       break;
     case 'action':
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push("Le coût d'invocation doit être positif pour les cartes action");
       }
       break;
@@ -57,7 +57,7 @@ export const validateCard = async (card: Card): Promise<string[]> => {
       } else if (!['instantanee', 'temporaire', 'permanente'].includes(card.eventDuration)) {
         errors.push("La durée d'\u00E9vénement doit être 'instantanee', 'temporaire' ou 'permanente'");
       }
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push("Le coût d'invocation doit être positif pour les cartes evenement");
       }
       break;
@@ -68,23 +68,23 @@ export const validateCard = async (card: Card): Promise<string[]> => {
   // Validation du coût en fonction de la rareté
   switch (card.rarity) {
     case 'gros_bodycount':
-      if (card.summon_cost > 3) {
+      if (card.summon_cost !== null && card.summon_cost > 3) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 3 pour la rareté "gros_bodycount"');
       }
       break;
     case 'interessant':
-      if (card.summon_cost > 5) {
+      if (card.summon_cost !== null && card.summon_cost > 5) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 5 pour la rareté "interessant"');
       }
       break;
     case 'banger':
-      if (card.summon_cost > 8) {
+      if (card.summon_cost !== null && card.summon_cost > 8) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 8 pour la rareté "banger"');
       }
       break;
     case 'cheate':
       // Pas de limite stricte pour les cartes "cheate", mais on ajoute une vérification de cohérence
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push('Le coût d\'invocation doit être positif même pour les cartes "cheate"');
       }
       break;
@@ -157,7 +157,7 @@ export const validateCardSync = (card: Card): string[] => {
       break;
     case 'objet':
       // Validation spécifique aux objets
-      if (card.summon_cost < 0) {
+      if (card.summon_cost !== null && card.summon_cost < 0) {
         errors.push('Le coût d\'invocation ne peut pas être négatif pour les objets');
       }
       break;
@@ -168,7 +168,7 @@ export const validateCardSync = (card: Card): string[] => {
       }
       break;
     case 'action':
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push("Le coût d'invocation doit être positif pour les cartes action");
       }
       break;
@@ -178,7 +178,7 @@ export const validateCardSync = (card: Card): string[] => {
       } else if (!['instantanee', 'temporaire', 'permanente'].includes(card.eventDuration)) {
         errors.push("La durée d'\u00E9vénement doit être 'instantanee', 'temporaire' ou 'permanente'");
       }
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push("Le coût d'invocation doit être positif pour les cartes evenement");
       }
       break;
@@ -189,23 +189,23 @@ export const validateCardSync = (card: Card): string[] => {
   // Validation du coût en fonction de la rareté
   switch (card.rarity) {
     case 'gros_bodycount':
-      if (card.summon_cost > 3) {
+      if (card.summon_cost !== null && card.summon_cost > 3) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 3 pour la rareté "gros_bodycount"');
       }
       break;
     case 'interessant':
-      if (card.summon_cost > 5) {
+      if (card.summon_cost !== null && card.summon_cost > 5) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 5 pour la rareté "interessant"');
       }
       break;
     case 'banger':
-      if (card.summon_cost > 8) {
+      if (card.summon_cost !== null && card.summon_cost > 8) {
         errors.push('Le coût d\'invocation ne devrait pas dépasser 8 pour la rareté "banger"');
       }
       break;
     case 'cheate':
       // Pas de limite stricte pour les cartes "cheate", mais on ajoute une vérification de cohérence
-      if (card.summon_cost <= 0) {
+      if (card.summon_cost === null || card.summon_cost <= 0) {
         errors.push('Le coût d\'invocation doit être positif même pour les cartes "cheate"');
       }
       break;

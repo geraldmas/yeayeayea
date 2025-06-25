@@ -108,6 +108,20 @@ export interface Tag {
   updated_at?: string;
 }
 
+/**
+ * Maps card IDs to their loaded tags used in the application state.
+ */
+export interface LoadedTagsMap {
+  [cardId: number]: { id: number; name: string; passive_effect: string | null }[];
+}
+
+/**
+ * Maps card IDs to their loaded spells used in the application state.
+ */
+export interface LoadedSpellsMap {
+  [cardId: number]: { id: number; name: string; description: string | null; effects: any[]; is_value_percentage: boolean }[];
+}
+
 export type Rarity = 'gros_bodycount' | 'interessant' | 'banger' | 'cheate';
 
 export interface Card {
@@ -115,7 +129,7 @@ export interface Card {
   name: string;
   description: string | null;
   type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action';
-  rarity: Rarity | string;
+  rarity: Rarity;
   /**
    * Pour les cartes "evenement", indique la durée de l’effet
    * - "instantanee" : effet appliqué une seule fois
@@ -132,6 +146,10 @@ export interface Card {
   passive_effect: string | null;
   is_wip: boolean;
   is_crap: boolean;
+  /** Tags fully loaded when cards are fetched with their relations */
+  tags?: Tag[];
+  /** Spells fully loaded when cards are fetched with their relations */
+  spells?: Spell[];
 }
 
 export interface CardFrontend extends Omit<Card, 'passive_effect' | 'is_wip' | 'is_crap' | 'summon_cost'> {
@@ -139,8 +157,8 @@ export interface CardFrontend extends Omit<Card, 'passive_effect' | 'is_wip' | '
   isWIP: boolean;
   isCrap: boolean;
   summonCost: number | null;
-  spells?: number[];
-  tags?: number[];
+  spells?: Spell[];
+  tags?: Tag[];
 }
 
 export interface CardSpell {

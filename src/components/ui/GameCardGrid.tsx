@@ -1,19 +1,7 @@
 import React from 'react';
 import GameCard, { CardType, CardRarity } from './GameCard';
+import { Card } from '../../types';
 import './GameCardGrid.css';
-
-interface Card {
-  id: number | string;
-  name: string;
-  type: CardType;
-  rarity: CardRarity;
-  description?: string;
-  image?: string;
-  summon_cost?: number;
-  properties?: any;
-  is_wip?: boolean;
-  is_crap?: boolean;
-}
 
 interface GameCardGridProps {
   cards: Card[];
@@ -68,9 +56,9 @@ const GameCardGrid: React.FC<GameCardGridProps> = ({
                 name={card.name}
                 type={card.type}
                 rarity={card.rarity}
-                image={card.image}
-                description={card.description}
-                summonCost={card.summon_cost}
+                image={card.image || undefined}
+                description={card.description || undefined}
+                summonCost={card.summon_cost ?? undefined}
                 health={card.properties?.health || card.properties?.pv}
                 isWip={card.is_wip}
                 isCrap={card.is_crap}
