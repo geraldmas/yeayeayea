@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Player, CharismeModifier } from "../types";
+import type { Player, CharismeModifier } from "../types/index";
 import { getModifiedMaxCharisme } from "../utils/charismeService";
 import "./CharismeDisplay.css";
 
