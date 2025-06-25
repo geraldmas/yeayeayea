@@ -1,61 +1,209 @@
-# TODO
+# TODO - Yeayeayea
 
-## 🔥 Critique
-- [x] Intégrer le système de charisme dans le **CombatService** (gain à la défaite, dépense à l'invocation)
-- [x] Relier le **TargetingService** à une interface de sélection manuelle dans React
-- [x] Implémenter la réduction des dégâts subis par la base (division par deux configurable)
-- [x] Permettre la vente d'objets contre du charisme en tenant compte des modificateurs
-- [x] Introduire la classification des cartes **Événement** (instantanée, temporaire, permanente)
+## 🚨 URGENT (Test rapide du jeu)
+- [ ] **Bouton DEBUG pour obtenir des boosters** (admin uniquement)
+  - Interface simple dans le panneau de debug pour donner des boosters
+  - Intégration avec l'API `/api/users/:userId/grant-booster`
+  - Bouton pour ouvrir les boosters obtenus
+- [ ] **Interface d'ouverture de boosters** fonctionnelle
+  - Composant pour afficher les cartes obtenues
+  - Animation d'ouverture de booster
+  - Ajout automatique des cartes à l'inventaire du joueur
+- [ ] **UI de combat complète et fonctionnelle**
+  - Interface de jeu responsive et intuitive
+  - Gestion des tours et phases de jeu
+  - Affichage des ressources (motivation, charisme)
+  - Boutons d'action clairs (attaquer, jouer une carte, etc.)
 
-## 🚀 Prioritaire
-- [ ] Créer un panneau de débug pour modifier en temps réel la configuration via `gameConfigService`
-  - Permettre l'édition directe des valeurs `max_personnages`, `emplacements_objet`, `budget_motivation_initial` et `pv_base_initial`
-  - Afficher les paramètres courants et enregistrer les modifications dans Supabase
-- [x] Ajouter des tests unitaires pour `CombatManager` et `TagRuleParserService`
-- [ ] Finaliser la gestion de la motivation et de la base du joueur pendant le combat
-  - Utiliser `MotivationService.renewMotivation` à chaque début de tour
-  - Intégrer `PlayerBaseService` pour appliquer dégâts et soins sur la base des joueurs
-- [ ] Utiliser `gameConfigService` pour initialiser `max_personnages` et `pv_base_initial`
-  - Charger les valeurs au démarrage du combat et lors des changements de configuration
-- [x] Ajouter des tests pour `PlayerBaseService` (dégâts, soins et altérations)
+## 🔥 Critique (Mécaniques de base)
+- [ ] **Système de combat fonctionnel** avec UI
+  - Intégration complète de `CombatService` avec l'interface
+  - Gestion des tours avec `TurnService`
+  - Affichage des dégâts et soins en temps réel
+  - Résolution des actions avec feedback visuel
+- [ ] **Gestion des cartes en main** et sur le terrain
+  - Drag & drop pour jouer les cartes
+  - Emplacements visuels pour personnages et objets
+  - Affichage des statistiques des cartes en jeu
+- [x] **Système de motivation** avec interface
+  - Barre de motivation visible et interactive
+  - Coût des actions affiché clairement
+  - Renouvellement automatique à chaque tour
 
-## ⚡ Moyen terme
-- [x] Esquisser un module de simulation de parties et stocker les résultats avec `simulationResultsService`
-- [x] Documenter le moteur de règles et l'interface de débug dans `docs/technical.md`
-- [ ] Afficher les synergies actives lors des combats (tooltips ou logs)
-  - Utiliser `tagRuleParser` pour identifier les effets déclenchés et les consigner via `combatLogService`
-- [ ] Mettre en place un système d'entraînement de l'IA basé sur les simulations
-  - Exécuter régulièrement `simulateGame` pour collecter des métriques et ajuster les stratégies IA
-- [x] Documenter un exemple de configuration JSON des synergies dans `cahierdescharges.md`
+## 🚀 Prioritaire (Expérience de jeu)
+- [ ] **Interface de gestion de deck** complète
+  - Sélection des cartes pour construire un deck
+  - Validation des règles de deck (taille, raretés)
+  - Sauvegarde et chargement des decks
+- [x] **Système de charisme** avec interface
+  - Affichage du charisme actuel
+  - Boutons pour dépenser le charisme (invoquer, acheter)
+  - Gain de charisme lors des combats
+- [ ] **Mécaniques de base** (personnages, objets, lieux)
+  - Invocation de personnages avec coût en charisme
+  - Équipement d'objets sur les personnages
+  - Effets des cartes lieu actives
+- [x] **Système de ciblage** fonctionnel
+  - Ciblage automatique pour les actions simples
+  - Interface de ciblage manuel pour les actions complexes
+  - Validation des cibles selon les règles
 
-## 🌱 Améliorations
-- [ ] Optimiser l'interface mobile pour les petits écrans
-  - Revoir la grille des cartes et l'affichage du GameBoard pour < 600px
-- [ ] Nettoyer le code mort et les commentaires obsolètes
-  - Passer en revue les services et composants non utilisés
-- [x] Ajouter la possibilité de vendre ses objets depuis l'interface de gestion de deck
-  - Connecter l'UI à `PlayerInventoryService.sellItem` et mettre à jour le charisme du joueur en temps réel
-- [ ] Mettre en place l'affichage des réalisations des joueurs
-  - Exploiter les tables `achievements` et `user_achievements` pour suivre la progression
+## ⚡ Moyen terme (Améliorations importantes)
+- [x] **Synergies et interactions** visuelles
+  - Affichage des synergies actives avec `SynergyIndicator`
+  - Prévisualisation des effets avant action
+  - Log des interactions pendant le combat
+- [x] **Système d'altérations** avec interface
+  - Affichage des buffs/debuffs actifs
+  - Application des effets visuellement
+  - Gestion de la durée des altérations
+- [x] **Animations et feedback** visuel
+  - Animations pour les actions importantes
+  - Effets sonores pour les interactions
+  - Indicateurs visuels pour les états spéciaux
+- [ ] **Mode solo contre IA** basique
+  - IA simple qui joue automatiquement
+  - Différents niveaux de difficulté
+  - Feedback sur les actions de l'IA
 
-## 🎮 Gameplay
-- [ ] Implémenter un système de tutoriel interactif
-  - Créer des scénarios guidés pour expliquer les mécaniques de base
-  - Ajouter des tooltips contextuels pour les nouvelles fonctionnalités
-- [ ] Ajouter des effets visuels pour les interactions importantes
-  - Animer les dégâts et soins sur la base
-  - Visualiser les synergies actives entre les cartes
-- [ ] Créer un système de récompenses quotidiennes
-  - Offrir du charisme et des objets bonus pour encourager la connexion régulière
-  - Mettre en place des défis quotidiens avec des récompenses spéciales
+## 🌱 Améliorations (Polish et optimisation)
+- [x] **Interface mobile** optimisée
+  - Design responsive pour les petits écrans
+  - Contrôles tactiles optimisés
+  - Navigation adaptée au mobile
+- [x] **Système de tutoriel** interactif
+  - Guide étape par étape des mécaniques
+  - Exemples pratiques avec des cartes de test
+  - Possibilité de sauter le tutoriel
+- [ ] **Sauvegarde et chargement** de parties
+  - Sauvegarde automatique de l'état de jeu
+  - Reprise de partie interrompue
+  - Historique des parties jouées
+- [ ] **Statistiques et progression**
+  - Suivi des victoires/défaites
+  - Statistiques d'utilisation des cartes
+  - Déblocage de nouvelles fonctionnalités
 
-## 🔧 Technique
-- [ ] Optimiser les performances du moteur de combat
-  - Réduire la complexité des calculs de synergies
-  - Mettre en cache les résultats des règles fréquemment utilisées
-- [ ] Améliorer la gestion des erreurs
-  - Ajouter des logs détaillés pour le débogage
-  - Implémenter un système de récupération après crash
-- [ ] Mettre en place des tests de charge
-  - Simuler des parties avec de nombreuses cartes et effets
-  - Identifier et résoudre les goulots d'étranglement
+## 🎮 Gameplay (Expérience utilisateur)
+- [x] **Système de récompenses** quotidiennes
+  - Connexion quotidienne récompensée
+  - Défis quotidiens avec récompenses
+  - Progression du joueur
+- [ ] **Collection de cartes** avec interface
+  - Galerie de toutes les cartes obtenues
+  - Filtres par type, rareté, tags
+  - Statistiques de collection
+- [ ] **Mode multijoueur** basique
+  - Matchmaking simple
+  - Parties en temps réel
+  - Chat basique entre joueurs
+
+## 🔧 Technique (Architecture et performance)
+- [x] **Tests de charge** du moteur de combat
+  - Simulation de parties avec nombreuses cartes
+  - Optimisation des calculs de synergies
+  - Gestion de la mémoire pour les longues parties
+- [x] **Système de récupération** après erreurs
+  - Gestion gracieuse des crashes
+  - Sauvegarde automatique de l'état
+  - Logs détaillés pour le débogage
+- [x] **Optimisation des performances**
+  - Cache des règles fréquemment utilisées
+  - Lazy loading des composants
+  - Optimisation des requêtes base de données
+
+## 📊 Analytics et Monitoring
+- [ ] **Métriques de gameplay** basiques
+  - Temps de partie moyen
+  - Cartes les plus utilisées
+  - Taux de victoire par deck
+- [ ] **Système de reporting** simple
+  - Rapports sur l'équilibre des cartes
+  - Alertes pour les bugs fréquents
+  - Statistiques d'utilisation
+
+---
+
+## ✅ Terminé (Archives)
+
+### 🔥 Critique (Terminé)
+- [x] **Système de charisme** intégré dans `CombatService`
+  - Gain à la défaite des personnages selon la rareté
+  - Dépense pour l'invocation de nouveaux personnages
+- [x] **Ciblage manuel** relié à l'interface React
+  - `TargetingService` connecté à `ManualTargetSelector`
+  - Interface de sélection de cibles fonctionnelle
+- [x] **Réduction des dégâts** sur la base (division par deux configurable)
+  - Implémenté dans `PlayerBaseService`
+  - Coefficient ajustable via configuration
+- [x] **Vente d'objets** contre du charisme
+  - `PlayerInventoryService.sellItem` fonctionnel
+  - Modificateurs de valeur pris en compte
+- [x] **Classification des cartes Événement** (instantanée, temporaire, permanente)
+  - Système de classification implémenté
+  - Gestion des différents types d'événements
+
+### 🚀 Prioritaire (Terminé)
+- [x] **Panneau de debug** pour la configuration en temps réel
+  - Interface pour modifier `max_personnages`, `emplacements_objet`, etc.
+  - Intégration avec `gameConfigService`
+  - Sauvegarde automatique dans Supabase
+- [x] **Tests unitaires** pour les services critiques
+  - `CombatManager` et `TagRuleParserService` testés
+  - Couverture de test satisfaisante
+- [x] **Gestion de la motivation** et de la base pendant le combat
+  - `MotivationService.renewMotivation` à chaque tour
+  - `PlayerBaseService` pour les dégâts et soins
+- [x] **Configuration via `gameConfigService`**
+  - `max_personnages` et `pv_base_initial` chargés au démarrage
+  - Mise à jour dynamique lors des changements
+
+### ⚡ Moyen terme (Terminé)
+- [x] **Module de simulation** de parties
+  - `simulateGame` fonctionnel
+  - Stockage des résultats avec `simulationResultsService`
+- [x] **Documentation technique** du moteur de règles
+  - `docs/technical.md` mis à jour
+  - Exemples de configuration JSON documentés
+- [x] **Affichage des synergies** actives
+  - `SynergyIndicator` avec tooltips
+  - Intégration avec `combatLogService`
+- [x] **Système d'entraînement IA** basé sur les simulations
+  - `aiTrainingService` fonctionnel
+  - Collecte de métriques et ajustement des stratégies
+
+### 🌱 Améliorations (Terminé)
+- [x] **Interface mobile** optimisée
+  - GameBoard responsive pour < 600px
+  - Grille des cartes adaptée aux petits écrans
+- [x] **Nettoyage du code** mort
+  - Suppression des composants obsolètes
+  - Commentaires et code inutilisé supprimés
+- [x] **Vente d'objets** depuis l'interface
+  - UI connectée à `PlayerInventoryService`
+  - Mise à jour en temps réel du charisme
+- [x] **Système de réalisations** des joueurs
+  - Tables `achievements` et `user_achievements` exploitées
+  - Suivi de la progression des joueurs
+
+### 🎮 Gameplay (Terminé)
+- [x] **Tutoriel interactif**
+  - Scénarios guidés pour les mécaniques de base
+  - Tooltips contextuels pour les nouvelles fonctionnalités
+- [x] **Effets visuels** pour les interactions importantes
+  - Animations des dégâts et soins sur la base
+  - Visualisation des synergies actives
+- [x] **Système de récompenses quotidiennes**
+  - Charisme et objets bonus pour la connexion régulière
+  - Défis quotidiens avec récompenses spéciales
+
+### 🔧 Technique (Terminé)
+- [x] **Optimisation des performances** du moteur de combat
+  - Réduction de la complexité des calculs de synergies
+  - Cache des résultats des règles fréquemment utilisées
+- [x] **Gestion des erreurs** améliorée
+  - Logs détaillés pour le débogage
+  - Système de récupération après crash
+- [x] **Tests de charge** mis en place
+  - Simulation de parties avec de nombreuses cartes
+  - Identification et résolution des goulots d'étranglement
