@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Player, GameState } from '../types/player';
+import type { Player, GameState, Json } from '../types';
 import { CombatManagerImpl } from '../services/combatService';
 import { TurnService } from '../services/turnService';
 import { combatLogService, CombatLogEvent } from '../services/combatLogService';
@@ -49,14 +49,14 @@ export const GameEngineProvider: React.FC<ProviderProps> = ({ players, children 
   };
 
   const saveGame = async (userId: string) => {
-    await gameSaveService.create({ user_id: userId, state, history });
+    await gameSaveService.create({ user_id: userId, state: state as unknown as Json, history: history as unknown as Json });
   };
 
   const loadGame = async (saveId: number) => {
     const save = await gameSaveService.getById(saveId);
     if (save) {
-      setState(save.state as GameState);
-      setHistory(save.history as CombatLogEvent[]);
+      setState(save.state as unknown as GameState);
+      setHistory(save.history as unknown as CombatLogEvent[]);
     }
   };
 

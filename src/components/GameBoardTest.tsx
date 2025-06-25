@@ -3,6 +3,7 @@ import GameBoard from './GameBoard';
 import { Card, Tag, Spell, Rarity } from '../types';
 import { CardInstance, TagInstance, SpellInstance, ActiveAlteration } from '../types/combat';
 import { PlayerBase } from '../types/player';
+import type { Player } from '../types';
 import { createPlayerBase } from '../services/PlayerBaseService';
 import { GameEngineProvider, useGameEngine } from '../contexts/GameEngineContext';
 import TurnTracker from './TurnTracker';
@@ -165,7 +166,18 @@ const GameBoardTest: React.FC = () => {
       deck: [],
       discard: [],
       motivation: 10,
+      baseMotivation: 10,
+      motivationModifiers: [],
+      movementPoints: 0,
+      points: 0,
+      activeCard: null,
+      benchCards: [],
+      inventory: [],
+      effects: [],
       charisme: 0,
+      baseCharisme: 0,
+      maxCharisme: 0,
+      charismeModifiers: [],
       getAllEntities: () => [...playerCharacters, ...playerObjects],
       hasLost: () => playerBaseInstance.currentHealth <= 0
     },
@@ -179,11 +191,22 @@ const GameBoardTest: React.FC = () => {
       deck: [],
       discard: [],
       motivation: 10,
+      baseMotivation: 10,
+      motivationModifiers: [],
+      movementPoints: 0,
+      points: 0,
+      activeCard: null,
+      benchCards: [],
+      inventory: [],
+      effects: [],
       charisme: 0,
+      baseCharisme: 0,
+      maxCharisme: 0,
+      charismeModifiers: [],
       getAllEntities: () => [...opponentCharacters, ...opponentObjects],
       hasLost: () => opponentBaseInstance.currentHealth <= 0
     }
-  ], [playerBaseInstance, opponentBaseInstance, playerCharacters, playerObjects, opponentCharacters, opponentObjects]);
+  ] as unknown as Player[], [playerBaseInstance, opponentBaseInstance, playerCharacters, playerObjects, opponentCharacters, opponentObjects]);
   
   // Gestion du glisser-déposer des cartes
   const handleCardDrop = (cardId: number, zone: string, slot?: number) => {

@@ -1,7 +1,7 @@
 import { TargetingService, TargetingResult, ManualTargetingCallback } from '../targetingService';
 import { CardInstanceImpl } from '../combatService';
 import { CardInstance, TargetingCriteria } from '../../types/combat';
-import { Card, SpellEffect, Tag } from '../../types/index';
+import { Card, SpellEffect, Tag, Rarity } from '../../types/index';
 
 // Mock pour gameConfigService
 jest.mock('../../utils/dataService', () => ({
@@ -24,7 +24,13 @@ describe('TargetingService', () => {
   let allCards: CardInstance[];
   
   // Créer des cartes fictives pour les tests
-  const createMockCard = (id: number, name: string, type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action' = 'personnage', rarity: string = 'interessant', health: number = 10): Card => ({
+  const createMockCard = (
+    id: number,
+    name: string,
+    type: 'personnage' | 'objet' | 'evenement' | 'lieu' | 'action' = 'personnage',
+    rarity: Rarity = 'interessant',
+    health: number = 10
+  ): Card => ({
     id,
     name,
     type,

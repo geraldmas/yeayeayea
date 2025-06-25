@@ -16,7 +16,11 @@ jest.mock('../utils/dataService', () => ({
 }));
 
 // Mock pour une altération de test
-const createMockAlteration = (id: number, stackable: boolean = false, duration: number | undefined = undefined): Alteration => {
+const createMockAlteration = (
+  id: number,
+  stackable: boolean = false,
+  duration: number | undefined = undefined
+): Alteration => {
   return {
     id,
     name: `Altération test ${id}`,
@@ -24,8 +28,9 @@ const createMockAlteration = (id: number, stackable: boolean = false, duration: 
     type: 'buff',
     stackable,
     unique_effect: false,
-    duration,
-    effect: {}
+    duration: duration ?? null,
+    effect: {},
+    icon: ''
   };
 };
 

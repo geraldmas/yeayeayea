@@ -14,6 +14,8 @@ export interface User {
     experience_points: number;
     level: number;
     currency: number;
+    /** Indicates if the user has administrator privileges */
+    is_admin: boolean;
     settings: Json;
     created_at: string;
     last_login: string | null;
