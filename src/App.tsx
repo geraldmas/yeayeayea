@@ -21,6 +21,7 @@ import Achievements from './components/Achievements';
 import InventoryPage from './components/InventoryPage';
 import BoosterOpening from './components/BoosterOpening';
 import DeckBuilder from './components/DeckBuilder';
+import CardCreator from './components/CardCreator';
 import { supabase } from './utils/supabaseClient';
 
 // Import de nos nouveaux composants UI
@@ -431,6 +432,9 @@ const AppContent: React.FC = () => {
                 <button className="btn btn-primary btn-lg" onClick={() => navigate('/cards')}>
                   Éditer une carte
                 </button>
+                <button className="btn btn-outline btn-lg" onClick={() => navigate('/create-card')}>
+                  Nouvelle carte
+                </button>
                 <button className="btn btn-outline btn-lg" onClick={() => navigate('/browser')}>
                   Parcourir les cartes
                 </button>
@@ -523,9 +527,12 @@ const AppContent: React.FC = () => {
               onSpellIdsChange={setSpellIds}
               onTagIdsChange={setTagIds}
             />
-          </div>
-        } />
-        
+        </div>
+      } />
+
+        {/* Création rapide de carte */}
+        <Route path="/create-card" element={<CardCreator />} />
+
         {/* Explorateur de cartes */}
         <Route path="/browser" element={
           <CardBrowser
